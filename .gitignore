@@ -10,3 +10,4 @@ build/
 .gradle/
 web-app/
 *.zip
+plugin.xml
