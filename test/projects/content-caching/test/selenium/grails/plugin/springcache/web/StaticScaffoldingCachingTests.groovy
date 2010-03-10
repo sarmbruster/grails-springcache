@@ -12,8 +12,10 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 	Ehcache albumControllerCache
 
 	void tearDown() {
-		Album.list()*.delete()
-		Artist.list()*.delete()
+		Album.withTransaction {
+			Album.list()*.delete()
+			Artist.list()*.delete()
+		}
 		super.tearDown()
 	}
 
