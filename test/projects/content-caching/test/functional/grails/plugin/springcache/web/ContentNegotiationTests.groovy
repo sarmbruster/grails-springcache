@@ -15,7 +15,10 @@ class ContentNegotiationTests extends FunctionalTestCase {
 	void setUp() {
 		super.setUp()
 
-		baseURL = "http://localhost:8080"
+		def port = System.properties."server.port" ?: "8080"
+		baseURL = "http://localhost:$port"
+
+		javaScriptEnabled = false
 
 		Album.withTransaction { tx ->
 			def artist = Artist.build(name: "The Cure")
