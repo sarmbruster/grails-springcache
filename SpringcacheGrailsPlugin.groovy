@@ -70,8 +70,8 @@ class SpringcacheGrailsPlugin {
 
 			springcacheDefaultCache(EhCacheFactoryBean) { bean ->
 				bean."abstract" = true
+				cacheManager = ref("springcacheCacheManager")
 				application.config.springcache.defaults.each {
-					cacheManager = ref("springcacheCacheManager")
 					bean.setPropertyValue it.key, it.value
 				}
 			}
