@@ -134,6 +134,7 @@ class SpringcacheService implements ApplicationContextAware {
 			if (autoCreateCaches) {
 				log.warn "Cache '$name' does not exist. Creating it now..."
 				cache = createNewCacheWithDefaults(name)
+				springcacheCacheManager.addCache(cache)
 			} else {
 				log.error "Cache '$name' does not exist."
 				throw new NoSuchCacheException(name)
