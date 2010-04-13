@@ -15,8 +15,8 @@
  */
 package grails.plugin.springcache
 
-import grails.spring.BeanBuilder
 import grails.test.GrailsUnitTestCase
+import net.sf.ehcache.Cache
 import net.sf.ehcache.CacheManager
 import net.sf.ehcache.Ehcache
 import net.sf.ehcache.Element
@@ -24,26 +24,31 @@ import net.sf.ehcache.constructs.blocking.BlockingCache
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import org.gmock.WithGMock
 import org.hamcrest.Matcher
-import org.springframework.context.ApplicationContext
 import static org.hamcrest.Matchers.*
+
+import org.springframework.cache.ehcache.EhCacheFactoryBean
+import grails.spring.BeanBuilder
 
 @WithGMock
 class SpringcacheServiceTests extends GrailsUnitTestCase {
 
+	CacheManager manager
 	SpringcacheService service
 
 	void setUp() {
 		super.setUp()
 
+		manager = new CacheManager()
+		manager.addCache "cache1"
+		manager.addCache "cache2"
+
 		mockLogging SpringcacheService, true
-		service = new SpringcacheService()
-		service.springcacheCacheManager = mock(CacheManager) {
-			cacheNames.returns(["cache1", "cache2", "cacheA", "cacheB"] as String[]).stub()
-		}
+		service = new SpringcacheService(springcacheCacheManager: manager)
 	}
 
 	void tearDown() {
 		super.tearDown()
+		manager.removalAll()
 	}
 
 	/**
@@ -71,268 +76,230 @@ class SpringcacheServiceTests extends GrailsUnitTestCase {
 		)
 	}
 
+	/**
+	 * Creates a matcher that matches an Ehcache instance with the specified name and config properties.
+	 */
+	static Matcher<Ehcache> cacheNamed(String name) {
+		allOf(
+				instanceOf(Ehcache),
+				hasProperty("name", equalTo(name))
+		)
+	}
+
 	void testFlushAcceptsIndividualCacheNames() {
-		def mockCache = mock(Ehcache) {
-			flush()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			service.flush("cache1")
-		}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+		manager.getEhcache("cache2").put(new Element("key", "value"))
+
+		service.flush("cache1")
+
+		assertEquals "cache1 size", 0, manager.getEhcache("cache1").size
+		assertEquals "cache2 size", 1, manager.getEhcache("cache2").size
 	}
 
 	void testFlushAcceptsMultipleCacheNames() {
-		def mockCache1 = mock(Ehcache) {
-			flush()
-		}
-		def mockCache2 = mock(Ehcache) {
-			flush()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache1)
-		service.springcacheCacheManager.getEhcache("cache2").returns(mockCache2)
-		play {
-			service.flush(["cache1", "cache2"])
-		}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+		manager.getEhcache("cache2").put(new Element("key", "value"))
+
+		service.flush(["cache1", "cache2"])
+
+		assertEquals "cache1 size", 0, manager.getEhcache("cache1").size
+		assertEquals "cache2 size", 0, manager.getEhcache("cache2").size
 	}
 
 	void testFlushAcceptsCacheNamePatterns() {
-		def mockCache1 = mock(Ehcache) {
-			flush()
-		}
-		def mockCache2 = mock(Ehcache) {
-			flush()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache1)
-		service.springcacheCacheManager.getEhcache("cache2").returns(mockCache2)
-		play {
-			service.flush(/cache[\d]/)
-		}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+		manager.getEhcache("cache2").put(new Element("key", "value"))
+
+		service.flush(/cache[\d]/)
+
+		assertEquals "cache1 size", 0, manager.getEhcache("cache1").size
+		assertEquals "cache2 size", 0, manager.getEhcache("cache2").size
 	}
 
 	void testFlushIgnoresInvalidCacheNames() {
-		play {
-			service.flush("cacheZ")
-		}
+		service.flush("cacheZ")
 	}
 
 	void testExceptionsOnFlushAreHandled() {
-		def mockCache1 = mock(Ehcache) {
-			flush().raises(new IllegalStateException("this would happen if cache was not alive"))
-		}
-		def mockCache2 = mock(Ehcache) {
-			flush()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache1)
-		service.springcacheCacheManager.getEhcache("cache2").returns(mockCache2)
-		play {
-			service.flush(["cache1", "cache2"])
-		}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+		manager.getEhcache("cache1").disabled = true
+		manager.getEhcache("cache2").put(new Element("key", "value"))
+
+		service.flush(["cache1", "cache2"])
+
+		fail "Not testing properly"
+		assertEquals "cache2 size", 0, manager.getEhcache("cache2").size
 	}
 
 	void testFlushAllFlushesEverything() {
-		["1", "2", "A", "B"].each {
-			def mockCache = mock(Ehcache) {
-				flush()
-			}
-			service.springcacheCacheManager.getEhcache("cache$it").returns(mockCache)
-		}
-		play {
-			service.flushAll()
-		}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+		manager.getEhcache("cache2").put(new Element("key", "value"))
+
+		service.flushAll()
+
+		assertEquals "cache1 size", 0, manager.getEhcache("cache1").size
+		assertEquals "cache2 size", 0, manager.getEhcache("cache2").size
 	}
 
 	void testClearStatistics() {
-		["1", "2", "A", "B"].each {
-			def mockCache = mock(Ehcache) {
-				clearStatistics()
-			}
-			service.springcacheCacheManager.getEhcache("cache$it").returns(mockCache)
+		["cache1", "cache2"].each { cacheName ->
+			manager.getEhcache(cacheName).get("key")
+			manager.getEhcache(cacheName).put(new Element("key", "value"))
+			manager.getEhcache(cacheName).get("key")
 		}
-		play {
-			service.clearStatistics()
-		}
+
+		service.clearStatistics()
+
+		assertEquals "cache1 hit count", 0, manager.getEhcache("cache1").statistics.cacheHits
+		assertEquals "cache1 miss count", 0, manager.getEhcache("cache1").statistics.cacheMisses
+		assertEquals "cache2 hit count", 0, manager.getEhcache("cache2").statistics.cacheHits
+		assertEquals "cache2 miss count", 0, manager.getEhcache("cache2").statistics.cacheMisses
 	}
 
 	void testWithCacheRetrievesValueFromCacheIfFound() {
-		def mockCache = mock(Ehcache) {
-			get("key").returns(new Element("key", "value"))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertEquals "value", service.doWithCache("cache1", "key") {
-				fail "Closure should not have been invoked"
-			}
+		manager.getEhcache("cache1").put(new Element("key", "value"))
+
+		assertEquals "value", service.doWithCache("cache1", "key") {
+			fail "Closure should not have been invoked"
 		}
 	}
 
 	void testWithCacheReturnsNullIfNullFoundInCache() {
-		def mockCache = mock(Ehcache) {
-			get("key").returns(new Element("key", null))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertNull service.doWithCache("cache1", "key") {
-				fail "Closure should not have been invoked"
-			}
+		manager.getEhcache("cache1").put(new Element("key", null))
+
+		assertNull service.doWithCache("cache1", "key") {
+			fail "Closure should not have been invoked"
 		}
 	}
 
 	void testWithCacheStoresValueReturnedByClosureIfNotFound() {
-		def mockCache = mock(Ehcache) {
-			get("key").returns(null)
-			put(element("key", "value"))
-			name.returns("cache1").stub()
+		assertEquals "value", service.doWithCache("cache1", "key") {
+			return "value"
 		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertEquals "value", service.doWithCache("cache1", "key") {
-				return "value"
-			}
-		}
+
+		assertEquals "cache1 size", 1, manager.getEhcache("cache1").size
+		assertEquals "cache1 value for key", "value", manager.getEhcache("cache1").get("key").objectValue
 	}
 
 	void testWithCacheStoresValueReturnedByClosureIfCacheElementExpired() {
-		def mockElement = mock(Element) {
-			isExpired().returns(true)
+		def element = new Element("key", "value")
+		element.timeToLive = 1
+		manager.getEhcache("cache1").put(element)
+		while (!element.isExpired()) {
+			Thread.sleep 250
 		}
-		def mockCache = mock(Ehcache) {
-			get("key").returns(mockElement)
-			put(element("key", "value"))
-			name.returns("cache1").stub()
+
+		assertEquals "value", service.doWithCache("cache1", "key") {
+			return "value"
 		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertEquals "value", service.doWithCache("cache1", "key") {
-				return "value"
-			}
-		}
+
+		assertEquals "value for key", "value", manager.getEhcache("cache1").get("key").objectValue
+		assertFalse "key should not be expired", manager.getEhcache("cache1").get("key").isExpired()
 	}
 
-	void testWithCacheStoresNullPlaceholderIfClosureReturnsNull() {
-		def mockElement = mock(Element) {
-			isExpired().returns(true)
+	void testWithCacheStoresNullIfClosureReturnsNull() {
+		assertNull service.doWithCache("cache1", "key") {
+			return null
 		}
-		def mockCache = mock(Ehcache) {
-			get("key").returns(mockElement)
-			put(element("key", null))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertNull service.doWithCache("cache1", "key") {
-				return null
-			}
-		}
+
+		assertTrue "cache1 should contain key", manager.getEhcache("cache1").isKeyInCache("key")
+		assertNull "value for key", manager.getEhcache("cache1").get("key").objectValue
 	}
 
 	void testWithCacheThrowsExceptionIfCacheNotFoundAndAutoCreateIsFalse() {
-		service.springcacheCacheManager.getEhcache("cache1").returns(null)
-		play {
-			service.autoCreateCaches = false
-			shouldFail(NoSuchCacheException) {
-				assertEquals "value", service.doWithCache("cache1", "key") {
-					fail "Closure should not have been invoked"
-				}
+		service.autoCreateCaches = false
+
+		shouldFail(NoSuchCacheException) {
+			service.doWithCache("cacheA", "key") {
+				fail "Closure should not have been invoked"
 			}
 		}
 	}
 
 	void testWithCacheCreatesNewCacheIfCacheNotFoundAndAutoCreateIsTrue() {
-		def mockCache = mock(Ehcache) {
-			get("key").returns(null)
-			put(element("key", "value"))
-			name.returns("cache1").stub()
+		def beanBuilder = new BeanBuilder()
+		beanBuilder.beans {
+			springcacheDefaultCache(EhCacheFactoryBean) { bean ->
+				bean."abstract" = true
+				cacheManager = manager
+			}
 		}
-		def mockApplicationContext = mock(ApplicationContext) {
-			getBean("cache1").returns(mockCache)
+		service.applicationContext = beanBuilder.createApplicationContext()
+		service.autoCreateCaches = true
+
+		service.doWithCache("cacheA", "key") {
+			return "value"
 		}
-		mock(BeanBuilder, constructor(anything())) {
-			beans(anything())
-			createApplicationContext().returns(mockApplicationContext)
+
+		assertTrue "cacheA should exist", "cacheA" in manager.cacheNames
+		assertEquals "value for key", "value", manager.getEhcache("cacheA").get("key").objectValue
+	}
+
+	void testWithBlockingCacheDoesNotDecorateCacheIfItIsABlockingCacheAlready() {
+		def blockingCache = new BlockingCache(new Cache("blockingCache", 1, false, false, 1, 0))
+		manager.addCache(blockingCache)
+
+		assertEquals "value", service.doWithBlockingCache("blockingCache", "key") {
+			return "value"
 		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(null)
-		play {
-			service.autoCreateCaches = true
-			assertEquals "value", service.doWithCache("cache1", "key") {
+
+		assertSame "blocking cache should not have been re-decorated", blockingCache, manager.getEhcache("blockingCache")
+		assertEquals "value for key", "value", manager.getEhcache("blockingCache").get("key").objectValue
+	}
+
+	void testWithBlockingCacheDecoratesCacheBeforeUsingIfItIsNonBlocking() {
+		manager.addCache("nonBlockingCache")
+
+		assertEquals "value", service.doWithBlockingCache("nonBlockingCache", "key") {
+			return "value"
+		}
+
+		assertEquals "nonBlockingCache should have been decorated with a BlockingCache", BlockingCache, manager.getEhcache("nonBlockingCache").getClass()
+		assertEquals "value for key", "value", manager.getEhcache("nonBlockingCache").get("key").objectValue
+	}
+
+	void testWithBlockingCacheClearsLockIfExceptionIsThrownFromClosure() {
+		def blockingCache = new BlockingCache(new Cache("blockingCache", 1, false, false, 1, 0))
+		blockingCache.timeoutMillis = 10
+		manager.addCache(blockingCache)
+
+		shouldFail {
+			service.doWithBlockingCache("blockingCache", "key") {
+				throw new RuntimeException("thrown to test exception handling")
+			}
+		}
+
+		// this will time out if service call did not clear the lock
+		blockingCache.get("key")
+	}
+
+	void testWithBlockingCacheDoesNotTryToClearLockIfItNeverAcquiresIt() {
+		def blockingCache = new BlockingCache(new Cache("blockingCache", 1, false, false, 1, 0))
+		blockingCache.timeoutMillis = 10
+		manager.addCache(blockingCache)
+
+		// acquire lock on cache
+		assertNull blockingCache.get("key")
+
+		shouldFail(LockTimeoutException) {
+			service.doWithBlockingCache("blockingCache", "key") {
 				return "value"
 			}
 		}
 	}
 
-	void testWithBlockingCacheDoesNotDecorateCacheIfItIsABlockingCacheAlready() {
-		def mockCache = mock(BlockingCache) {
-			get("key").returns(new Element("key", "value"))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			assertEquals "value", service.doWithBlockingCache("cache1", "key") {
-				fail "Closure should not have been invoked"
-			}
-		}
-	}
-
-	void testWithBlockingCacheDecoratesCacheBeforeUsingIfItIsNonBlocking() {
-		def mockCache = mock(Ehcache)
-		def blockingCache = mock(BlockingCache, constructor(sameInstance(mockCache))) {
-			get("key").returns(new Element("key", "value"))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		service.springcacheCacheManager.replaceCacheWithDecoratedCache(sameInstance(mockCache), sameInstance(blockingCache))
-		play {
-			assertEquals "value", service.doWithBlockingCache("cache1", "key") {
-				fail "Closure should not have been invoked"
-			}
-		}
-	}
-
-	void testWithBlockingCacheClearsLockIfExceptionIsThrownFromClosure() {
-		def mockCache = mock(BlockingCache) {
-			get("key").returns(null)
-			put(element("key", null))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			shouldFail(RuntimeException) {
-				service.doWithBlockingCache("cache1", "key") {
-					throw new RuntimeException("thrown to test exception handling")
-				}
-			}
-		}
-	}
-
-	void testWithBlockingCacheDoesNotTryToClearLockIfItNeverAcquiresIt() {
-		def mockCache = mock(BlockingCache) {
-			get("key").raises(new LockTimeoutException("thrown if get() blocks too long"))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache)
-		play {
-			shouldFail(LockTimeoutException) {
-				service.doWithBlockingCache("cache1", "key") {
-					fail "Closure should not have been invoked"
-				}
-			}
-		}
-	}
-
 	void testDoWithCacheDelegatesToDoWithBlockingCacheIfItFindsABlockingCache() {
-		def mockCache = mock(BlockingCache) {
-			get("key").returns("value")
-			put(element("key", null))
-			name.returns("cache1").stub()
-		}
-		service.springcacheCacheManager.getEhcache("cache1").returns(mockCache).times(2)
-		play {
-			shouldFail(RuntimeException) {
-				service.doWithCache("cache1", "key") {
-					throw new RuntimeException("thrown to test exception handling")
-				}
+		def blockingCache = new BlockingCache(new Cache("blockingCache", 1, false, false, 1, 0))
+		blockingCache.timeoutMillis = 10
+		manager.addCache(blockingCache)
+
+		shouldFail {
+			service.doWithCache("blockingCache", "key") {
+				throw new RuntimeException("thrown to test exception handling")
 			}
 		}
+
+		// this will time out if service call did not clear the lock
+		blockingCache.get("key")
 	}
 }
