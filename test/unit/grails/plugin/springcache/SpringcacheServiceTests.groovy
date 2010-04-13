@@ -15,21 +15,15 @@
  */
 package grails.plugin.springcache
 
+import grails.spring.BeanBuilder
 import grails.test.GrailsUnitTestCase
 import net.sf.ehcache.Cache
 import net.sf.ehcache.CacheManager
-import net.sf.ehcache.Ehcache
 import net.sf.ehcache.Element
 import net.sf.ehcache.constructs.blocking.BlockingCache
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
-import org.gmock.WithGMock
-import org.hamcrest.Matcher
-import static org.hamcrest.Matchers.*
-
 import org.springframework.cache.ehcache.EhCacheFactoryBean
-import grails.spring.BeanBuilder
 
-@WithGMock
 class SpringcacheServiceTests extends GrailsUnitTestCase {
 
 	CacheManager manager
@@ -44,46 +38,6 @@ class SpringcacheServiceTests extends GrailsUnitTestCase {
 
 		mockLogging SpringcacheService, true
 		service = new SpringcacheService(springcacheCacheManager: manager)
-	}
-
-	void tearDown() {
-		super.tearDown()
-		manager.removalAll()
-	}
-
-	/**
-	 * Creates a matcher that matches a EHCache Element with the specified key and objectValue.
-	 */
-	static Matcher<Element> element(Serializable key, Object objectValue) {
-		allOf(
-				instanceOf(Element),
-				hasProperty("key", equalTo(key)),
-				hasProperty("objectValue", equalTo(objectValue))
-		)
-	}
-
-	/**
-	 * Creates a matcher that matches an Ehcache instance with the specified name and config properties.
-	 */
-	static Matcher<Ehcache> configuredCache(String name, Map config) {
-		def propertyMatchers = config.collect { k, v ->
-			hasProperty(k, equalTo(v))
-		}
-		allOf(
-				instanceOf(Ehcache),
-				hasProperty("name", equalTo(name)),
-				hasProperty("cacheConfiguration", allOf(propertyMatchers))
-		)
-	}
-
-	/**
-	 * Creates a matcher that matches an Ehcache instance with the specified name and config properties.
-	 */
-	static Matcher<Ehcache> cacheNamed(String name) {
-		allOf(
-				instanceOf(Ehcache),
-				hasProperty("name", equalTo(name))
-		)
 	}
 
 	void testFlushAcceptsIndividualCacheNames() {
