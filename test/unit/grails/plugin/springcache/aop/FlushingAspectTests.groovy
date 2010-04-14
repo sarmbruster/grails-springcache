@@ -17,20 +17,22 @@ package grails.plugin.springcache.aop
 
 import grails.plugin.springcache.SpringcacheService
 import grails.plugin.springcache.annotations.CacheFlush
-import spock.lang.Specification
+import org.gmock.WithGMock
+import org.junit.Test
 
-class FlushingAspectSpecification extends Specification {
+@WithGMock
+class FlushingAspectTests {
 
-	void "All specified caches are flushed"() {
-		given: "a flushing aspect"
+	@Test void allSpecifiedCachesAreFlushed() {
 		def aspect = new FlushingAspect()
-		aspect.springcacheService = Mock(SpringcacheService)
-
-		when: "the aspect is triggered"
 		def annotation = [value: {-> ["cache1", "cache2"] as String[] }] as CacheFlush
-		aspect.flushCaches(annotation)
 
-		then: "the specified caches are flushed"
-		1 * aspect.springcacheService.flush(["cache1", "cache2"])
+		aspect.springcacheService = mock(SpringcacheService) {
+			flush(["cache1", "cache2"])
+		}
+
+		play {
+			aspect.flushCaches(annotation)
+		}
 	}
 }
