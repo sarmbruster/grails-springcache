@@ -20,17 +20,15 @@ import grails.test.GrailsUnitTestCase
 import net.sf.ehcache.Cache
 import net.sf.ehcache.CacheManager
 import net.sf.ehcache.Element
+import net.sf.ehcache.Status
 import net.sf.ehcache.constructs.blocking.BlockingCache
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import org.gmock.WithGMock
-import org.springframework.cache.ehcache.EhCacheFactoryBean
-import net.sf.ehcache.CacheException
 import org.junit.Before
 import org.junit.Test
-import static org.junit.Assert.*
+import org.springframework.cache.ehcache.EhCacheFactoryBean
 import static org.hamcrest.CoreMatchers.*
-import static org.junit.matchers.JUnitMatchers.*
-import net.sf.ehcache.Status
+import static org.junit.Assert.assertThat
 
 @WithGMock
 class SpringcacheServiceTests extends GrailsUnitTestCase {
