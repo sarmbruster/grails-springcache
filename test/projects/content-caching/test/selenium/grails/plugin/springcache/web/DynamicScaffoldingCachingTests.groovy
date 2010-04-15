@@ -5,10 +5,16 @@ import net.sf.ehcache.Ehcache
 import org.junit.Test
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
+import org.junit.After
 
 class DynamicScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 	Ehcache artistControllerCache
+
+	@After
+	void tearDown() {
+		clearCaches()
+	}
 
 	@Test
 	void cacheableAnnotationAtClassLevelIsRecognised() {

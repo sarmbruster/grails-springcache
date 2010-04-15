@@ -35,7 +35,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 			Album.list()*.delete()
 			Artist.list()*.delete()
 		}
-		super.tearDown()
+		clearCaches()
 	}
 
 	@Test

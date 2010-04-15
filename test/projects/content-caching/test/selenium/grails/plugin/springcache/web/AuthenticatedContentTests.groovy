@@ -26,7 +26,7 @@ class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 	void tearDown() {
 		logout()
 		tearDownUsers()
-		super.tearDown()
+		clearCaches()
 	}
 
 	@Test

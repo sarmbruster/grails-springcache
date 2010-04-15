@@ -17,7 +17,7 @@ abstract class AbstractContentCachingTestCase {
 	SpringcacheService springcacheService
 	AuthenticateService authenticateService
 
-	@After void tearDown() {
+	void clearCaches() {
 		springcacheService.flushAll()
 		springcacheService.clearStatistics()
 	}

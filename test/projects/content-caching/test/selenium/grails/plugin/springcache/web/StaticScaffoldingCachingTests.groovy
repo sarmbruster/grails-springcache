@@ -16,22 +16,25 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 	Ehcache albumControllerCache
 
-	@After void tearDown() {
+	@After
+	void tearDown() {
 		Album.withTransaction {
 			Album.list()*.delete()
 			Artist.list()*.delete()
 		}
-		super.tearDown()
+		clearCaches()
 	}
 
-	@Test void openingListPageWithEmptyCache() {
+	@Test
+	void openingListPageWithEmptyCache() {
 		AlbumListPage.open()
 
 		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(0L)
 		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(1L)
 	}
 
-	@Test void reloadingListPageHitsCache() {
+	@Test
+	void reloadingListPageHitsCache() {
 		def page = AlbumListPage.open()
 
 		page.refresh()
@@ -40,7 +43,8 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(1L)
 	}
 
-	@Test void saveFlushesCache() {
+	@Test
+	void saveFlushesCache() {
 		def listPage = AlbumListPage.open()
 		assertThat "initial page content", listPage.rowCount, equalTo(0)
 
@@ -60,7 +64,8 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(2L) // show and list pages cached
 	}
 
-	@Test void failedSaveStillFlushesCache() {
+	@Test
+	void failedSaveStillFlushesCache() {
 		def listPage = AlbumListPage.open()
 		assertThat "initial page content", listPage.rowCount, equalTo(0)
 
@@ -76,7 +81,8 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(0L) // cache was flushed even though save failed
 	}
 
-	@Test void differentShowPagesCachedSeparately() {
+	@Test
+	void differentShowPagesCachedSeparately() {
 		def artist = Artist.build(name: "Metric")
 		def album1 = Album.build(artist: artist, name: "Fantasies", year: "2009")
 		def album2 = Album.build(artist: artist, name: "Live It Out", year: "2005")
@@ -92,7 +98,8 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(2L)
 	}
 
-	@Test void notFoundDoesNotGetCached() {
+	@Test
+	void notFoundDoesNotGetCached() {
 		def page = AlbumShowPage.openInvalidId(404)
 		assertThat "flash message", page.flashMessage, equalTo("Album not found with id 404")
 
