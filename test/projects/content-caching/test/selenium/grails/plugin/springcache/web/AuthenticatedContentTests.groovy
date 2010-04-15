@@ -2,56 +2,67 @@ package grails.plugin.springcache.web
 
 import musicstore.pages.AlbumListPage
 import musicstore.pages.HomePage
-import net.sf.ehcache.Ehcache
 import musicstore.pages.UserListPage
+import net.sf.ehcache.Ehcache
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.*
+import org.junit.BeforeClass
+import org.junit.AfterClass
 
 class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 
 	Ehcache albumControllerCache
 	Ehcache userControllerCache
 
+	@Before
 	void setUp() {
-		super.setUp()
 		setUpUser("blackbeard", "Edward Teach")
 	}
 
+	@After
 	void tearDown() {
 		logout()
 		tearDownUsers()
 		super.tearDown()
 	}
 
-	void testLoginOnUncachedPage() {
+	@Test
+	void loginOnUncachedPage() {
 		def page = HomePage.open()
 		assertFalse "User should not be logged in", page.isUserLoggedIn()
 
 		page = loginAs("blackbeard")
 
 		assertTrue "User should now be logged in", page.isUserLoggedIn()
-		assertEquals "Logged in as blackbeard", page.loggedInMessage
+		assertThat "logged in message", page.loggedInMessage, equalTo("Logged in as blackbeard")
 	}
 
-	void testLoginStateNotCachedWithPage() {
+	@Test
+	void loginStateNotCachedWithPage() {
 		def listPage = AlbumListPage.open()
 		assertFalse "User should not be logged in", listPage.isUserLoggedIn()
 
 		loginAs "blackbeard"
 
 		listPage = AlbumListPage.open()
-		assertEquals "Logged in as blackbeard", listPage.loggedInMessage
+		assertThat "logged in message", listPage.loggedInMessage, equalTo("Logged in as blackbeard")
 
-		assertEquals 1, albumControllerCache.statistics.cacheHits
+		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(1L)
 	}
 
-	void testCachingOfAuthenticatedAction() {
+	@Test
+	void cachingOfAuthenticatedAction() {
 		def loginPage = UserListPage.openNotAuthenticated()
-		assertEquals "Page should not be cached if status is 403", 0, userControllerCache.statistics.objectCount
+		assertThat "Page should not be cached if status is 403", userControllerCache.statistics.objectCount, equalTo(0L)
 
 		loginPage.j_username = "blackbeard"
 		loginPage.j_password = "password"
 		loginPage.login(UserListPage)
-		
-		assertEquals 1, userControllerCache.statistics.objectCount
+
+		assertThat "cache size", userControllerCache.statistics.objectCount, equalTo(1L)
 
 		logout()
 		UserListPage.openNotAuthenticated()

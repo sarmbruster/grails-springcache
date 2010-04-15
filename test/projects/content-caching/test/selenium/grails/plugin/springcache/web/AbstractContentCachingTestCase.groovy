@@ -10,14 +10,14 @@ import musicstore.pages.LoginPage
 import org.grails.plugins.springsecurity.service.AuthenticateService
 import org.grails.rateable.Rating
 import org.grails.rateable.RatingLink
+import org.junit.After
 
-abstract class AbstractContentCachingTestCase extends GroovyTestCase {
+abstract class AbstractContentCachingTestCase {
 
 	SpringcacheService springcacheService
 	AuthenticateService authenticateService
 
-	void tearDown() {
-		super.tearDown()
+	@After void tearDown() {
 		springcacheService.flushAll()
 		springcacheService.clearStatistics()
 	}

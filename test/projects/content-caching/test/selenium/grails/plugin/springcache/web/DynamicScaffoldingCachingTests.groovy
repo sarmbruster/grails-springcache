@@ -2,20 +2,24 @@ package grails.plugin.springcache.web
 
 import musicstore.pages.ArtistListPage
 import net.sf.ehcache.Ehcache
+import org.junit.Test
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.assertThat
 
 class DynamicScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 	Ehcache artistControllerCache
 
-	void testCacheableAnnotationAtClassLevelIsRecognised() {
+	@Test
+	void cacheableAnnotationAtClassLevelIsRecognised() {
 		def page = ArtistListPage.open()
-		assertEquals "Artist List", page.title
+		assertThat "page title", page.title, equalTo("Artist List")
 
 		page = page.refresh()
-		assertEquals "Artist List", page.title
+		assertThat "page title", page.title, equalTo("Artist List")
 
-		assertEquals 1, artistControllerCache.statistics.cacheHits
-		assertEquals 1, artistControllerCache.statistics.cacheMisses
+		assertThat "cache hits", artistControllerCache.statistics.cacheHits, equalTo(1L)
+		assertThat "cache misses", artistControllerCache.statistics.cacheMisses, equalTo(1L)
 	}
 
 }

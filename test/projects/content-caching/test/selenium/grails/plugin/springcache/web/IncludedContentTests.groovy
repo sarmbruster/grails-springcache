@@ -7,8 +7,10 @@ import net.sf.ehcache.Ehcache
 import musicstore.pages.AlbumCreatePage
 import org.grails.rateable.Rating
 import org.grails.rateable.RatingLink
-
 import musicstore.pages.AlbumShowPage
+import org.junit.*
+import static org.junit.Assert.*
+import static org.hamcrest.CoreMatchers.*
 
 class IncludedContentTests extends AbstractContentCachingTestCase {
 
@@ -16,14 +18,14 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 	Ehcache popularControllerCache
 	Album album1, album2, album3
 
+	@Before
 	void setUp() {
-		super.setUp()
-
 		album1 = Album.build(artist: Artist.build(name: "Edward Sharpe & the Magnetic Zeros"), name: "Up From Below", year: "2009")
 		album2 = Album.build(artist: Artist.build(name: "Yeasayer"), name: "Odd Blood", year: "2010")
 		album3 = Album.build(artist: Artist.build(name: "Yeah Yeah Yeahs"), name: "It's Blitz!", year: "2009")
 	}
 
+	@After
 	void tearDown() {
 		logout()
 		tearDownUsers()
@@ -36,21 +38,23 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		super.tearDown()
 	}
 
-	void testIncludedContentIsCached() {
+	@Test
+	void includedContentIsCached() {
 		def expectedList = [album3, album2, album1].collect { it.toString() }
 		def page = HomePage.open()
-		assertEquals expectedList, page.latestAlbums
+		assertThat "uncached content", page.latestAlbums, equalTo(expectedList)
 
 		page = page.refresh()
-		assertEquals expectedList, page.latestAlbums
+		assertThat "cached content", page.latestAlbums, equalTo(expectedList)
 
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 1, latestControllerCache.statistics.cacheHits
+		assertThat "cache hits", latestControllerCache.statistics.cacheMisses, equalTo(1L)
+		assertThat "cache misses", latestControllerCache.statistics.cacheHits, equalTo(1L)
 	}
 
-	void testIncludedContentCanBeFlushedByAnotherController() {
+	@Test
+	void includedContentCanBeFlushedByAnotherController() {
 		def expectedList = [album3, album2, album1].collect { it.toString() }
-		assertEquals expectedList, HomePage.open().latestAlbums
+		assertThat "initial page content", HomePage.open().latestAlbums, equalTo(expectedList)
 
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = "Mumford & Sons"
@@ -59,10 +63,11 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		createPage.save()
 
 		expectedList.add(0, "Sigh No More by Mumford & Sons (2009)")
-		assertEquals expectedList, HomePage.open().latestAlbums
+		assertThat "updated page content", HomePage.open().latestAlbums, equalTo(expectedList)
 	}
 
-	void testMultipleIncludesAreCachedSeparately() {
+	@Test
+	void multipleIncludesAreCachedSeparately() {
 		def user = setUpUser("blackbeard", "Edward Teach")
 		setUpAlbumRating(album1, user, 5.0)
 		setUpAlbumRating(album2, user, 3.0)
@@ -72,18 +77,19 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		def expectedPopularList = [album1, album3, album2].collect { it.toString() }
 
 		def page = HomePage.open()
-		assertEquals expectedLatestList, page.latestAlbums
-		assertEquals expectedPopularList, page.popularAlbums
+		assertThat "latest albums list", page.latestAlbums, equalTo(expectedLatestList)
+		assertThat "popular albums list", page.popularAlbums, equalTo(expectedPopularList)
 
-		assertEquals 1, latestControllerCache.statistics.objectCount
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 1, popularControllerCache.statistics.objectCount
-		assertEquals 1, popularControllerCache.statistics.cacheMisses
-		assertEquals 0, popularControllerCache.statistics.cacheHits
+		assertThat "latest albums cache size", latestControllerCache.statistics.objectCount, equalTo(1L)
+		assertThat "latest albums cache misses", latestControllerCache.statistics.cacheMisses, equalTo(1L)
+		assertThat "latest albums cache hits", latestControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "popular albums cache size", popularControllerCache.statistics.objectCount, equalTo(1L)
+		assertThat "popular albums cache misses", popularControllerCache.statistics.cacheMisses, equalTo(1L)
+		assertThat "popular albums cache hits", popularControllerCache.statistics.cacheHits, equalTo(0L)
 	}
 
-	void testIncludedContentFlushedByRateable() {
+	@Test
+	void includedContentFlushedByRateable() {
 		setUpUser("ponytail", "Steven Segal")
 		def user = setUpUser("roundhouse", "Chuck Norris")
 		setUpAlbumRating(album1, user, 5.0)
@@ -93,7 +99,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		def expectedPopularList = [album1, album2, album3].collect { it.toString() }
 
 		def homePage = loginAs("ponytail")
-		assertEquals expectedPopularList, homePage.popularAlbums
+		assertThat "initial page content", homePage.popularAlbums, equalTo(expectedPopularList)
 
 		def showPage = AlbumShowPage.open(album3.id)
 		showPage.vote 5
@@ -101,9 +107,9 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		expectedPopularList = [album3, album1, album2].collect { it.toString() }
 
 		homePage = HomePage.open()
-		assertEquals(expectedPopularList, homePage.popularAlbums)
+		assertThat "updated page content", homePage.popularAlbums, equalTo(expectedPopularList)
 
-		assertEquals 2, popularControllerCache.statistics.cacheMisses
+		assertThat "cache misses", popularControllerCache.statistics.cacheMisses, equalTo(2L)
 	}
 
 }

@@ -6,12 +6,17 @@ import musicstore.pages.AlbumCreatePage
 import musicstore.pages.AlbumListPage
 import musicstore.pages.AlbumShowPage
 import net.sf.ehcache.Ehcache
+import org.junit.After
+import org.junit.Test
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.assertThat
+import static org.junit.matchers.JUnitMatchers.hasItem
 
 class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 	Ehcache albumControllerCache
 
-	void tearDown() {
+	@After void tearDown() {
 		Album.withTransaction {
 			Album.list()*.delete()
 			Artist.list()*.delete()
@@ -19,25 +24,25 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		super.tearDown()
 	}
 
-	void testOpeningListPageWithEmptyCache() {
+	@Test void openingListPageWithEmptyCache() {
 		AlbumListPage.open()
 
-		assertEquals 0, albumControllerCache.statistics.cacheHits
-		assertEquals 1, albumControllerCache.statistics.cacheMisses
+		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(1L)
 	}
 
-	void testReloadingListPageHitsCache() {
+	@Test void reloadingListPageHitsCache() {
 		def page = AlbumListPage.open()
 
 		page.refresh()
 
-		assertEquals 1, albumControllerCache.statistics.cacheHits
-		assertEquals 1, albumControllerCache.statistics.objectCount
+		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(1L)
+		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(1L)
 	}
 
-	void testSaveFlushesCache() {
+	@Test void saveFlushesCache() {
 		def listPage = AlbumListPage.open()
-		assertEquals 0, listPage.rowCount
+		assertThat "initial page content", listPage.rowCount, equalTo(0)
 
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = "Edward Sharpe & the Magnetic Zeros"
@@ -45,58 +50,53 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		createPage.year = "2009"
 		createPage.save()
 
-		assertEquals "Album failed to save", 1, Album.count()
+		assertThat "albums in database", Album.count(), equalTo(1)
 
 		listPage = AlbumListPage.open()
-		assertEquals "Album list page is still displayed cached content", 1, listPage.rowCount
+		assertThat "updated page content", listPage.rowCount, equalTo(1)
 
-		assertEquals 0, albumControllerCache.statistics.cacheHits
-		assertEquals 3, albumControllerCache.statistics.cacheMisses // 2 misses on list page, 1 on show
-		assertEquals 2, albumControllerCache.statistics.objectCount // show and list pages cached
+		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(3L) // 2 misses on list page, 1 on show
+		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(2L) // show and list pages cached
 	}
 
-	void testFailedSaveStillFlushesCache() {
+	@Test void failedSaveStillFlushesCache() {
 		def listPage = AlbumListPage.open()
-		assertEquals 0, listPage.rowCount
+		assertThat "initial page content", listPage.rowCount, equalTo(0)
 
 		def createPage = AlbumCreatePage.open()
-		createPage.artist = ""
-		createPage.name = "Up From Below"
+		createPage.artist = "Edward Sharpe & the Magnetic Zeros"
+		createPage.name = ""
 		createPage.year = "2009"
 		createPage.saveExpectingFailure()
 
-		assertEquals "Artist is required", createPage.flashMessage
+		assertThat "error messages", createPage.errorMessages, hasItem("Property [name] of class [class musicstore.Album] cannot be blank")
+		assertThat "albums in database", Album.count(), equalTo(0)
 
-		assertEquals "Album failed to save", 0, Album.count()
-
-		listPage = AlbumListPage.open()
-
-		assertEquals 0, albumControllerCache.statistics.cacheHits
-		assertEquals 3, albumControllerCache.statistics.cacheMisses // 2 misses on list page, 1 on show
-		assertEquals 2, albumControllerCache.statistics.objectCount // show and list pages cached
+		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(0L) // cache was flushed even though save failed
 	}
 
-	void testDifferentShowPagesCachedSeparately() {
+	@Test void differentShowPagesCachedSeparately() {
 		def artist = Artist.build(name: "Metric")
 		def album1 = Album.build(artist: artist, name: "Fantasies", year: "2009")
 		def album2 = Album.build(artist: artist, name: "Live It Out", year: "2005")
 
 		def showPage1 = AlbumShowPage.open(album1.id)
-		assertEquals album1.name, showPage1.Name
+		assertThat "album name", showPage1.Name, equalTo(album1.name)
 
 		def showPage2 = AlbumShowPage.open(album2.id)
-		assertEquals album2.name, showPage2.Name
+		assertThat "album name", showPage2.Name, equalTo(album2.name)
 
-		assertEquals 0, albumControllerCache.statistics.cacheHits
-		assertEquals 2, albumControllerCache.statistics.cacheMisses
-		assertEquals 2, albumControllerCache.statistics.objectCount
+		assertThat "cache hits", albumControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "cache misses", albumControllerCache.statistics.cacheMisses, equalTo(2L)
+		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(2L)
 	}
 
-	void testNotFoundDoesNotGetCached() {
+	@Test void notFoundDoesNotGetCached() {
 		def page = AlbumShowPage.openInvalidId(404)
-		assertEquals "Album not found with id 404", page.flashMessage
+		assertThat "flash message", page.flashMessage, equalTo("Album not found with id 404")
 
 		// cache size will be 1 as list page is returned
-		assertEquals 1, albumControllerCache.statistics.objectCount
+		assertThat "cache size", albumControllerCache.statistics.objectCount, equalTo(1L)
 	}
 }
