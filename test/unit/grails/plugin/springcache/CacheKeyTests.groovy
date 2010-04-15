@@ -27,7 +27,8 @@ class CacheKeyTests {
 	static final TARGET_1 = new Object()
 	static final TARGET_2 = new Object()
 
-	@Test void cacheKeysDifferForDifferentMethodNamesOnSameTarget() {
+	@Test
+	void cacheKeysDifferForDifferentMethodNamesOnSameTarget() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method1"))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method2"))
 
@@ -35,7 +36,8 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
 	}
 
-	@Test void cacheKeysDifferForSameMethodWithDifferentArguments() {
+	@Test
+	void cacheKeysDifferForSameMethodWithDifferentArguments() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", "b"]))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", "c"]))
 
@@ -43,7 +45,8 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
 	}
 
-	@Test void cacheKeysDifferForSameMethodWithAndWithoutArguments() {
+	@Test
+	void cacheKeysDifferForSameMethodWithAndWithoutArguments() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method"))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["x"]))
 
@@ -51,7 +54,8 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
 	}
 
-	@Test void cacheKeysDifferForSameMethodOnDifferentTargets() {
+	@Test
+	void cacheKeysDifferForSameMethodOnDifferentTargets() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method"))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_2, "method"))
 
@@ -59,23 +63,8 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
 	}
 
-//	void "Cache keys are distinguished by the name and arguments of the invoked method"() {
-//		when: "cache keys are generated"
-//		def key1 = CacheKey.generate(joinPoint1)
-//		def key2 = CacheKey.generate(joinPoint2)
-//
-//		then: "the keys should not be equal for different method name and argument combinations"
-//		key1 != key2
-//
-//		and: "the keys' hashCodes should not be equal"
-//		key1.hashCode() != key2.hashCode()
-//
-//		where:
-//		joinPoint1 << [mockJoinPoint(TARGET_1, "method1"), mockJoinPoint(TARGET_1, "method", ["a"]), mockJoinPoint(TARGET_1, "method", ["a", "b"]), mockJoinPoint(TARGET_1, "method"), mockJoinPoint(TARGET_1, "method")]
-//		joinPoint2 << [mockJoinPoint(TARGET_1, "method2"), mockJoinPoint(TARGET_1, "method", ["b"]), mockJoinPoint(TARGET_1, "method", ["a", "c"]), mockJoinPoint(TARGET_1, "method", ["x"]), mockJoinPoint(TARGET_2, "method")]
-//	}
-
-	@Test void cacheKeysEqualForRepeatedCallsToSameMethod() {
+	@Test
+	void cacheKeysEqualForRepeatedCallsToSameMethod() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method"))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method"))
 
@@ -83,29 +72,14 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), equalTo(key2.hashCode())
 	}
 
-	@Test void cacheKeysEqualForRepeatedCallsToSameMethodWithArguments() {
+	@Test
+	void cacheKeysEqualForRepeatedCallsToSameMethodWithArguments() {
 		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", "b"]))
 		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", "b"]))
 
 		assertThat key1, equalTo(key2)
 		assertThat key1.hashCode(), equalTo(key2.hashCode())
 	}
-
-//	void "Cache keys are consistent for repeated method calls"() {
-//		when: "cache keys are generated"
-//		def key1 = CacheKey.generate(joinPoint1)
-//		def key2 = CacheKey.generate(joinPoint2)
-//
-//		then: "the keys should be equal for multiple method calls with the same arguments"
-//		key1 == key2
-//
-//		and: "the keys' hashCodes should be equal"
-//		key1.hashCode() == key2.hashCode()
-//
-//		where:
-//		joinPoint1 << [mockJoinPoint(TARGET_1, "method"), mockJoinPoint(TARGET_1, "method", ["a", "b"])]
-//		joinPoint2 << [mockJoinPoint(TARGET_1, "method"), mockJoinPoint(TARGET_1, "method", ["a", "b"])]
-//	}
 
 	static JoinPoint mockJoinPoint(Object target, String methodName, List args = []) {
 		def joinPoint = [:]

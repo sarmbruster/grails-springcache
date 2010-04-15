@@ -55,6 +55,27 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertEquals 2, albumControllerCache.statistics.objectCount // show and list pages cached
 	}
 
+	void testFailedSaveStillFlushesCache() {
+		def listPage = AlbumListPage.open()
+		assertEquals 0, listPage.rowCount
+
+		def createPage = AlbumCreatePage.open()
+		createPage.artist = ""
+		createPage.name = "Up From Below"
+		createPage.year = "2009"
+		createPage.saveExpectingFailure()
+
+		assertEquals "Artist is required", createPage.flashMessage
+
+		assertEquals "Album failed to save", 0, Album.count()
+
+		listPage = AlbumListPage.open()
+
+		assertEquals 0, albumControllerCache.statistics.cacheHits
+		assertEquals 3, albumControllerCache.statistics.cacheMisses // 2 misses on list page, 1 on show
+		assertEquals 2, albumControllerCache.statistics.objectCount // show and list pages cached
+	}
+
 	void testDifferentShowPagesCachedSeparately() {
 		def artist = Artist.build(name: "Metric")
 		def album1 = Album.build(artist: artist, name: "Fantasies", year: "2009")
