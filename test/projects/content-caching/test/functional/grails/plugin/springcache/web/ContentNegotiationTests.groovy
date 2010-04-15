@@ -6,12 +6,18 @@ import musicstore.Album
 import musicstore.Artist
 import net.sf.ehcache.Ehcache
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import org.junit.Before
+import org.junit.After
+import org.junit.Test
+import static org.junit.Assert.*
+import static org.hamcrest.CoreMatchers.*
 
 class ContentNegotiationTests extends FunctionalTestCase {
 
 	SpringcacheService springcacheService
 	Ehcache latestControllerCache
 
+	@Before
 	void setUp() {
 		super.setUp()
 
@@ -26,6 +32,7 @@ class ContentNegotiationTests extends FunctionalTestCase {
 		}
 	}
 
+	@After
 	void tearDown() {
 		super.tearDown()
 
@@ -37,22 +44,23 @@ class ContentNegotiationTests extends FunctionalTestCase {
 		springcacheService.clearStatistics()
 	}
 
-	void testCachedContentNotServedWhenAcceptHeaderIsDifferent() {
+	@Test
+	void cachedContentNotServedWhenAcceptHeaderIsDifferent() {
 		get "/"
 		assertStatus SC_OK
 		assertContentType "text/html"
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 1, latestControllerCache.statistics.objectCount
+		assertThat "cache hits", latestControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "cache misses", latestControllerCache.statistics.cacheMisses, equalTo(1L)
+		assertThat "cache size", latestControllerCache.statistics.objectCount, equalTo(1L)
 
 		get("/latest/albums") {
 			headers["Accept"] = "text/xml"
 		}
 		assertStatus SC_OK
 		assertContentType "text/xml"
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 2, latestControllerCache.statistics.cacheMisses
-		assertEquals 2, latestControllerCache.statistics.objectCount
+		assertThat "cache hits", latestControllerCache.statistics.cacheHits, equalTo(0L)
+		assertThat "cache misses", latestControllerCache.statistics.cacheMisses, equalTo(2L)
+		assertThat "cache size", latestControllerCache.statistics.objectCount, equalTo(2L)
 	}
 
 }
