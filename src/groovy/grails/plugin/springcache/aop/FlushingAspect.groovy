@@ -31,6 +31,7 @@ public class FlushingAspect {
 
 	@After("@annotation(cacheFlush)")
 	void flushCaches(final CacheFlush cacheFlush) {
+		if (log.isDebugEnabled()) log.debug "Flushing cache(s): ${cacheFlush.value().join(', ')}"
 		springcacheService.flush(cacheFlush.value())
 	}
 }
