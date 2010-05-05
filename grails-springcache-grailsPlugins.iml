@@ -2,9 +2,9 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$USER_HOME$/.grails/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT">
-      <sourceFolder url="file://$USER_HOME$/.grails/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT/src/java" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT/src/groovy" isTestSource="false" />
+    <content url="file://$USER_HOME_GRAILS$/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT">
+      <sourceFolder url="file://$USER_HOME_GRAILS$/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT/src/java" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME_GRAILS$/1.2.1/projects/grails-springcache/plugins/spock-0.4-SNAPSHOT/src/groovy" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
