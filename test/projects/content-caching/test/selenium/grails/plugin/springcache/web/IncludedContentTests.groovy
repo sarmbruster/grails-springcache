@@ -44,8 +44,8 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		page = page.refresh()
 		assertEquals expectedList, page.latestAlbums
 
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 1, latestControllerCache.statistics.cacheHits
+		assertEquals "cache misses", 1, latestControllerCache.statistics.cacheMisses
+		assertEquals "cache hits", 1, latestControllerCache.statistics.cacheHits
 	}
 
 	void testIncludedContentCanBeFlushedByAnotherController() {
@@ -75,12 +75,12 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		assertEquals expectedLatestList, page.latestAlbums
 		assertEquals expectedPopularList, page.popularAlbums
 
-		assertEquals 1, latestControllerCache.statistics.objectCount
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 1, popularControllerCache.statistics.objectCount
-		assertEquals 1, popularControllerCache.statistics.cacheMisses
-		assertEquals 0, popularControllerCache.statistics.cacheHits
+		assertEquals "'latest' cache size", 1, latestControllerCache.statistics.objectCount
+		assertEquals "'latest' cache misses", 1, latestControllerCache.statistics.cacheMisses
+		assertEquals "'latest' cache hits", 0, latestControllerCache.statistics.cacheHits
+		assertEquals "'popular' cache size", 1, popularControllerCache.statistics.objectCount
+		assertEquals "'popular' cache misses", 1, popularControllerCache.statistics.cacheMisses
+		assertEquals "'popular' cache hits", 0, popularControllerCache.statistics.cacheHits
 	}
 
 	void testIncludedContentFlushedByRateable() {
@@ -103,7 +103,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		homePage = HomePage.open()
 		assertEquals(expectedPopularList, homePage.popularAlbums)
 
-		assertEquals 2, popularControllerCache.statistics.cacheMisses
+		assertEquals "cache misses", 2, popularControllerCache.statistics.cacheMisses
 	}
 
 }

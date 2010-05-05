@@ -14,8 +14,8 @@ class DynamicScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		page = page.refresh()
 		assertEquals "Artist List", page.title
 
-		assertEquals 1, artistControllerCache.statistics.cacheHits
-		assertEquals 1, artistControllerCache.statistics.cacheMisses
+		assertEquals "cache hits", 1, artistControllerCache.statistics.cacheHits
+		assertEquals "cache misses", 1, artistControllerCache.statistics.cacheMisses
 	}
 
 }

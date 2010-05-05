@@ -1,26 +1,27 @@
 package musicstore.pages
 
 import grails.plugins.selenium.pageobjects.GrailsListPage
-import grails.plugins.selenium.pageobjects.GrailsPage
-import grails.plugins.selenium.pageobjects.InvalidPageStateException
 
 class UserListPage extends GrailsListPage {
 
 	static UserListPage open() {
-		GrailsPage.open "/user/list"
-		return new UserListPage()
+		return new UserListPage("/user/list")
 	}
 
 	static LoginPage openNotAuthenticated() {
-		GrailsPage.open "/user/list"
-		return new LoginPage()
+		return new LoginPage("/user/list")
 	}
 
-	@Override protected void validate() {
-		def title = selenium.title
-		if (title != "User List") {
-			throw new InvalidPageStateException("List Users page did not open, found page title $title")
-		}
+	UserListPage() {
+		super()
+	}
+
+	private UserListPage(String uri) {
+		super(uri)
+	}
+
+	@Override protected void verifyPage() {
+		pageTitleIs "User List"
 	}
 
 }

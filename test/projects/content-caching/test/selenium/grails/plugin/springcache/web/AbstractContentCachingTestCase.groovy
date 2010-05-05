@@ -1,7 +1,7 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
-import grails.plugins.selenium.SeleniumManager
+import grails.plugins.selenium.SeleniumAware
 import musicstore.Album
 import musicstore.auth.Role
 import musicstore.auth.User
@@ -11,6 +11,7 @@ import org.grails.plugins.springsecurity.service.AuthenticateService
 import org.grails.rateable.Rating
 import org.grails.rateable.RatingLink
 
+@Mixin(SeleniumAware)
 abstract class AbstractContentCachingTestCase extends GroovyTestCase {
 
 	SpringcacheService springcacheService
@@ -60,8 +61,7 @@ abstract class AbstractContentCachingTestCase extends GroovyTestCase {
 	}
 
 	void logout() {
-		 // TODO: better way to log out?
-		SeleniumManager.instance.selenium.open "/logout"
+		selenium.open "/logout"
 	}
 
 }

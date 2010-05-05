@@ -1,17 +1,23 @@
 package musicstore.pages
 
 import grails.plugins.selenium.pageobjects.GrailsPage
-import grails.plugins.selenium.pageobjects.InvalidPageStateException
 
 class HomePage extends GrailsPage {
 
 	static HomePage open() {
-		GrailsPage.open "/"
-		return new HomePage()
+		return new HomePage("/")
+	}
+
+	HomePage() {
+		super()
+	}
+
+	private HomePage(String uri) {
+		super(uri)
 	}
 
 	HomePage refresh() {
-		selenium.refreshAndWait()
+		selenium.refresh()
 		return new HomePage()
 	}
 
@@ -25,7 +31,7 @@ class HomePage extends GrailsPage {
 
 	LoginPage goToLogin() {
 		if (isUserLoggedIn()) {
-			throw new InvalidPageStateException("Already logged in")
+			throw new IllegalStateException("Already logged in")
 		} else {
 			selenium.clickAndWait("css=#loginLink a")
 			return new LoginPage()
@@ -52,13 +58,7 @@ class HomePage extends GrailsPage {
 		return list
 	}
 
-	@Override protected void validate() {
-		def title = selenium.title
-		if (title != "Welcome to Grails") {
-			throw new InvalidPageStateException("Home page is not open, found page title $title")
-		}
-		if (!selenium.isElementPresent("css=#grailsLogo")) {
-			throw new InvalidPageStateException("Page is missing Sitemesh decoration")
-		}
+	@Override protected void verifyPage() {
+		pageTitleIs "Welcome to Grails"
 	}
 }

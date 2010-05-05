@@ -38,9 +38,9 @@ class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 		loginAs "blackbeard"
 
 		listPage = AlbumListPage.open()
-		assertEquals "Logged in as blackbeard", listPage.loggedInMessage
+		assertEquals "logged in message", "Logged in as blackbeard", listPage.loggedInMessage
 
-		assertEquals 1, albumControllerCache.statistics.cacheHits
+		assertEquals "cache hits", 1, albumControllerCache.statistics.cacheHits
 	}
 
 	void testCachingOfAuthenticatedAction() {

@@ -4,7 +4,7 @@ import java.beans.PropertyEditorSupport
 import org.apache.commons.lang.StringUtils
 
 class DomainClassLookupPropertyEditor extends PropertyEditorSupport {
-	
+
 	Class domainClass
 	String property
 
@@ -13,9 +13,10 @@ class DomainClassLookupPropertyEditor extends PropertyEditorSupport {
 	}
 
 	void setAsText(String text) {
-		value = domainClass."findBy${StringUtils.capitalize(property)}"(text)
-		if (!value) {
-			value = domainClass.newInstance((property): text)
+		if (text) {
+			value = domainClass."findBy${StringUtils.capitalize(property)}"(text) ?: domainClass.newInstance((property): text)
+		} else {
+			value = null
 		}
 	}
 }

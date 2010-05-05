@@ -1,18 +1,23 @@
 package musicstore.pages
 
 import grails.plugins.selenium.pageobjects.GrailsListPage
-import grails.plugins.selenium.pageobjects.GrailsPage
-import grails.plugins.selenium.pageobjects.InvalidPageStateException
 
 class AlbumListPage extends GrailsListPage {
 
 	static AlbumListPage open() {
-		GrailsPage.open "/album/list"
-		return new AlbumListPage()
+		return new AlbumListPage("/album/list")
+	}
+
+	AlbumListPage() {
+		super()
+	}
+
+	AlbumListPage(String uri) {
+		super(uri)
 	}
 
 	AlbumListPage refresh() {
-		selenium.refreshAndWait()
+		selenium.refresh()
 		return new AlbumListPage()
 	}
 
@@ -27,14 +32,8 @@ class AlbumListPage extends GrailsListPage {
 		selenium.isElementPresent("loggedInUser")
 	}
 
-	@Override protected void validate() {
-		def title = selenium.title
-		if (title != "Album List") {
-			throw new InvalidPageStateException("Album list page is not open, found page title $title")
-		}
-		if (!selenium.isElementPresent("css=#grailsLogo")) {
-			throw new InvalidPageStateException("Page is missing Sitemesh decoration")
-		}
+	@Override protected void verifyPage() {
+		pageTitleIs "Album List"
 	}
 
 }
