@@ -1,8 +1,7 @@
 package musicstore.pages
 
 import grails.plugins.selenium.pageobjects.GrailsShowPage
-import junit.framework.Assert
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.startsWith
 
 class AlbumShowPage extends GrailsShowPage {
 

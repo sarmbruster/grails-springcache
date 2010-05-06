@@ -6,6 +6,11 @@ import musicstore.pages.AlbumCreatePage
 import musicstore.pages.AlbumListPage
 import musicstore.pages.AlbumShowPage
 import net.sf.ehcache.Ehcache
+import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
+import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
+import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 
 class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
@@ -22,8 +27,8 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 	void testOpeningListPageWithEmptyCache() {
 		AlbumListPage.open()
 
-		assertEquals "cache hits", 0, albumControllerCache.statistics.cacheHits
-		assertEquals "cache misses", 1, albumControllerCache.statistics.cacheMisses
+		assertThat albumControllerCache, hasCacheHits(0)
+		assertThat albumControllerCache, hasCacheMisses(1)
 	}
 
 	void testReloadingListPageHitsCache() {
@@ -31,13 +36,13 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 		page.refresh()
 
-		assertEquals "cache hits", 1, albumControllerCache.statistics.cacheHits
-		assertEquals "cache misses", 1, albumControllerCache.statistics.objectCount
+		assertThat albumControllerCache, hasCacheHits(1)
+		assertThat albumControllerCache, hasCacheMisses(1)
 	}
 
 	void testSaveFlushesCache() {
 		def listPage = AlbumListPage.open()
-		assertEquals 0, listPage.rowCount
+		assertThat "Album list size", listPage.rowCount, equalTo(0)
 
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = "Edward Sharpe & the Magnetic Zeros"
@@ -45,19 +50,19 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		createPage.year = "2009"
 		createPage.save()
 
-		assertEquals "Album failed to save", 1, Album.count()
+		assertThat "Album count", Album.count(), equalTo(1L)
 
 		listPage = AlbumListPage.open()
-		assertEquals "Album list page is still displayed cached content", 1, listPage.rowCount
+		assertThat "Album list page is still displayed cached content", listPage.rowCount, equalTo(1)
 
-		assertEquals "cache hits", 0, albumControllerCache.statistics.cacheHits
-		assertEquals "cache misses", 3, albumControllerCache.statistics.cacheMisses // 2 misses on list page, 1 on show
-		assertEquals "cache size", 2, albumControllerCache.statistics.objectCount // show and list pages cached
+		assertThat albumControllerCache, hasCacheHits(0)
+		assertThat albumControllerCache, hasCacheMisses(3) // 2 misses on list page, 1 on show
+		assertThat albumControllerCache, hasCacheSize(2) // show and list pages cached
 	}
 
 	void testFailedSaveStillFlushesCache() {
 		def listPage = AlbumListPage.open()
-		assertEquals 0, listPage.rowCount
+		assertThat "Album list size", listPage.rowCount, equalTo(0)
 
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = ""
@@ -65,15 +70,15 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		createPage.year = "2009"
 		createPage.saveExpectingFailure()
 
-		assertEquals "Artist is required", createPage.flashMessage
+		assertThat "Flash message", createPage.flashMessage, equalTo("Artist is required")
 
-		assertEquals "Album failed to save", 0, Album.count()
+		assertThat "Album count", Album.count(), equalTo(0L)
 
-		listPage = AlbumListPage.open()
+		AlbumListPage.open()
 
-		assertEquals "cache hits", 0, albumControllerCache.statistics.cacheHits
-		assertEquals "cache misses", 3, albumControllerCache.statistics.cacheMisses // 2 misses on list page, 1 on show
-		assertEquals "cache size", 2, albumControllerCache.statistics.objectCount // show and list pages cached
+		assertThat albumControllerCache, hasCacheHits(0)
+		assertThat albumControllerCache, hasCacheMisses(3) // 2 misses on list page, 1 on show
+		assertThat albumControllerCache, hasCacheSize(2)   // show and list pages cached
 	}
 
 	void testDifferentShowPagesCachedSeparately() {
@@ -82,21 +87,21 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		def album2 = Album.build(artist: artist, name: "Live It Out", year: "2005")
 
 		def showPage1 = AlbumShowPage.open(album1.id)
-		assertEquals album1.name, showPage1.Name
+		assertThat "Album name", showPage1.Name, equalTo(album1.name)
 
 		def showPage2 = AlbumShowPage.open(album2.id)
-		assertEquals album2.name, showPage2.Name
+		assertThat "Album name", showPage2.Name, equalTo(album2.name)
 
-		assertEquals "cache hits", 0, albumControllerCache.statistics.cacheHits
-		assertEquals "cache misses", 2, albumControllerCache.statistics.cacheMisses
-		assertEquals "cache size", 2, albumControllerCache.statistics.objectCount
+		assertThat albumControllerCache, hasCacheHits(0)
+		assertThat albumControllerCache, hasCacheMisses(2)
+		assertThat albumControllerCache, hasCacheSize(2)
 	}
 
 	void testNotFoundDoesNotGetCached() {
 		def page = AlbumShowPage.openInvalidId(404)
-		assertEquals "Album not found with id 404", page.flashMessage
+		assertThat "Flash message", page.flashMessage, equalTo("Album not found with id 404")
 
 		// cache size will be 1 as list page is returned
-		assertEquals "cache size", 1, albumControllerCache.statistics.objectCount
+		assertThat albumControllerCache, hasCacheSize(1)
 	}
 }

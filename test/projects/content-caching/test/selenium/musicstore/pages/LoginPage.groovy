@@ -1,6 +1,8 @@
 package musicstore.pages
 
-import grails.plugins.selenium.pageobjects.*
+import grails.plugins.selenium.pageobjects.GrailsFormPage
+import grails.plugins.selenium.pageobjects.GrailsPage
+import grails.plugins.selenium.pageobjects.UnexpectedPageException
 
 class LoginPage extends GrailsFormPage {
 

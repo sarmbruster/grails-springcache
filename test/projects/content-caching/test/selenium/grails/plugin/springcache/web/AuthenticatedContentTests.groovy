@@ -2,8 +2,13 @@ package grails.plugin.springcache.web
 
 import musicstore.pages.AlbumListPage
 import musicstore.pages.HomePage
-import net.sf.ehcache.Ehcache
 import musicstore.pages.UserListPage
+import net.sf.ehcache.Ehcache
+import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
+import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
+import static grails.plugin.springcache.matchers.CacheSizeMatcher.isEmptyCache
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 
 class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 
@@ -28,7 +33,7 @@ class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 		page = loginAs("blackbeard")
 
 		assertTrue "User should now be logged in", page.isUserLoggedIn()
-		assertEquals "Logged in as blackbeard", page.loggedInMessage
+		assertThat "Logged in user message", page.loggedInMessage, equalTo("Logged in as blackbeard")
 	}
 
 	void testLoginStateNotCachedWithPage() {
@@ -38,20 +43,20 @@ class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 		loginAs "blackbeard"
 
 		listPage = AlbumListPage.open()
-		assertEquals "logged in message", "Logged in as blackbeard", listPage.loggedInMessage
+		assertThat "Logged in user message", listPage.loggedInMessage, equalTo("Logged in as blackbeard")
 
-		assertEquals "cache hits", 1, albumControllerCache.statistics.cacheHits
+		assertThat albumControllerCache, hasCacheHits(2) // Selenium HEAD + GET
 	}
 
 	void testCachingOfAuthenticatedAction() {
 		def loginPage = UserListPage.openNotAuthenticated()
-		assertEquals "Page should not be cached if status is 403", 0, userControllerCache.statistics.objectCount
+		assertThat "Page should not be cached if status is 403", userControllerCache, isEmptyCache()
 
 		loginPage.j_username = "blackbeard"
 		loginPage.j_password = "password"
 		loginPage.login(UserListPage)
 		
-		assertEquals 1, userControllerCache.statistics.objectCount
+		assertThat userControllerCache, hasCacheSize(1)
 
 		logout()
 		UserListPage.openNotAuthenticated()

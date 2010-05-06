@@ -1,14 +1,18 @@
 package grails.plugin.springcache.web
 
-import musicstore.pages.HomePage
 import musicstore.Album
 import musicstore.Artist
-import net.sf.ehcache.Ehcache
 import musicstore.pages.AlbumCreatePage
+import musicstore.pages.AlbumShowPage
+import musicstore.pages.HomePage
+import net.sf.ehcache.Ehcache
 import org.grails.rateable.Rating
 import org.grails.rateable.RatingLink
-
-import musicstore.pages.AlbumShowPage
+import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
+import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
+import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 
 class IncludedContentTests extends AbstractContentCachingTestCase {
 
@@ -39,18 +43,18 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 	void testIncludedContentIsCached() {
 		def expectedList = [album3, album2, album1].collect { it.toString() }
 		def page = HomePage.open()
-		assertEquals expectedList, page.latestAlbums
+		assertThat "Latest albums", page.latestAlbums, equalTo(expectedList)
 
 		page = page.refresh()
-		assertEquals expectedList, page.latestAlbums
+		assertThat "Latest albums", page.latestAlbums, equalTo(expectedList)
 
-		assertEquals "cache misses", 1, latestControllerCache.statistics.cacheMisses
-		assertEquals "cache hits", 1, latestControllerCache.statistics.cacheHits
+		assertThat latestControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
+		assertThat latestControllerCache, hasCacheHits(1)
 	}
 
 	void testIncludedContentCanBeFlushedByAnotherController() {
 		def expectedList = [album3, album2, album1].collect { it.toString() }
-		assertEquals expectedList, HomePage.open().latestAlbums
+		assertThat "Latest albums", HomePage.open().latestAlbums, equalTo(expectedList)
 
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = "Mumford & Sons"
@@ -59,7 +63,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		createPage.save()
 
 		expectedList.add(0, "Sigh No More by Mumford & Sons (2009)")
-		assertEquals expectedList, HomePage.open().latestAlbums
+		assertThat "Latest albums", HomePage.open().latestAlbums, equalTo(expectedList)
 	}
 
 	void testMultipleIncludesAreCachedSeparately() {
@@ -72,15 +76,15 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		def expectedPopularList = [album1, album3, album2].collect { it.toString() }
 
 		def page = HomePage.open()
-		assertEquals expectedLatestList, page.latestAlbums
-		assertEquals expectedPopularList, page.popularAlbums
+		assertThat "Latest albums", page.latestAlbums, equalTo(expectedLatestList)
+		assertThat "Popular albums", page.popularAlbums, equalTo(expectedPopularList)
 
-		assertEquals "'latest' cache size", 1, latestControllerCache.statistics.objectCount
-		assertEquals "'latest' cache misses", 1, latestControllerCache.statistics.cacheMisses
-		assertEquals "'latest' cache hits", 0, latestControllerCache.statistics.cacheHits
-		assertEquals "'popular' cache size", 1, popularControllerCache.statistics.objectCount
-		assertEquals "'popular' cache misses", 1, popularControllerCache.statistics.cacheMisses
-		assertEquals "'popular' cache hits", 0, popularControllerCache.statistics.cacheHits
+		assertThat "Latest albums cache", latestControllerCache, hasCacheSize(1)
+		assertThat "Latest albums cache", latestControllerCache, hasCacheMisses(1)
+		assertThat "Latest albums cache", latestControllerCache, hasCacheHits(0)
+		assertThat "Popular albums cache", popularControllerCache, hasCacheSize(1)
+		assertThat "Popular albums cache", popularControllerCache, hasCacheMisses(1)
+		assertThat "Popular albums cache", popularControllerCache, hasCacheHits(0)
 	}
 
 	void testIncludedContentFlushedByRateable() {
@@ -93,7 +97,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		def expectedPopularList = [album1, album2, album3].collect { it.toString() }
 
 		def homePage = loginAs("ponytail")
-		assertEquals expectedPopularList, homePage.popularAlbums
+		assertThat "Popular albums", homePage.popularAlbums, equalTo(expectedPopularList)
 
 		def showPage = AlbumShowPage.open(album3.id)
 		showPage.vote 5
@@ -101,9 +105,9 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		expectedPopularList = [album3, album1, album2].collect { it.toString() }
 
 		homePage = HomePage.open()
-		assertEquals(expectedPopularList, homePage.popularAlbums)
+		assertThat "Popular albums", homePage.popularAlbums, equalTo(expectedPopularList)
 
-		assertEquals "cache misses", 2, popularControllerCache.statistics.cacheMisses
+		assertThat popularControllerCache, hasCacheMisses(2)
 	}
 
 }
