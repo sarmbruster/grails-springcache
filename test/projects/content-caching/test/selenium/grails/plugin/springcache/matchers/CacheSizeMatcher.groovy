@@ -37,4 +37,8 @@ class CacheSizeMatcher extends TypeSafeMatcher<Ehcache> {
 			}
 		}
 	}
+
+	protected void describeMismatchSafely(Ehcache item, Description mismatchDescription) {
+		mismatchDescription.appendText("contains $item.statistics.objectCount items")
+	}
 }

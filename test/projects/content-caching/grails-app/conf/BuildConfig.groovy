@@ -15,7 +15,6 @@ grails.project.dependency.resolution = {
         mavenRepo "http://repository.jboss.com/maven2/"
     }
     dependencies {
-		test "org.hamcrest:hamcrest-all:1.1"
     }
 
 }

@@ -34,4 +34,8 @@ class CacheHitsMatcher extends TypeSafeMatcher<Ehcache> {
 			}
 		}
 	}
+
+	protected void describeMismatchSafely(Ehcache item, Description mismatchDescription) {
+		mismatchDescription.appendText("$item.statistics.cacheHits cache hits")
+	}
 }
