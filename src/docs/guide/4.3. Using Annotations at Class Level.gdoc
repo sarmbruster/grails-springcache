@@ -1,0 +1,30 @@
+The @\@Cacheable@ and @\@CacheFlush@ annotations can be applied to controllers at class level. This is more likely useful with @\@Cacheable@ but it is certainly possible to apply @\@CacheFlush@ at class level so that any action on that controller will flush a set of caches. Any annotation on an individual action will be applied in preference to an annotation at class level, so a class level annotation behaves like a default. An annotation at class level will work with dynamic scaffolded actions so you don't have to generate a concrete action in order to benefit from caching behaviour.
+
+{code}
+@Cacheable("albumControllerCache")
+class AlbumController {
+    
+    static scaffold = true // all dynamically scaffolded actions will be cached
+    
+    @Cacheable("albumListCache")
+    def list = {
+        // ...
+    }
+    
+    @CacheFlush(/album\w+Cache/)
+    def save = {
+        // ...
+    }
+    
+    def show = {
+        // ...
+    }
+}
+{code}
+
+In this example:
+
+ * The _show_ action will use the default class level @\@Cacheable@ annotation and its page fragment will be cached in the _albumControllerCache_ cache.
+ * The _list_ action will not use the default as it specifies its own @\@Cacheable@ annotation and its content will be cached separately.
+ * The _save_ action uses a @\@CacheFlush@ and will therefore not be cached at all.
+ * Dynamically scaffolded actions (e.g. _edit_, _update_, etc.) will use the class level annotation and their results will be cached in the _albumControllerCache_ cache.

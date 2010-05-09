@@ -1,7 +1,10 @@
 BUGS
 - check caching of service methods with defaulted params
+- HEAD and GET requests seem to generate different keys
 
 NEXT RELEASE
+- make content negotiation awareness just a config param
+- apply annotations to services at class level
 - mime type key generator needs to only work if action uses withFormat (somehow)
 - only cache GET requests?
 - option to disable content caching filter

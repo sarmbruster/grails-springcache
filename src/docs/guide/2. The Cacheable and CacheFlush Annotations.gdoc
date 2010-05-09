@@ -1,0 +1,16 @@
+The _Springcache_ plugin provides two annotations that are the basis of how you can apply caching and flushing behaviour to both Spring bean methods and page fragments. Both annotations are in the @grails.plugin.springcache.annotations@ package.
+
+h3. The @\@Cachable@ annotation
+
+The @Cacheable@ annotation is applied to methods on Spring managed beans such as Grails services to cache method results or to controller actions to cache page fragments. The annotation requires a single argument which is the name of the cache that will be used.
+
+h3. The @\@CacheFlush@ annotation
+
+The @CacheFlush@ annotation can be applied in the same places as the @Cacheable@ annotation but instead of caching results it will cause a cache or set of caches to be flushed. The @CacheFlush@ annotation can take a single argument or a String array. Either way the arguments can simply be literal cache names or regular expression patterns that may match multiple cache names. For example:
+
+{code}
+@CacheFlush("myCache")
+@CacheFlush(/\w+ControllerCache/)
+@CacheFlush(["cacheA", "cacheB", "cacheC"])
+@CacheFlush([/cache[A-Z]/, "myCache"])
+{code}

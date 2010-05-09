@@ -1,0 +1,11 @@
+By default the key generator used by the page fragment caching filter does not take content negotiation into account. However, if you are caching controller actions that use Grails' "@withFormat@":http://grails.org/doc/latest/ref/Controllers/withFormat.html dynamic method to render different content types you will want to cache results separately according to the output format. The plugin provides a key generator implementation that supports this, you just need to override the filter's key generator in @Config.groovy@ like this:
+
+{code}
+import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
+
+beans {
+    springcacheFilter {
+		keyGenerator = new MimeTypeAwareKeyGenerator()
+	}
+}
+{code}

@@ -1,0 +1,41 @@
+h3. Flushing content caches with service methods and vice-versa
+
+There is nothing special about the different types of cache so it's perfectly fine to flush a content cache with a @\@CacheFlush@ annotation on a service method or a service method cache with a @\@CacheFlush@ annotation on a controller action.
+
+h3. Tearing down caches in tests
+
+In integration test and some types of functional test (e.g. "Selenium RC":http://grails.org/plugin/selenium-rc tests when not running in remote mode) your tests can have Spring beans automatically injected. You can use this facility to tear down caches between tests. For example:
+
+{code}
+def springcacheService // auto-injected service bean from plugin
+
+void tearDown() {
+    super.tearDown()
+    springcacheService.flushAll()
+    // only need to do this if your tests are making assertions about hit/miss counts, etc.
+    springcacheService.clearStatistics()
+}
+{code}
+
+h3. Disabling
+
+Rather than tearing down caches between tests you may prefer to disable the plugin altogether. This is done by setting the config key @springcache.disabled = true@ which can be done on a per-environment basis. For example:
+
+{code}
+springcache {
+    // cache definitions, etc
+}
+
+environments {
+    development {
+        springcache.disabled = true
+    }
+}
+{code}
+
+Whilst this makes things simpler I would encourage you to run end-to-end tests and continuous integration in as 'production-like' an environment as possible. If your continuous integration build is running with the plugin enabled you are much less likely to get any surprising behaviour when you release your app to a production environment.
+
+h3. Logging Output
+
+To see logging from the plugin set the logging level on @grails.plugin.springcache@ in your @Config.groovy@ file.
+

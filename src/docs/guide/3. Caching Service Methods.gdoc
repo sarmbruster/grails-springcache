@@ -1,0 +1,53 @@
+The typical use case for method caching is when you have Grails service methods that invoke expensive operations such as HTTP gets, web service calls, filesystem IO, etc.
+
+{note}
+Although you _can_ use the _Springcache_ plugin to cache service methods that query or update _GORM_ domain objects you should consider whether it's more appropriate to use the Hibernate 2nd level cache (see the relevant sections in the Grails documentation). In some cases using _Springcache_ does make sense, e.g. a service that aggregates the results of multiple queries.
+{note}
+
+Simply add an @\@Cacheable@ annotation to methods that should cache their results and a @\@CacheFlush@ annotation to methods that should flush caches.
+
+{note}
+Be aware that the annotations will only have any effect on Spring-managed beans. If you create instances of your class directly rather than getting them from the application context they will not be decorated with caching/flushing behaviour.
+{note}
+
+A simple example might be:
+
+h4. PiracyService.groovy
+
+{code}
+@Cacheable("pirateCache")
+def getPirates() {
+    // return a list of pirates
+}
+
+@Cacheable("pirateCache")
+def findPirates(name) {
+    // return a particular pirate
+}
+
+@Cacheable("shipCache")
+def getShips() {
+    // return a list of ships
+}
+
+@CacheFlush("pirateCache")
+void registerNewPirate(Pirate sailor) {
+    // store a new pirate
+}
+
+@CacheFlush("shipCache")
+void registerNewShip(Ship ship) {
+    // store a new ship
+}
+
+@CacheFlush(["pirateCache", "shipCache"])
+void registerNewShipWithCrew(Ship ship, Collection<Sailor> crew) {
+    // store a new ship and associated pirates
+}
+{code}
+
+This ties the flushes on the _register_ methods to the particular caches they affect, so after calling @registerNewPirate@ the methods @getPirates@ and @findPirates@ will re-populate their cached results but @getShips@ would still use any cached results from previous calls. Calling @registerNewShipWithCrew@ will flush both caches.
+
+It is fine for multiple methods to share the same caches. Both @getPirates@ and @findPirates@ in the example above share the same cache. Cache entries are keyed on target object (the service instance in this case), method name and call parameters so there should be no confusion when using the same caches on multiple methods.
+
+There are various strategies you can adopt in naming and grouping caches, this example shouldn't be seen as definitive.

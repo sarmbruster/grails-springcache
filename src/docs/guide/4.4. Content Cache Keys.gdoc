@@ -1,0 +1,9 @@
+By default page fragment cache entries are keyed on controller name, action name and any request parameters (which can be from a query string, _POST_ body or those added by Grails URL mappings, e.g. the _id_ parameter on a standard _show_ or _edit_ action). If you need to use some kind of special key generation you can implement the interface @grails.plugin.springcache.web.key.KeyGenerator@ (or extend @grails.plugin.springcache.web.key.AbstractKeyGenerator@ or one of the existing implementations that the plugin provides) then simply override the Spring bean property on the filter in @Config.groovy@ like this:
+
+{code}
+beans {
+    springcacheFilter {
+		keyGenerator = new MyKeyGenerator()
+	}
+}
+{code}

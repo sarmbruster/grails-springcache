@@ -1,0 +1,9 @@
+When a @\@Cacheable@ annotation is found on a service method the plugin generates a key using:
+
+ * The _target_ object, i.e. the service being called.
+ * The service method name.
+ * All method parameters.
+
+Since Grails services are typically Spring singletons the target object is not usually an issue. There's no need to implements _equals_ or _hashCode_ on your service classes unless you are using a different Spring bean scope and need to differentiate between calls made to different instances of the service.
+
+It is, however, *vital* to ensure that _equals_ and _hashCode_ is properly implemented on all the types used as parameters to cached methods. If this is not done it is very unlikely that the cache will ever be hit.

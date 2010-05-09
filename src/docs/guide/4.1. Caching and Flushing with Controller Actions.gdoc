@@ -1,0 +1,51 @@
+h3. Example: caching Grails CRUD pages
+
+Grails' standard scaffolded _CRUD_ pages provide a good example of how caching and flushing can be applied. For example, let's take an _Album_ domain class. The scaffolded controller could be annotated like this:
+
+h4. AlbumController.groovy
+
+{code}
+class AlbumController {
+    // the index action is uncached as it just performs a redirect to list
+    def index = {
+        redirect(action: "list", params: params)
+    }
+
+    @Cacheable("albumControllerCache")
+    def list = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @Cacheable("albumControllerCache")
+    def create = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @CacheFlush(["albumControllerCache", "artistControllerCache", "latestControllerCache", "popularControllerCache"])
+    def save = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @Cacheable("albumControllerCache")
+    def show = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @Cacheable("albumControllerCache")
+    def edit = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @CacheFlush(["albumControllerCache", "latestControllerCache", "popularControllerCache"])
+    def update = {
+        // standard Grails scaffolding code omitted
+    }
+
+    @CacheFlush(["albumControllerCache", "artistControllerCache", "latestControllerCache", "popularControllerCache"])
+    def delete = {
+        // standard Grails scaffolding code omitted
+    }
+}
+{code}
+
+The _list, show, create_ and _edit_ pages are all cached. The _show_ and _edit_ rely on an domain object id parameter and this will be included in the cache key so that @/album/show/1@ and @/album/show/2@ are cached separately. The _save, update_ and _delete_ actions will flush caches. Note that in addition to flushing the cache used by the _list, show, create_ and _edit_ actions they are flushing other caches which are content caches for controllers whose output should be refreshed if @Album@ data changes.

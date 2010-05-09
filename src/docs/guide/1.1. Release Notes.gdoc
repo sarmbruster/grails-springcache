@@ -1,0 +1,44 @@
+h4. 1.2
+
+ * Adds page fragment caching via annotations on controllers.
+ * Simplifies config by getting rid of caching and flushing models and having annotations refer to cache names directly.
+ * Adds configurable cache defaults that apply to configured caches and auto-created caches
+ * Removes pluggable cache implementation in favour of using EhCache.
+
+h4. 1.1.3
+
+ * Fixes bug where an expired ehcache element whose key is still in the cache can cause the plugin to think the key still maps to a valid value.
+ * Allows configuration of ehcache caches directly in @Config.groovy@
+
+h4. 1.1.2
+
+ * Automatically create ehcache caches if they are not explicitly configured in @ehcache.xml@
+
+h4. 1.1.1
+
+ * Fixes bug where plugin crashes if disabled
+
+h4. 1.1
+
+ * Complete rewrite to support Grails 1.2 and Spring 3.0.
+ * Requires Grails 1.2+
+
+h4. 1.0.1
+
+ * Fixes bug where plugin causes crash if disabled when debug logging is switched on.
+ * Fixes compatibility with Java 1.5.
+
+h4. 1.0
+
+ * Configure alternate caching providers via @Config.groovy@ rather than having to override bean definitions in @resources.groovy@
+ * Removed dependency on joda-time which was only there for testing
+ * Better synchronization for getting caches from the mapcache CacheManager
+
+h4. 0.2
+
+ * Configure caching and flushing models via @Config.groovy@
+ * Flag to disable plugin entirely for testing environments
+
+h4. 0.1
+
+ * Initial release

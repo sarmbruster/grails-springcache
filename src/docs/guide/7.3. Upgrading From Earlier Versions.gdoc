@@ -1,0 +1,10 @@
+Successive versions of the plugin have introduced some non-backwards compatible changes. If you are upgrading from an earlier version you will need to consider the following:
+
+h4. Upgrading from 1.1.* to 1.2:
+
+ * The plugin no longer uses caching and flushing models. Instead cache names are referenced directly by the annotations. This means you will need to 'inline' your model definitions from @Config.groovy@ to your annotations.
+ * The plugin no longer supports alternate cache libraries, it's _EhCache_ or nothing.
+
+h4. From pre 1.1:
+
+ * You will need to change the import statements for your @\@Cacheable@ and @\@CacheFlush@ annotations to point to the @grails.plugin.springcache.annotations@ package.
