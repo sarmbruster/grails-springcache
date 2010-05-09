@@ -11,3 +11,4 @@ build/
 web-app/
 *.zip
 plugin.xml
+docs-*
