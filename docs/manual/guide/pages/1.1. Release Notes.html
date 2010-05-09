@@ -1,0 +1,46 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>1.1. Release Notes</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>1.2</h4>
+<ul class="star">
+<li>Adds page fragment caching via annotations on controllers.</li>
+<li>Simplifies config by getting rid of caching and flushing models and having annotations refer to cache names directly.</li>
+<li>Adds configurable cache defaults that apply to configured caches and auto-created caches</li>
+<li>Removes pluggable cache implementation in favour of using EhCache.</li>
+</ul><p class="paragraph"/><h4>1.1.3</h4>
+<ul class="star">
+<li>Fixes bug where an expired ehcache element whose key is still in the cache can cause the plugin to think the key still maps to a valid value.</li>
+<li>Allows configuration of ehcache caches directly in <code>Config.groovy</code></li>
+</ul><p class="paragraph"/><h4>1.1.2</h4>
+<ul class="star">
+<li>Automatically create ehcache caches if they are not explicitly configured in <code>ehcache.xml</code></li>
+</ul><p class="paragraph"/><h4>1.1.1</h4>
+<ul class="star">
+<li>Fixes bug where plugin crashes if disabled</li>
+</ul><p class="paragraph"/><h4>1.1</h4>
+<ul class="star">
+<li>Complete rewrite to support Grails 1.2 and Spring 3.0.</li>
+<li>Requires Grails 1.2+</li>
+</ul><p class="paragraph"/><h4>1.0.1</h4>
+<ul class="star">
+<li>Fixes bug where plugin causes crash if disabled when debug logging is switched on.</li>
+<li>Fixes compatibility with Java 1.5.</li>
+</ul><p class="paragraph"/><h4>1.0</h4>
+<ul class="star">
+<li>Configure alternate caching providers via <code>Config.groovy</code> rather than having to override bean definitions in <code>resources.groovy</code></li>
+<li>Removed dependency on joda-time which was only there for testing</li>
+<li>Better synchronization for getting caches from the mapcache CacheManager</li>
+</ul><p class="paragraph"/><h4>0.2</h4>
+<ul class="star">
+<li>Configure caching and flushing models via <code>Config.groovy</code></li>
+<li>Flag to disable plugin entirely for testing environments</li>
+</ul><p class="paragraph"/><h4>0.1</h4>
+<ul class="star">
+<li>Initial release</li>
+</ul><p class="paragraph"/>
+	</body>
+</html>

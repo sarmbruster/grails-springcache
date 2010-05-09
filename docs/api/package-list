@@ -1,0 +1,3 @@
+grails.plugin.springcache
+grails.plugin.springcache.annotations
+grails.plugin.springcache.key
