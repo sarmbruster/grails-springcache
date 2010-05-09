@@ -107,7 +107,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		homePage = HomePage.open()
 		assertThat "Popular albums", homePage.popularAlbums, equalTo(expectedPopularList)
 
-		assertThat popularControllerCache, hasCacheMisses(2)
+		assertThat popularControllerCache, hasCacheMisses(3) // Selenium GET on nav from login, then GET + HEAD on open
 	}
 
 }

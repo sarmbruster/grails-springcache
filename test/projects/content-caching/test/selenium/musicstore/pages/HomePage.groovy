@@ -17,7 +17,7 @@ class HomePage extends GrailsPage {
 	}
 
 	HomePage refresh() {
-		selenium.refresh()
+		selenium.refreshAndWait()
 		return new HomePage()
 	}
 

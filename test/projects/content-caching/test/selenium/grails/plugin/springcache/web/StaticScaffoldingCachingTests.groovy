@@ -10,7 +10,7 @@ import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
 import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
 import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.*
 
 class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
@@ -28,7 +28,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		AlbumListPage.open()
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(1)
+		assertThat albumControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
 	}
 
 	void testReloadingListPageHitsCache() {
@@ -37,7 +37,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		page.refresh()
 
 		assertThat albumControllerCache, hasCacheHits(1)
-		assertThat albumControllerCache, hasCacheMisses(1)
+		assertThat albumControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
 	}
 
 	void testSaveFlushesCache() {
@@ -50,13 +50,13 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		createPage.year = "2009"
 		createPage.save()
 
-		assertThat "Album count", Album.count(), equalTo(1L)
+		assertThat "Album count", Album.count(), equalTo(1)
 
 		listPage = AlbumListPage.open()
 		assertThat "Album list page is still displayed cached content", listPage.rowCount, equalTo(1)
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(3) // 2 misses on list page, 1 on show
+		assertThat albumControllerCache, hasCacheMisses(5) // 2 misses on list page, 1 on show, list are Selenium HEAD + GET
 		assertThat albumControllerCache, hasCacheSize(2) // show and list pages cached
 	}
 
@@ -70,14 +70,14 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		createPage.year = "2009"
 		createPage.saveExpectingFailure()
 
-		assertThat "Flash message", createPage.flashMessage, equalTo("Artist is required")
+		assertThat "Flash message", createPage.errorMessages, hasItem("Artist is required")
 
-		assertThat "Album count", Album.count(), equalTo(0L)
+		assertThat "Album count", Album.count(), equalTo(0)
 
 		AlbumListPage.open()
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(3) // 2 misses on list page, 1 on show
+		assertThat albumControllerCache, hasCacheMisses(5) // 2 misses on list page, 1 on show
 		assertThat albumControllerCache, hasCacheSize(2)   // show and list pages cached
 	}
 
@@ -93,7 +93,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "Album name", showPage2.Name, equalTo(album2.name)
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(2)
+		assertThat albumControllerCache, hasCacheMisses(4) // Selenium HEAD + GET
 		assertThat albumControllerCache, hasCacheSize(2)
 	}
 
