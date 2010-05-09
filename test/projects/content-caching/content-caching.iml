@@ -50,6 +50,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="grails-springcache" />
+    <orderEntry type="module" module-name="content-caching-grailsPlugins" />
   </component>
 </module>
 
