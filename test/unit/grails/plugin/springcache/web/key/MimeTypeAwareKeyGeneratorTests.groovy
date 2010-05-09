@@ -28,10 +28,11 @@ class MimeTypeAwareKeyGeneratorTests extends GroovyTestCase {
 
 	KeyGenerator generator = new MimeTypeAwareKeyGenerator()
 
-	@Test void keyVariesByMimeType() {
+	@Test
+	void keyVariesByMimeType() {
 		def request = mock(HttpServletRequest) {
-			getFormat().returns("html").times(2)
-			getFormat().returns("xml")
+			format.returns("html").times(2)
+			format.returns("xml")
 		}
 		play {
 			def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
@@ -40,6 +41,20 @@ class MimeTypeAwareKeyGeneratorTests extends GroovyTestCase {
 
 			assertThat key1, equalTo(key2)
 			assertThat key1, not(equalTo(key3))
+		}
+	}
+
+	@Test
+	void formatOfAllIsIgnored() {
+		def request = mock(HttpServletRequest) {
+			format.returns("all")
+			format.returns(null)
+		}
+		play {
+			def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
+			def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
+
+			assertThat key1, equalTo(key2)
 		}
 	}
 

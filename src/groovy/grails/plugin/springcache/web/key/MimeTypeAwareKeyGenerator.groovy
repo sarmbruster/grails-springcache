@@ -22,7 +22,10 @@ class MimeTypeAwareKeyGenerator extends DefaultKeyGenerator {
 
 	protected void generateKeyInternal(CacheKeyBuilder builder, FilterContext context) {
 		super.generateKeyInternal(builder, context)
-		builder << context.request.format
+		def format = context.request.format
+		if (format && format != "all") {
+			builder << format
+		}
 	}
 
 }
