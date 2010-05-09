@@ -18,19 +18,17 @@ package grails.plugin.springcache.web.key
 import grails.plugin.springcache.web.FilterContext
 import javax.servlet.http.HttpServletRequest
 import org.gmock.WithGMock
+import org.junit.Test
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.not
+import static org.junit.Assert.assertThat
 
 @WithGMock
 class MimeTypeAwareKeyGeneratorTests extends GroovyTestCase {
 
-	KeyGenerator generator
+	KeyGenerator generator = new MimeTypeAwareKeyGenerator()
 
-	void setUp() {
-		super.setUp()
-
-		generator = new MimeTypeAwareKeyGenerator()
-	}
-
-	void testKeyVariesByMimeType() {
+	@Test void keyVariesByMimeType() {
 		def request = mock(HttpServletRequest) {
 			getFormat().returns("html").times(2)
 			getFormat().returns("xml")
@@ -40,8 +38,8 @@ class MimeTypeAwareKeyGeneratorTests extends GroovyTestCase {
 			def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
 			def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
 
-			assertEquals key1, key2
-			assertFalse key1 == key3
+			assertThat key1, equalTo(key2)
+			assertThat key1, not(equalTo(key3))
 		}
 	}
 

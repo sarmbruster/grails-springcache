@@ -16,67 +16,82 @@
 package grails.plugin.springcache.web.key
 
 import grails.plugin.springcache.web.FilterContext
+import org.junit.Test
+import org.springframework.mock.web.MockHttpServletRequest
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.not
+import static org.junit.Assert.assertThat
 
 class DefaultKeyGeneratorTests extends GroovyTestCase {
 
-	KeyGenerator generator
+	KeyGenerator generator = new DefaultKeyGenerator()
 
-	void setUp() {
-		super.setUp()
-
-		generator = new DefaultKeyGenerator()
-	}
-
-	void testKeyVariesOnControllerName() {
+	@Test
+	void keyVariesOnControllerName() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "baz", actionName: "bar"))
 
-		assertEquals key1, key2
-		assertFalse key1 == key3
+		assertThat key1, equalTo(key2)
+		assertThat key1, not(equalTo(key3))
 	}
 
-	void testKeyVariesOnActionName() {
+	@Test
+	void keyVariesOnActionName() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz"))
 
-		assertEquals key1, key2
-		assertFalse key1 == key3
+		assertThat key1, equalTo(key2)
+		assertThat key1, not(equalTo(key3))
 	}
 
-	void testKeyVariesWithParams() {
+	@Test
+	void keyVariesWithParams() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
 		def key4 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
 		def key5 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
 
-		assertEquals key1, key2
-		assertFalse key1 == key3
-		assertFalse key3 == key4
-		assertEquals key4, key5
+		assertThat key1, equalTo(key2)
+		assertThat key1, not(equalTo(key4))
+		assertThat key3, not(equalTo(key4))
+		assertThat key4, equalTo(key5)
 	}
 
-	void testParameterOrderNotImportant() {
+	@Test
+	void parameterOrderNotImportant() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [foo: "bar", id: "1"]))
 
-		assertEquals key1, key2
+		assertThat key1, equalTo(key2)
 	}
 
-	void testMatchingSubsetOfParamsCreatesDifferentKey() {
+	@Test
+	void matchingSubsetOfParamsCreatesDifferentKey() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
 
-		assertFalse key1 == key2
+		assertThat key1, not(equalTo(key2))
 	}
 
-	void testControllerAndActionParamsAreIgnored() {
+	@Test
+	void controllerAndActionParamsAreIgnored() {
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [controller: "foo", action: "bar"]))
 
-		assertEquals key1, key2
+		assertThat key1, equalTo(key2)
+	}
+
+	@Test
+	void headAndGetRequetGenerateSameKey() {
+		def headRequest = new MockHttpServletRequest("HEAD", "/foo/bar")
+		def getRequest = new MockHttpServletRequest("GET", "/foo/bar")
+		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: headRequest))
+		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: getRequest))
+
+		assertThat key1, equalTo(key2)
 	}
 
 }
