@@ -48,7 +48,7 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 		page = page.refresh()
 		assertThat "Latest albums", page.latestAlbums, equalTo(expectedList)
 
-		assertThat latestControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
+		assertThat latestControllerCache, hasCacheMisses(1)
 		assertThat latestControllerCache, hasCacheHits(1)
 	}
 

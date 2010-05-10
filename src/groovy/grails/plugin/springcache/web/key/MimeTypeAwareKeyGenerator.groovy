@@ -24,7 +24,7 @@ class MimeTypeAwareKeyGenerator extends DefaultKeyGenerator {
 		super.generateKeyInternal(builder, context)
 		def format = context.request.format
 		if (format && format != "all") {
-			builder << format
+			builder << "format=$format".toString()
 		}
 	}
 

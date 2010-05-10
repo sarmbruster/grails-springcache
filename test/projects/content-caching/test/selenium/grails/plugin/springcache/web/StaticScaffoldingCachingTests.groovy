@@ -28,7 +28,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		AlbumListPage.open()
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
+		assertThat albumControllerCache, hasCacheMisses(1)
 	}
 
 	void testReloadingListPageHitsCache() {
@@ -37,7 +37,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		page.refresh()
 
 		assertThat albumControllerCache, hasCacheHits(1)
-		assertThat albumControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
+		assertThat albumControllerCache, hasCacheMisses(1)
 	}
 
 	void testSaveFlushesCache() {
@@ -56,29 +56,31 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "Album list page is still displayed cached content", listPage.rowCount, equalTo(1)
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(5) // 2 misses on list page, 1 on show, list are Selenium HEAD + GET
+		assertThat albumControllerCache, hasCacheMisses(3) // 2 misses on list page, 1 on show
 		assertThat albumControllerCache, hasCacheSize(2) // show and list pages cached
 	}
 
 	void testFailedSaveStillFlushesCache() {
-		def listPage = AlbumListPage.open()
-		assertThat "Album list size", listPage.rowCount, equalTo(0)
+		// opening the list page should miss the cache
+		AlbumListPage.open()
 
+		// attempt to save a new album but with invalid data
 		def createPage = AlbumCreatePage.open()
 		createPage.artist = ""
 		createPage.name = "Up From Below"
 		createPage.year = "2009"
 		createPage.saveExpectingFailure()
 
-		assertThat "Flash message", createPage.errorMessages, hasItem("Artist is required")
-
+		// the album should not have been saved
+		assertThat "Error message", createPage.errorMessages, hasItem("Property [artist] of class [class musicstore.Album] cannot be null")
 		assertThat "Album count", Album.count(), equalTo(0)
 
+		// however, if we open the list page again it should miss the cache as the save action flushed
 		AlbumListPage.open()
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(5) // 2 misses on list page, 1 on show
-		assertThat albumControllerCache, hasCacheSize(2)   // show and list pages cached
+		assertThat albumControllerCache, hasCacheMisses(2)
+		assertThat albumControllerCache, hasCacheSize(1)
 	}
 
 	void testDifferentShowPagesCachedSeparately() {
@@ -93,7 +95,7 @@ class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
 		assertThat "Album name", showPage2.Name, equalTo(album2.name)
 
 		assertThat albumControllerCache, hasCacheHits(0)
-		assertThat albumControllerCache, hasCacheMisses(4) // Selenium HEAD + GET
+		assertThat albumControllerCache, hasCacheMisses(2)
 		assertThat albumControllerCache, hasCacheSize(2)
 	}
 

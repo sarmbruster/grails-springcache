@@ -15,7 +15,7 @@ class DynamicScaffoldingCachingTests extends AbstractContentCachingTestCase {
 
 		page.refresh()
 
-		assertThat artistControllerCache, hasCacheMisses(2) // Selenium HEAD + GET
+		assertThat artistControllerCache, hasCacheMisses(1)
 		assertThat artistControllerCache, hasCacheHits(1)
 	}
 

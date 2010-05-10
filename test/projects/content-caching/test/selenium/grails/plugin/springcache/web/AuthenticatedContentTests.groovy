@@ -45,7 +45,7 @@ class AuthenticatedContentTests extends AbstractContentCachingTestCase {
 		listPage = AlbumListPage.open()
 		assertThat "Logged in user message", listPage.loggedInMessage, equalTo("Logged in as blackbeard")
 
-		assertThat albumControllerCache, hasCacheHits(2) // Selenium HEAD + GET
+		assertThat albumControllerCache, hasCacheHits(1)
 	}
 
 	void testCachingOfAuthenticatedAction() {
