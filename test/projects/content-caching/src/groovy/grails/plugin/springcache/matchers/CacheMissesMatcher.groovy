@@ -36,6 +36,12 @@ class CacheMissesMatcher extends TypeSafeMatcher<Ehcache> {
 	}
 
 	protected void describeMismatchSafely(Ehcache item, Description mismatchDescription) {
-		mismatchDescription.appendText("$item.statistics.cacheMisses cache misses")
+		int misses = item.statistics.cacheHits
+		mismatchDescription.appendText("has ").appendValue(misses)
+		if (misses == 1) {
+			mismatchDescription.appendText(" cache miss")
+		} else {
+			mismatchDescription.appendText(" cache misses")
+		}
 	}
 }
