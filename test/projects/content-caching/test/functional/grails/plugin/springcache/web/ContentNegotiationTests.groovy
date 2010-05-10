@@ -3,9 +3,12 @@ package grails.plugin.springcache.web
 import functionaltestplugin.FunctionalTestCase
 import grails.plugin.springcache.SpringcacheService
 import musicstore.Album
-import musicstore.Artist
 import net.sf.ehcache.Ehcache
+import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
+import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
+import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static org.hamcrest.MatcherAssert.assertThat
 
 class ContentNegotiationTests extends FunctionalTestCase {
 
@@ -38,21 +41,21 @@ class ContentNegotiationTests extends FunctionalTestCase {
 	}
 
 	void testCachedContentNotServedWhenAcceptHeaderIsDifferent() {
-		get "/"
+		get "/latest/albums"
 		assertStatus SC_OK
 		assertContentType "text/html"
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 1, latestControllerCache.statistics.cacheMisses
-		assertEquals 1, latestControllerCache.statistics.objectCount
+		assertThat latestControllerCache, hasCacheHits(0)
+		assertThat latestControllerCache, hasCacheMisses(1)
+		assertThat latestControllerCache, hasCacheSize(1)
 
 		get("/latest/albums") {
 			headers["Accept"] = "text/xml"
 		}
 		assertStatus SC_OK
 		assertContentType "text/xml"
-		assertEquals 0, latestControllerCache.statistics.cacheHits
-		assertEquals 2, latestControllerCache.statistics.cacheMisses
-		assertEquals 2, latestControllerCache.statistics.objectCount
+		assertThat latestControllerCache, hasCacheHits(0)
+		assertThat latestControllerCache, hasCacheMisses(2)
+		assertThat latestControllerCache, hasCacheSize(2)
 	}
 
 }

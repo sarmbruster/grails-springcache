@@ -217,6 +217,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			}
 			log.debug "    controller = $context.controllerName"
 			log.debug "    action = $context.actionName"
+			log.debug "    format = $request.format"
 			log.debug "    params = $context.params"
 		}
 	}

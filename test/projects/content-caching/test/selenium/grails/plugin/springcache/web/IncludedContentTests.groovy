@@ -96,18 +96,21 @@ class IncludedContentTests extends AbstractContentCachingTestCase {
 
 		def expectedPopularList = [album1, album2, album3].collect { it.toString() }
 
+		// on initial open the popular list on the homepage should contain the expected data
 		def homePage = loginAs("ponytail")
 		assertThat "Popular albums", homePage.popularAlbums, equalTo(expectedPopularList)
 
+		// voting on the show page should flush the popular list's cache
 		def showPage = AlbumShowPage.open(album3.id)
 		showPage.vote 5
 
 		expectedPopularList = [album3, album1, album2].collect { it.toString() }
 
+		// so when we re-open the page the popular list should be in a different order
 		homePage = HomePage.open()
 		assertThat "Popular albums", homePage.popularAlbums, equalTo(expectedPopularList)
 
-		assertThat popularControllerCache, hasCacheMisses(3) // Selenium GET on nav from login, then GET + HEAD on open
+		assertThat popularControllerCache, hasCacheMisses(2)
 	}
 
 }
