@@ -3,6 +3,7 @@ package grails.plugin.springcache.web
 import functionaltestplugin.FunctionalTestCase
 import grails.plugin.springcache.SpringcacheService
 import musicstore.Album
+import musicstore.Artist
 import net.sf.ehcache.Ehcache
 import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
 import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
