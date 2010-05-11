@@ -1,18 +1,16 @@
 package pirates
 
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import org.junit.Test
-import static org.hamcrest.CoreMatchers.*
-import static org.junit.Assert.assertThat
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 
-class CacheConfigTests {
+class CacheConfigTests extends GroovyTestCase {
 
 	def springcacheCacheManager
 
-	@Test
-	void cachesCanBeConfiguredInAppConfig() {
+	void testCachesCanBeConfiguredInAppConfig() {
 		when: "A cache that is configured in app config is retrieved from the cache manager"
-		def cache = springcacheCacheManager.getEhcache("ConfiguredCache")
+		def cache = springcacheCacheManager.getEhcache("configuredCache")
 
 		then: "The cache should exist"
 		assertThat "configured cache", cache, not(nullValue())
@@ -21,10 +19,9 @@ class CacheConfigTests {
 		assertThat "configured ttl", cache.cacheConfiguration.timeToLiveSeconds, equalTo(86400L)
 	}
 
-	@Test
-	void cacheDefaultsCanBeConfiguredInAppConfig() {
+	void testCacheDefaultsCanBeConfiguredInAppConfig() {
 		when: "A cache that is configured in app config is retrieved from the cache manager"
-		def cache = springcacheCacheManager.getEhcache("ConfiguredCache")
+		def cache = springcacheCacheManager.getEhcache("configuredCache")
 
 		then: "The cache should exist"
 		assertThat "configured cache", cache, not(nullValue())

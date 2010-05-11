@@ -49,6 +49,7 @@
 				margin-right:20px;
 			}
 		</style>
+		<rateable:resources/>
     </head>
     <body>
 		<div id="nav">
@@ -99,6 +100,9 @@
 	              </g:each>
 	            </ul>
 	        </div>
+
+			<g:include controller="latest" action="albums"/>
+			<g:include controller="popular" action="albums"/>
 		</div>
     </body>
 </html>

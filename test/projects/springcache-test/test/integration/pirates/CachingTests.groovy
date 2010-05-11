@@ -3,40 +3,36 @@ package pirates
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
-import static org.hamcrest.CoreMatchers.*
-import static org.junit.Assert.assertThat
+import static org.hamcrest.Matchers.*
+import static org.hamcrest.MatcherAssert.assertThat
 
 class CachingTests extends GroovyTestCase {
 
 	def piracyService
 	def springcacheCacheManager
 
-	@BeforeClass static void setUpData() {
+	void setUp() {
+		super.setUp()
+
 		Pirate.build(name: "Blackbeard")
 		Pirate.build(name: "Calico Jack")
 		Pirate.build(name: "Black Bart")
 		Ship.build(name: "Queen Anne's Revenge", crew: Pirate.findAllByName("Blackbeard"))
 	}
 
-	@After
-	void destroyCaches() {
-		springcacheCacheManager.removeCache("PirateCache")
-		springcacheCacheManager.removeCache("ShipCache")
-	}
+	void tearDown() {
+		super.tearDown()
 
-	@AfterClass static void tearDownData() {
+		springcacheCacheManager.removeCache("pirateCache")
+		springcacheCacheManager.removeCache("shipCache")
+
 		Ship.list()*.delete()
 		Pirate.list()*.delete()
 	}
 
-	@Test
-	void cachedResultsShouldBeReturnedForSubsequentMethodCalls() {
+	void testCachedResultsShouldBeReturnedForSubsequentMethodCalls() {
 		given: "A cache exists"
-		def cache = new Cache("PirateCache", 100, false, true, 0, 0)
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
 
 		when: "A cachable method is called twice"
@@ -54,10 +50,9 @@ class CachingTests extends GroovyTestCase {
 		assertThat "result from cached call", result2, equalTo(result1)
 	}
 
-	@Test
-	void cachedResultsShouldNotBeReturnedForSubsequentCallWithDifferentArguments() {
+	void testCachedResultsShouldNotBeReturnedForSubsequentCallWithDifferentArguments() {
 		given: "A cache exists"
-		def cache = new Cache("PirateCache", 100, false, true, 0, 0)
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
 
 		when: "A cacheable method is called twice with different arguments"
@@ -75,10 +70,9 @@ class CachingTests extends GroovyTestCase {
 		assertThat "result of second call", result2, equalTo(["Black Bart", "Blackbeard"])
 	}
 
-	@Test
-	void theCacheCanBeFlushed() {
+	void testTheCacheCanBeFlushed() {
 		given: "A cache exists"
-		def cache = new Cache("PirateCache", 100, false, true, 0, 0)
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
 
 		when: "A cacheable method is called"
@@ -98,10 +92,9 @@ class CachingTests extends GroovyTestCase {
 		assertThat "result of second call", result2, equalTo(["Anne Bonny", "Black Bart", "Blackbeard", "Calico Jack"])
 	}
 
-	@Test
-	void theCacheIsFlushedEvenIfTheFlushingMethodFails() {
+	void testTheCacheIsFlushedEvenIfTheFlushingMethodFails() {
 		given: "A cache exists"
-		def cache = new Cache("PirateCache", 100, false, true, 0, 0)
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
 
 		and: "The cache is primed"
@@ -118,11 +111,10 @@ class CachingTests extends GroovyTestCase {
 		assertThat "cache size after flush", cache.statistics.objectCount, equalTo(0L)
 	}
 
-	@Test
-	void multipleCachesCanBeFlushedByASingleMethod() {
+	void testMultipleCachesCanBeFlushedByASingleMethod() {
 		given: "Multiple caches exist"
-		def cache1 = new Cache("PirateCache", 100, false, true, 0, 0)
-		def cache2 = new Cache("ShipCache", 100, false, true, 0, 0)
+		def cache1 = new Cache("pirateCache", 100, false, true, 0, 0)
+		def cache2 = new Cache("shipCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache1)
 		springcacheCacheManager.addCache(cache2)
 
@@ -142,24 +134,22 @@ class CachingTests extends GroovyTestCase {
 		assertThat "size of cache 2 after flush", cache2.statistics.objectCount, equalTo(0L)
 	}
 
-	@Test
-	void cachesAreCreatedOnDemandIfTheyDoNotExist() {
+	void testCachesAreCreatedOnDemandIfTheyDoNotExist() {
 		when: "A cachable method is called when no cache exists"
 		piracyService.listPirateNames()
 
 		then: "The cache is created when first used"
-		def cache = springcacheCacheManager.getCache("PirateCache")
+		def cache = springcacheCacheManager.getEhcache("pirateCache")
 		assertThat "on-demand cache", cache, not(nullValue())
 		assertThat "size of on-demand cache", cache.statistics.objectCount, equalTo(1L)
 	}
 
-	@Test
-	void cachesCreatedOnDemandHaveDefaultConfigurationApplied() {
+	void testCachesCreatedOnDemandHaveDefaultConfigurationApplied() {
 		when: "A cachable method is called when no cache exists"
 		piracyService.listPirateNames()
 
 		then: "The cache created has default properties applied"
-		def cache = springcacheCacheManager.getCache("PirateCache")
+		def cache = springcacheCacheManager.getEhcache("pirateCache")
 		assertThat "on-demand cache", cache, not(nullValue())
 		assertThat "on-demand cache memory eviction policy", cache.cacheConfiguration.memoryStoreEvictionPolicy, equalTo(MemoryStoreEvictionPolicy.LFU)
 	}
