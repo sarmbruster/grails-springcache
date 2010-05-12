@@ -1,7 +1,3 @@
-import org.springframework.security.context.SecurityContextHolder
-import org.springframework.security.userdetails.UserDetails
-import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -106,13 +102,13 @@ springcache {
 }
 
 grails.rateable.rater.evaluator = {
-	def principal = SecurityContextHolder.context?.authentication?.principal
-	if (principal instanceof UserDetails) {
+	def principal = org.springframework.security.context.SecurityContextHolder.context?.authentication?.principal
+	if (principal instanceof org.springframework.security.userdetails.UserDetails) {
 		return principal.domainClass
 	}
 	return null
 }
 
 beans {
-	springcacheFilter.keyGenerator = new MimeTypeAwareKeyGenerator()
+	springcacheFilter.keyGenerator = new grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator()
 }
