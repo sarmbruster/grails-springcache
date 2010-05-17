@@ -17,5 +17,5 @@ grails.project.dependency.resolution = {
 	}
 	dependencies {
 	}
-
 }
+grails.plugin.location.springcache = "../../.."
