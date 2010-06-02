@@ -4,11 +4,10 @@ out/
 target/
 test/reports
 lib/build
-docs/api
-docs/gapi
 build/
 .gradle/
 web-app/
 *.zip
 plugin.xml
 docs-*
+docs
