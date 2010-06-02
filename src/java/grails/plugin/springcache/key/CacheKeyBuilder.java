@@ -44,8 +44,27 @@ public class CacheKeyBuilder {
 		if (o == null) {
 			appendNull();
 		} else if (o.getClass().isArray()) {
-			// This will fail if o contains itself
-			append(Arrays.deepHashCode((Object[])o));
+			if (o instanceof Object[]) {
+				append(Arrays.deepHashCode((Object[])o)); // This will fail if o contains itself
+			} else if (o instanceof boolean[]) {
+				append(Arrays.hashCode((boolean[])o));
+			} else if (o instanceof byte[]) {
+				append(Arrays.hashCode((byte[])o));
+			} else if (o instanceof char[]) {
+				append(Arrays.hashCode((char[])o));
+			} else if (o instanceof double[]) {
+				append(Arrays.hashCode((double[])o));
+			} else if (o instanceof float[]) {
+				append(Arrays.hashCode((float[])o));
+			} else if (o instanceof int[]) {
+				append(Arrays.hashCode((int[])o));
+			} else if (o instanceof long[]) {
+				append(Arrays.hashCode((long[])o));
+			} else if (o instanceof short[]) {
+				append(Arrays.hashCode((short[])o));
+			} else {
+				throw new UnHandleableCacheKeyComponentException(o.getClass());
+			}
 		} else {
 			append(o.hashCode());
 		}
@@ -79,4 +98,9 @@ public class CacheKeyBuilder {
 		return new CacheKey(hash, checksum);
 	}
 
+	protected static class UnHandleableCacheKeyComponentException extends IllegalStateException {
+		public UnHandleableCacheKeyComponentException(Class type) {
+			super("Unable to handle object of type '" + type + "'");
+		}
+	}
 }

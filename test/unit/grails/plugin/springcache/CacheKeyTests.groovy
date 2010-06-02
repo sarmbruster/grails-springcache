@@ -126,6 +126,23 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), equalTo(key2.hashCode())
 	}
 
+	@Test
+	void cacheKeysEqualForRepeatedCallsToSameMethodWithPrimitiveArrayArguments() {
+		def asserter = {
+			def clone = it.clone()
+			
+			def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", [it]))
+			def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", [clone]))
+
+			assertThat key1, equalTo(key2)
+			assertThat key1.hashCode(), equalTo(key2.hashCode())
+		}
+		
+		asserter([1] as int[])
+		asserter([true] as boolean[])
+		asserter("abc" as char[])
+	}
+
 	static JoinPoint mockJoinPoint(Object target, String methodName, List args = []) {
 		def joinPoint = [:]
 		joinPoint.getTarget = {-> target }
