@@ -24,9 +24,11 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import org.springframework.cache.ehcache.EhCacheFactoryBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
+import org.slf4j.LoggerFactory
 
 class SpringcacheService implements ApplicationContextAware {
 
+	static private final log = LoggerFactory.getLogger(SpringcacheService.class)
 	static transactional = false
 
 	ApplicationContext applicationContext
