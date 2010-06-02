@@ -39,4 +39,18 @@ class AspectSmokeTests extends GroovyTestCase {
 		cachingService.flush()
 		assert cachingService.addValueTo(1) == 2
 	}
+	
+	/**
+	 * This is largely redundant as autoboxing means that the
+	 * args actually go through as Objects, but it's here for
+	 * good measure.
+	 */
+	void testThatCacheableMethodsCanReceivePrimitiveTypes() {
+		assert cachingService.addValueTo(1 as int) == 1
+		cachingService.value = 1
+		assert cachingService.addValueTo(1 as int) == 1
+		cachingService.flush()
+		assert cachingService.addValueTo(1 as int) == 2
+	}
+	
 }
