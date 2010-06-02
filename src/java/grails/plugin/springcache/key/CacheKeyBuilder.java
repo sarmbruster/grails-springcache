@@ -40,13 +40,20 @@ public class CacheKeyBuilder {
 	}
 
 	public CacheKeyBuilder append(Object o) {
-		return append(o.hashCode());
+		return (o != null) ? append(o.hashCode()) : appendNull();
 	}
 
 	public CacheKeyBuilder append(Object[] oarr) {
 		for (Object o : oarr) {
-			append(o.hashCode());
+			append(o);
 		}
+		return this;
+	}
+
+	protected CacheKeyBuilder appendNull() {
+		// Unsure what the best strategy is here…
+		// Append 0 or just do nothing?
+		
 		return this;
 	}
 

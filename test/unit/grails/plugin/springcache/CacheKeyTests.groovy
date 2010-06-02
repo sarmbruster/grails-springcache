@@ -81,6 +81,24 @@ class CacheKeyTests {
 		assertThat key1.hashCode(), equalTo(key2.hashCode())
 	}
 
+	@Test
+	void cacheKeysCanBeGeneratedForNullMethodArgumentsAndAreEqual() {
+		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", null]))
+		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", null]))
+
+		assertThat key1, equalTo(key2)
+		assertThat key1.hashCode(), equalTo(key2.hashCode())
+	}
+
+	@Test
+	void cacheKeysAreNotEqualForDifferentMethodArgumentsContainingNulls() {
+		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", null]))
+		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["b", null]))
+
+		assertThat key1, not(equalTo(key2))
+		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
+	}
+	
 	static JoinPoint mockJoinPoint(Object target, String methodName, List args = []) {
 		def joinPoint = [:]
 		joinPoint.getTarget = {-> target }
