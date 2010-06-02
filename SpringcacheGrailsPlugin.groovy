@@ -14,7 +14,8 @@ class SpringcacheGrailsPlugin {
 	def pluginExcludes = [
 			"grails-app/views/**",
 			"web-app/**",
-			"**/.gitignore"
+			"**/.gitignore",
+			"grails-app/services/grails/plugin/springcache/test/**",
 	]
 
 	def author = "Rob Fletcher"
