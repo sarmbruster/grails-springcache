@@ -98,7 +98,34 @@ class CacheKeyTests {
 		assertThat key1, not(equalTo(key2))
 		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
 	}
-	
+
+	@Test
+	void cacheKeysEqualForRepeatedCallsToSameMethodWithObjectArrayArguments() {
+		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", ["a"] as Object[]]))
+		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", ["a"] as Object[]]))
+
+		assertThat key1, equalTo(key2)
+		assertThat key1.hashCode(), equalTo(key2.hashCode())
+	}
+
+	@Test
+	void cacheKeysNotEqualForRepeatedCallsToSameMethodWithDifferentObjectArrayArguments() {
+		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", ["a"] as Object[]]))
+		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", ["b"] as Object[]]))
+
+		assertThat key1, not(equalTo(key2))
+		assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
+	}
+
+	@Test
+	void cacheKeysEqualForRepeatedCallsToSameMethodWithArrayArgumentsContainingNull() {
+		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", [null] as Object[]]))
+		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "method", ["a", [null] as Object[]]))
+
+		assertThat key1, equalTo(key2)
+		assertThat key1.hashCode(), equalTo(key2.hashCode())
+	}
+
 	static JoinPoint mockJoinPoint(Object target, String methodName, List args = []) {
 		def joinPoint = [:]
 		joinPoint.getTarget = {-> target }

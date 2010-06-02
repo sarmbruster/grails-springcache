@@ -16,6 +16,7 @@
 package grails.plugin.springcache.key;
 
 import grails.plugin.springcache.CacheKey;
+import java.util.Arrays;
 
 /**
  * Builder used to compute the hash and checksum used for an immutable cache key.
@@ -40,7 +41,16 @@ public class CacheKeyBuilder {
 	}
 
 	public CacheKeyBuilder append(Object o) {
-		return (o != null) ? append(o.hashCode()) : appendNull();
+		if (o == null) {
+			appendNull();
+		} else if (o.getClass().isArray()) {
+			// This will fail if o contains itself
+			append(Arrays.deepHashCode((Object[])o));
+		} else {
+			append(o.hashCode());
+		}
+
+		return this;
 	}
 
 	public CacheKeyBuilder append(Object[] oarr) {
