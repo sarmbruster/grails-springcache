@@ -1,3 +1,7 @@
+h4. 1.2.1
+
+ * Support primitive, array and @null@ service method arguments in cache keys (thanks Luke Daley)
+
 h4. 1.2
 
  * Adds page fragment caching via annotations on controllers.
