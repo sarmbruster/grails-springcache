@@ -17,15 +17,38 @@ package grails.plugin.springcache
 
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.Signature
-import org.junit.Test
+import org.junit.*
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.not
 import static org.junit.Assert.assertThat
+import org.junit.experimental.theories.Theory
+import org.junit.experimental.theories.Theories
+import org.junit.runner.RunWith
+import org.junit.experimental.theories.DataPoint
+import org.junit.experimental.theories.DataPoints
 
+@RunWith(Theories)
 class CacheKeyTests {
 
 	static final TARGET_1 = new Object()
 	static final TARGET_2 = new Object()
+
+	@DataPoints static parameters = [
+	        new CacheKeyDataPoint(joinPoint1: mockJoinPoint(TARGET_1, "method1"), joinPoint2: mockJoinPoint(TARGET_1, "method2"), shouldBeEqual: false)
+	]
+
+	@Theory
+	void cacheKeysAreGeneratedCorrectly(CacheKeyDataPoint data) {
+		def key1 = CacheKey.generate(data.joinPoint1)
+		def key2 = CacheKey.generate(data.joinPoint2)
+		if (data.shouldBeEqual) {
+			assertThat key1, equalTo(key2)
+			assertThat key1.hashCode(), equalTo(key2.hashCode())
+		} else {
+			assertThat key1, not(equalTo(key2))
+			assertThat key1.hashCode(), not(equalTo(key2.hashCode()))
+		}
+	}
 
 	@Test
 	void cacheKeysDifferForDifferentMethodNamesOnSameTarget() {
@@ -151,4 +174,10 @@ class CacheKeyTests {
 		return joinPoint as JoinPoint
 	}
 
+}
+
+class CacheKeyDataPoint {
+	JoinPoint joinPoint1
+	JoinPoint joinPoint2
+	boolean shouldBeEqual
 }
