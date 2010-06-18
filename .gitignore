@@ -9,6 +9,4 @@ build/
 web-app/
 *.zip
 plugin.xml
-docs-*
-docs
 .DS_Store
