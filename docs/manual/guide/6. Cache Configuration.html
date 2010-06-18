@@ -1,11 +1,11 @@
 <html>
-     <head>
-     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-     	<title>6. Cache Configuration</title>
-     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
-     </head>
-	<body class="body">
-		<h1><a name="6. Cache Configuration">6. Cache Configuration</a></h1>Caches referenced by the annotations can be configured, either in an <code>ehcache.xml</code> (usually kept in the <code>grails-app/conf</code> directory) file, using <code>EhCacheFactoryBean</code> definitions in <code>grails-app/conf/spring/resources.groovy</code> or via <code>Config.groovy</code>. If you do not configure caches individually they will be created on demand using defaults.<p class="paragraph"/><h3>Configuring caches with resources.groovy</h3><p class="paragraph"/>You can configure caches in <code>grails-app/conf/spring/resources.groovy</code> using instances of Spring's <a href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/cache/ehcache/EhCacheFactoryBean.html" target="blank">EhCacheFactoryBean</a> class. For example:<p class="paragraph"/><h4>grails-app/conf/spring/resources.groovy</h4><p class="paragraph"/><div class="code"><pre>pirateCache(EhCacheFactoryBean) &#123; bean &#45;&#62;
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>6. Cache Configuration</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h1><a name="6. Cache Configuration">6. Cache Configuration</a></h1>Caches referenced by the annotations can be configured, either in an <code>ehcache.xml</code> (usually kept in the <code>grails-app/conf</code> directory) file, using <code>EhCacheFactoryBean</code> definitions in <code>grails-app/conf/spring/resources.groovy</code> or via <code>Config.groovy</code>. If you do not configure caches individually they will be created on demand using defaults.<p class="paragraph"/><h3>Configuring caches with resources.groovy</h3><p class="paragraph"/>You can configure caches in <code>grails-app/conf/spring/resources.groovy</code> using instances of Spring's <a href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/cache/ehcache/EhCacheFactoryBean.html" target="blank">EhCacheFactoryBean</a> class. For example:<p class="paragraph"/><h4>grails-app/conf/spring/resources.groovy</h4><p class="paragraph"/><div class="code"><pre>pirateCache(EhCacheFactoryBean) &#123; bean &#45;&#62;
     cacheManager = ref(<span class="java&#45;quote">"springcacheCacheManager"</span>)
     cacheName = <span class="java&#45;quote">"pirateCache"</span>
     // these are just examples of properties you could set
@@ -50,5 +50,5 @@
 <ul class="star">
 <li>You will need to change the import statements for your <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations to point to the <code>grails.plugin.springcache.annotations</code> package.</li>
 </ul><p class="paragraph"/>
-	</body>
+    </body>
 </html>

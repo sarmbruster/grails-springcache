@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>3.2 Calling Cached Methods Internally</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    Service method caching is implemented via Spring AOP, which utilises proxies. In practical terms, this means that when depending on a service with a cached method in another service or controller (or anything else for that matter), you actual receive a <em class="italic">proxy</em> for the real service. This allows method calls to be intercepted and for caches to be checked or populated.<p class="paragraph"/>The implication of this however is that calls to <code>this</code> (implicit or explicit) do <strong class="bold">NOT</strong> go via the proxy.<p class="paragraph"/>Consider the following…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def nonCachedMethod() &#123;
+        cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>You may expect that the <code>nonCachedMethod()</code> will use the cache for <code>cachedMethod()</code>, but it won't. The call is made on <code>this</code> which is the actual instance and not the proxy.<p class="paragraph"/>Fortunately, there is an easy workaround…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def grailsApplication<p class="paragraph"/>    def nonCachedMethod() &#123;
+        grailsApplication.mainContext.exampleService.cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>Instead of calling the method on <code>this</code>, we obtain the proxy via the application context (i.e. <code>grailsApplication.mainContext.exampleService</code>) and call the method on that. This way we go through the caching mechanism.
+    </body>
+</html>

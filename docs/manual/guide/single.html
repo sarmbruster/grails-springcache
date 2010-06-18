@@ -1,36 +1,40 @@
 <html>
-	<head>
-		  <title>springcache 1.2.1 - Reference Documentation</title>
-		  <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Style" charset="utf-8">	
-	</head>
+    <head>
+        <title>springcache 1.2.1 - Reference Documentation</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Style" charset="utf-8"/>
+        <link rel="stylesheet" href="../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8" />
+    </head>
     <body class="body">
-		<div id="header">
-				<div class="images"><br><br>
-				   <a href="http://grails.org"  target="_blank"><img alt="The Grails Framework" src="../img/grails.png" border="0"></a>
-				   <span style="right:30px; top:20px; position:absolute;">
-					<a href="../index.html" target="_top">Frames</a> | <a href="index.html" target="_top">No Frames</a><br><br>
-                     <a alt="SpringSource - A Division of VMware" href="http://springsource.com" target="_blank"><img src="../img/springsource-logo.png" border="0"></a>					
-					</span>					
-				</div>
-				<div class="message">springcache</div>
-				<h1>springcache - Reference Documentation</h1>
-				<p><strong>Authors:</strong> </p>
-				<p><strong>Version:</strong> 1.2.1</p>				
-				<em></em>
-		</div>                       
-		
-		<div id="toc">  
-			<h2>Table of Contents</h2>
-			<div class="tocItem" style="margin-left:0px"><a href="#1. Introduction">1. Introduction</a></div><div class="tocItem" style="margin-left:10px"><a href="#1.1. Release Notes">1.1. Release Notes</a></div><div class="tocItem" style="margin-left:0px"><a href="#2. The Cacheable and CacheFlush Annotations">2. The Cacheable and CacheFlush Annotations</a></div><div class="tocItem" style="margin-left:0px"><a href="#3. Caching Service Methods">3. Caching Service Methods</a></div><div class="tocItem" style="margin-left:10px"><a href="#3.1. Service Method Cache Keys">3.1. Service Method Cache Keys</a></div><div class="tocItem" style="margin-left:0px"><a href="#4. Content Caching">4. Content Caching</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.1. Caching and Flushing with Controller Actions">4.1. Caching and Flushing with Controller Actions</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.2. Content Caching and SiteMesh">4.2. Content Caching and SiteMesh</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.3. Using Annotations at Class Level">4.3. Using Annotations at Class Level</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.4. Content Cache Keys">4.4. Content Cache Keys</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.5. Content Negotiation">4.5. Content Negotiation</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.6. Full Page Caching">4.6. Full Page Caching</a></div><div class="tocItem" style="margin-left:0px"><a href="#5. Programmatic Caching and Flushing">5. Programmatic Caching and Flushing</a></div><div class="tocItem" style="margin-left:0px"><a href="#6. Cache Configuration">6. Cache Configuration</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.1. Tips">7.1. Tips</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.2. FAQ">7.2. FAQ</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.3. Upgrading From Earlier Versions">7.3. Upgrading From Earlier Versions</a></div>
-		</div>     
-		<div id="content">
-			<h1><a name="1. Introduction">1. Introduction</a></h1>The <em class="italic">Springcache</em> plugin allows you to easily add the following functionality to your Grails project:
+        <div id="header">
+            <div class="images"><br/><br/>
+                <a href="http://grails.org" target="_blank"><img alt="The Grails Framework" src="../img/grails.png" border="0"/></a>
+                <span style="right:30px; top:20px; position:absolute;">
+                    <a href="../index.html" target="_top">Frames</a> | <a href="index.html" target="_top">No Frames</a><br/><br/>
+                    <a href="http://springsource.com" target="_blank"><img alt="SpringSource - A Division of VMware" src="../img/springsource-logo.png" border="0"/></a>
+                </span>
+            </div>
+            <div class="message">springcache</div>
+            <h1>springcache - Reference Documentation</h1>
+            <p><strong>Authors:</strong> </p>
+            <p><strong>Version:</strong> 1.2.1</p>
+            <em></em>
+        </div>
+
+        <div id="toc">
+            <h2>Table of Contents</h2>
+            <div class="tocItem" style="margin-left:0px"><a href="#1. Introduction">1. Introduction</a></div><div class="tocItem" style="margin-left:10px"><a href="#1.1. Release Notes">1.1. Release Notes</a></div><div class="tocItem" style="margin-left:0px"><a href="#2. The Cacheable and CacheFlush Annotations">2. The Cacheable and CacheFlush Annotations</a></div><div class="tocItem" style="margin-left:0px"><a href="#3. Caching Service Methods">3. Caching Service Methods</a></div><div class="tocItem" style="margin-left:10px"><a href="#3.1. Service Method Cache Keys">3.1. Service Method Cache Keys</a></div><div class="tocItem" style="margin-left:10px"><a href="#3.2 Calling Cached Methods Internally">3.2 Calling Cached Methods Internally</a></div><div class="tocItem" style="margin-left:0px"><a href="#4. Content Caching">4. Content Caching</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.1. Caching and Flushing with Controller Actions">4.1. Caching and Flushing with Controller Actions</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.2. Content Caching and SiteMesh">4.2. Content Caching and SiteMesh</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.3. Using Annotations at Class Level">4.3. Using Annotations at Class Level</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.4. Content Cache Keys">4.4. Content Cache Keys</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.5. Content Negotiation">4.5. Content Negotiation</a></div><div class="tocItem" style="margin-left:10px"><a href="#4.6. Full Page Caching">4.6. Full Page Caching</a></div><div class="tocItem" style="margin-left:0px"><a href="#5. Programmatic Caching and Flushing">5. Programmatic Caching and Flushing</a></div><div class="tocItem" style="margin-left:0px"><a href="#6. Cache Configuration">6. Cache Configuration</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.1. Tips">7.1. Tips</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.2. FAQ">7.2. FAQ</a></div><div class="tocItem" style="margin-left:10px"><a href="#7.3. Upgrading From Earlier Versions">7.3. Upgrading From Earlier Versions</a></div>
+        </div>
+        <div id="content">
+            <h1><a name="1. Introduction">1. Introduction</a></h1>The <em class="italic">Springcache</em> plugin allows you to easily add the following functionality to your Grails project:
 <ul class="star">
 <li>Caching of Spring bean methods (typically Grails service methods).</li>
 <li>Caching of page fragments generated by Grails controllers.</li>
 <li>Cache flushing when Spring bean methods or controller actions are invoked.</li>
 </ul><p class="paragraph"/>The plugin depends on the <a href="http://ehcache.org/" target="blank">EhCache</a> and <a href="http://ehcache.org/documentation/web_caching.html" target="blank">EhCache-Web</a> libraries.<p class="paragraph"/><h3>Contact</h3><p class="paragraph"/>The plugin code is hosted on <a href="http://github.com/robfletcher/grails-springcache" target="blank">GitHub</a>. Please feel free to fork the plugin and contribute patches.<p class="paragraph"/>Please raise defects or enhancements against the Grails Springcache plugin component on the <a href="http://jira.codehaus.org/browse/GRAILSPLUGINS/component/14010" target="blank">Codehaus JIRA</a>.<p class="paragraph"/>Questions, comments? mailto:rob</code>energizedwork.com or better still contact me via the <a href="http://grails.org/Mailing+lists" target="blank">Grails User mailing list</a>.
-<h2><a name="1.1. Release Notes">1.1. Release Notes</a></h2><h4>1.2</h4>
+<h2><a name="1.1. Release Notes">1.1. Release Notes</a></h2><h4>1.2.1</h4>
+<ul class="star">
+<li>Support primitive, array and <code>null</code> service method arguments in cache keys (thanks Luke Daley)</li>
+</ul><p class="paragraph"/><h4>1.2</h4>
 <ul class="star">
 <li>Adds page fragment caching via annotations on controllers.</li>
 <li>Simplifies config by getting rid of caching and flushing models and having annotations refer to cache names directly.</li>
@@ -98,7 +102,19 @@ void registerNewShipWithCrew(Ship ship, Collection&#60;Sailor&#62; crew) &#123;
 <li>The <em class="italic">target</em> object, i.e. the service being called.</li>
 <li>The service method name.</li>
 <li>All method parameters.</li>
-</ul><p class="paragraph"/>Since Grails services are typically Spring singletons the target object is not usually an issue. There's no need to implements <em class="italic">equals</em> or <em class="italic">hashCode</em> on your service classes unless you are using a different Spring bean scope and need to differentiate between calls made to different instances of the service.<p class="paragraph"/>It is, however, <strong class="bold">vital</strong> to ensure that <em class="italic">equals</em> and <em class="italic">hashCode</em> is properly implemented on all the types used as parameters to cached methods. If this is not done it is very unlikely that the cache will ever be hit.<h1><a name="4. Content Caching">4. Content Caching</a></h1>The <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations can be applied to controller actions and the plugin will then cache the page fragment generated by the controller whether this is done by rendering a GSP, using a <em class="italic">MarkupBuilder</em> closure, rendering text directly or whatever. Only successful page renders are cached, so redirects, 404s, errors and so on will not be.<p class="paragraph"/>Composing pages so that they can be optimally cached requires some thought. The plugin uses a servlet filter that runs 'inside' the SiteMesh filter provided by Grails. This means that cached output is decorated by SiteMesh and the resulting page can therefore contain uncached content from the SiteMesh template. In addition you can use caching at a modular level to cache the output of controller actions invoked using the <code>g:include</code> tag. Combining these techniques leads to powerful modular page caching. For example, you can cache the output of the 'main' controller then use <code>g:include</code> tags in the SiteMesh layout to include content on the page that is cached separately - and can be flushed separately - from the main body of the page.
+</ul><p class="paragraph"/>Since Grails services are typically Spring singletons the target object is not usually an issue. There's no need to implements <em class="italic">equals</em> or <em class="italic">hashCode</em> on your service classes unless you are using a different Spring bean scope and need to differentiate between calls made to different instances of the service.<p class="paragraph"/>It is, however, <strong class="bold">vital</strong> to ensure that <em class="italic">equals</em> and <em class="italic">hashCode</em> is properly implemented on all the types used as parameters to cached methods. If this is not done it is very unlikely that the cache will ever be hit.<h2><a name="3.2 Calling Cached Methods Internally">3.2 Calling Cached Methods Internally</a></h2>Service method caching is implemented via Spring AOP, which utilises proxies. In practical terms, this means that when depending on a service with a cached method in another service or controller (or anything else for that matter), you actual receive a <em class="italic">proxy</em> for the real service. This allows method calls to be intercepted and for caches to be checked or populated.<p class="paragraph"/>The implication of this however is that calls to <code>this</code> (implicit or explicit) do <strong class="bold">NOT</strong> go via the proxy.<p class="paragraph"/>Consider the following…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def nonCachedMethod() &#123;
+        cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>You may expect that the <code>nonCachedMethod()</code> will use the cache for <code>cachedMethod()</code>, but it won't. The call is made on <code>this</code> which is the actual instance and not the proxy.<p class="paragraph"/>Fortunately, there is an easy workaround…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def grailsApplication<p class="paragraph"/>    def nonCachedMethod() &#123;
+        grailsApplication.mainContext.exampleService.cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>Instead of calling the method on <code>this</code>, we obtain the proxy via the application context (i.e. <code>grailsApplication.mainContext.exampleService</code>) and call the method on that. This way we go through the caching mechanism.<h1><a name="4. Content Caching">4. Content Caching</a></h1>The <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations can be applied to controller actions and the plugin will then cache the page fragment generated by the controller whether this is done by rendering a GSP, using a <em class="italic">MarkupBuilder</em> closure, rendering text directly or whatever. Only successful page renders are cached, so redirects, 404s, errors and so on will not be.<p class="paragraph"/>Composing pages so that they can be optimally cached requires some thought. The plugin uses a servlet filter that runs 'inside' the SiteMesh filter provided by Grails. This means that cached output is decorated by SiteMesh and the resulting page can therefore contain uncached content from the SiteMesh template. In addition you can use caching at a modular level to cache the output of controller actions invoked using the <code>g:include</code> tag. Combining these techniques leads to powerful modular page caching. For example, you can cache the output of the 'main' controller then use <code>g:include</code> tags in the SiteMesh layout to include content on the page that is cached separately - and can be flushed separately - from the main body of the page.
 <h2><a name="4.1. Caching and Flushing with Controller Actions">4.1. Caching and Flushing with Controller Actions</a></h2><h3>Example: caching Grails CRUD pages</h3><p class="paragraph"/>Grails' standard scaffolded <em class="italic">CRUD</em> pages provide a good example of how caching and flushing can be applied. For example, let's take an <em class="italic">Album</em> domain class. The scaffolded controller could be annotated like this:<p class="paragraph"/><h4>AlbumController.groovy</h4><p class="paragraph"/><div class="code"><pre>class AlbumController &#123;
     // the index action is uncached as it just performs a redirect to list
     def index = &#123;
@@ -249,10 +265,10 @@ class AlbumController &#123;<p class="paragraph"/>    <span class="java&#45;keyw
 </ul><p class="paragraph"/><h4>From pre 1.1:</h4>
 <ul class="star">
 <li>You will need to change the import statements for your <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations to point to the <code>grails.plugin.springcache.annotations</code> package.</li>
-</ul><p class="paragraph"/>         			
-		</div>
-		<div id="footer">
-			  
-		</div>	
-	</body>
+</ul><p class="paragraph"/>
+        </div>
+        <div id="footer">
+             
+        </div>
+    </body>
 </html>
