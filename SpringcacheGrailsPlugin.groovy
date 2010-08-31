@@ -24,7 +24,7 @@ import grails.plugin.springcache.web.key.DefaultKeyGenerator
 
 class SpringcacheGrailsPlugin {
 
-	def version = "1.2.1"
+	def version = "1.2.2-SNAPSHOT"
 	def grailsVersion = "1.2.0 > *"
 	def dependsOn = [:]
 	def pluginExcludes = [
