@@ -34,12 +34,11 @@ class SpringcacheGrailsPlugin {
 			"grails-app/services/grails/plugin/springcache/test/**",
 	]
 
-	def author = "Rob Fletcher"
-	def authorEmail = "rob@energizedwork.com"
+	def author = "Grails Plugin Collective"
+	def authorEmail = "grails.plugin.collective@gmail.com"
 	def title = "Spring Cache Plugin"
 	def description = "Provides annotation-driven caching of service methods and page fragments."
-
-	def documentation = "http://grails.org/Springcache+Plugin"
+	def documentation = "http://gpc.github.com/grails-springcache"
 
 	def doWithWebDescriptor = {xml ->
 		if (!application.config.springcache.disabled) {
