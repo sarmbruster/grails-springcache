@@ -112,13 +112,3 @@ grails.rateable.rater.evaluator = {
 beans {
 	springcacheFilter.keyGenerator = new grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator()
 }
-
-grails {
-	doc {
-		title = "Spring Cache Plugin"
-		subtitle = "Provides annotation-driven caching of service methods and page fragments"
-		authors = "Grails Plugin Collective"
-		copyright = "Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically."
-		footer = "Developed by the <a href='http://gpc.github.com'>Grails Plugin Collective</a>"
-	}
-}
