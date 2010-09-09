@@ -272,13 +272,9 @@ class SpringcacheServiceSpec extends UnitSpec {
 		manager.addCache(blockingCache)
 
 		when:
-		try {
 		service.doWithBlockingCache("blockingCache", "key") {
 			return "value"
 		}
-	} catch(MissingMethodException e) {
-		e.printStackTrace()
-	}
 		
 		then:
 		thrown LockTimeoutException
