@@ -15,83 +15,87 @@
  */
 package grails.plugin.springcache.web.key
 
+import spock.lang.*
 import grails.plugin.springcache.web.FilterContext
-import org.junit.Test
 import org.springframework.mock.web.MockHttpServletRequest
-import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.not
-import static org.junit.Assert.assertThat
 
-class DefaultKeyGeneratorTests extends GroovyTestCase {
+class DefaultKeyGeneratorSpec extends Specification {
 
 	KeyGenerator generator = new DefaultKeyGenerator()
 
-	@Test
-	void keyVariesOnControllerName() {
+	def "keys differ for different controller names"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "baz", actionName: "bar"))
 
-		assertThat key1, equalTo(key2)
-		assertThat key1, not(equalTo(key3))
+		expect:
+		key1 == key2
+		key1 != key3
 	}
 
-	@Test
-	void keyVariesOnActionName() {
+	def "keys differ for different action names"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz"))
 
-		assertThat key1, equalTo(key2)
-		assertThat key1, not(equalTo(key3))
+		expect:
+		key1 == key2
+		key1 != key3
 	}
 
-	@Test
-	void keyVariesWithParams() {
+	def "keys differ for different request parameters"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
 		def key4 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
 		def key5 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
 
-		assertThat key1, equalTo(key2)
-		assertThat key1, not(equalTo(key4))
-		assertThat key3, not(equalTo(key4))
-		assertThat key4, equalTo(key5)
+		expect:
+		key1 == key2
+		key1 != key4
+		key3 != key4
+		key4 == key5
 	}
 
-	@Test
-	void parameterOrderNotImportant() {
+	def "parameter order is not important"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [foo: "bar", id: "1"]))
 
-		assertThat key1, equalTo(key2)
+		expect:
+		key1 == key2
 	}
 
-	@Test
-	void matchingSubsetOfParamsCreatesDifferentKey() {
+	def "keys differ when subsets of the parameters are different"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
 
-		assertThat key1, not(equalTo(key2))
+		expect:
+		key1 != key2
 	}
 
-	@Test
-	void controllerAndActionParamsAreIgnored() {
+	def "controller and action parameters are ignored"() {
+		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [controller: "foo", action: "bar"]))
 
-		assertThat key1, equalTo(key2)
+		expect:
+		key1 == key2
 	}
 
-	@Test
-	void headAndGetRequetGenerateSameKey() {
+	def "request method does not affect the key"() {
+		given:
 		def headRequest = new MockHttpServletRequest("HEAD", "/foo/bar")
 		def getRequest = new MockHttpServletRequest("GET", "/foo/bar")
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: headRequest))
 		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: getRequest))
 
-		assertThat key1, equalTo(key2)
+		expect:
+		key1 == key2
 	}
 
 }
