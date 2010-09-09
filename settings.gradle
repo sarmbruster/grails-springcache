@@ -1,4 +1,3 @@
-include "springcache-test", "content-caching"
+include "springcache-test"
 
 project(":springcache-test").projectDir = new File(settingsDir, "test/projects/springcache-test")
-project(":content-caching").projectDir = new File(settingsDir, "test/projects/content-caching")
