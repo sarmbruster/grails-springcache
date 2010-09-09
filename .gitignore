@@ -10,3 +10,4 @@ web-app/
 *.zip
 plugin.xml
 .DS_Store
+.idea/
