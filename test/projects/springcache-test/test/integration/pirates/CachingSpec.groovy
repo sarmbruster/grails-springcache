@@ -1,28 +1,23 @@
 package pirates
 
+import grails.plugin.spock.IntegrationSpec
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import static org.hamcrest.Matchers.*
-import static org.hamcrest.MatcherAssert.assertThat
 
-class CachingTests extends GroovyTestCase {
+class CachingSpec extends IntegrationSpec {
 
 	def piracyService
 	def springcacheCacheManager
 
-	void setUp() {
-		super.setUp()
-
+	def setup() {
 		Pirate.build(name: "Blackbeard")
 		Pirate.build(name: "Calico Jack")
 		Pirate.build(name: "Black Bart")
 		Ship.build(name: "Queen Anne's Revenge", crew: Pirate.findAllByName("Blackbeard"))
 	}
 
-	void tearDown() {
-		super.tearDown()
-
+	def cleanup() {
 		springcacheCacheManager.removeCache("pirateCache")
 		springcacheCacheManager.removeCache("shipCache")
 
@@ -30,7 +25,7 @@ class CachingTests extends GroovyTestCase {
 		Pirate.list()*.delete()
 	}
 
-	void testCachedResultsShouldBeReturnedForSubsequentMethodCalls() {
+	def "cached results are returned from subsequent method calls"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
@@ -40,17 +35,17 @@ class CachingTests extends GroovyTestCase {
 		def result2 = piracyService.listPirateNames()
 
 		then: "The first call primes the cache"
-		assertThat "cache size", cache.statistics.objectCount, equalTo(1L)
+		cache.statistics.objectCount == 1L
 
 		and: "The second call hits the cache"
-		assertThat "cache hits", cache.statistics.cacheHits, equalTo(1L)
+		cache.statistics.cacheHits == 1L
 
 		and: "The same result is returned by both calls"
-		assertThat "result from uncached call", result1, equalTo(["Black Bart", "Blackbeard", "Calico Jack"])
-		assertThat "result from cached call", result2, equalTo(result1)
+		result1 == ["Black Bart", "Blackbeard", "Calico Jack"]
+		result2 == result1
 	}
 
-	void testCachedResultsShouldNotBeReturnedForSubsequentCallWithDifferentArguments() {
+	def "cached results are not returned for subsequent method calls with different arguments"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
@@ -60,17 +55,17 @@ class CachingTests extends GroovyTestCase {
 		def result2 = piracyService.findPirateNames("black")
 
 		then: "The cache is not hit"
-		assertThat "cache hits", cache.statistics.cacheHits, equalTo(0L)
+		cache.statistics.cacheHits == 0L
 
 		and: "The results are cached separately"
-		assertThat "cache size", cache.statistics.objectCount, equalTo(2L)
+		cache.statistics.objectCount == 2L
 
 		and: "The results are correct"
-		assertThat "result of first call", result1, equalTo(["Calico Jack"])
-		assertThat "result of second call", result2, equalTo(["Black Bart", "Blackbeard"])
+		result1 == ["Calico Jack"]
+		result2 == ["Black Bart", "Blackbeard"]
 	}
 
-	void testTheCacheCanBeFlushed() {
+	def "caches can be flushed"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
@@ -85,33 +80,33 @@ class CachingTests extends GroovyTestCase {
 		def result2 = piracyService.listPirateNames()
 
 		then: "The cache is not hit"
-		assertThat "cache hits", cache.statistics.cacheHits, equalTo(0L)
+		cache.statistics.cacheHits == 0L
 
 		and: "The results from before and after flushing are different"
-		assertThat "result of first call", result1, equalTo(["Black Bart", "Blackbeard", "Calico Jack"])
-		assertThat "result of second call", result2, equalTo(["Anne Bonny", "Black Bart", "Blackbeard", "Calico Jack"])
+		result1 == ["Black Bart", "Blackbeard", "Calico Jack"]
+		result2 == ["Anne Bonny", "Black Bart", "Blackbeard", "Calico Jack"]
 	}
 
-	void testTheCacheIsFlushedEvenIfTheFlushingMethodFails() {
+	def "the cache is flushed even if the flushing method fails"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
 		springcacheCacheManager.addCache(cache)
 
 		and: "The cache is primed"
 		piracyService.listPirateNames()
-		def initialCacheSize = cache.statistics.objectCount
 
 		when: "A flushing method is called with parameters that will cause it to fail"
-		shouldFail(ValidationException) {
-			piracyService.newPirate("Blackbeard")
-		}
+		piracyService.newPirate("Blackbeard")
+
+		then:
+		thrown ValidationException
 
 		and: "The cache is still flushed"
-		assertThat "initial cache size", initialCacheSize, equalTo(1L)
-		assertThat "cache size after flush", cache.statistics.objectCount, equalTo(0L)
+		old(cache.statistics.objectCount) == 1L
+		cache.statistics.objectCount == 0L
 	}
 
-	void testMultipleCachesCanBeFlushedByASingleMethod() {
+	def "multiple caches can be flushed by a single method"() {
 		given: "Multiple caches exist"
 		def cache1 = new Cache("pirateCache", 100, false, true, 0, 0)
 		def cache2 = new Cache("shipCache", 100, false, true, 0, 0)
@@ -121,37 +116,35 @@ class CachingTests extends GroovyTestCase {
 		and: "Both caches are primed"
 		piracyService.listPirateNames()
 		piracyService.listShipNames()
-		def initialCache1Size = cache1.statistics.objectCount
-		def initialCache2Size = cache2.statistics.objectCount
 
 		when: "A method is called that should flush both caches"
 		piracyService.newShip("Royal Fortune", ["Black Bart", "Walter Kennedy"])
 
 		then: "Both caches are flushed"
-		assertThat "initial size of cache 1", initialCache1Size, equalTo(1L)
-		assertThat "size of cache 1 after flush", cache1.statistics.objectCount, equalTo(0L)
-		assertThat "initial size of cache 2", initialCache2Size, equalTo(1L)
-		assertThat "size of cache 2 after flush", cache2.statistics.objectCount, equalTo(0L)
+		old(cache1.statistics.objectCount) == 1L
+		cache1.statistics.objectCount == 0L
+		old(cache2.statistics.objectCount) == 1L
+		cache2.statistics.objectCount == 0L
 	}
 
-	void testCachesAreCreatedOnDemandIfTheyDoNotExist() {
+	def "caches are created on demand if they do not exist"() {
 		when: "A cachable method is called when no cache exists"
 		piracyService.listPirateNames()
 
 		then: "The cache is created when first used"
 		def cache = springcacheCacheManager.getEhcache("pirateCache")
-		assertThat "on-demand cache", cache, not(nullValue())
-		assertThat "size of on-demand cache", cache.statistics.objectCount, equalTo(1L)
+		cache != null
+		cache.statistics.objectCount == 1L
 	}
 
-	void testCachesCreatedOnDemandHaveDefaultConfigurationApplied() {
+	def "caches created on demand have default configuration applied"() {
 		when: "A cachable method is called when no cache exists"
 		piracyService.listPirateNames()
 
 		then: "The cache created has default properties applied"
 		def cache = springcacheCacheManager.getEhcache("pirateCache")
-		assertThat "on-demand cache", cache, not(nullValue())
-		assertThat "on-demand cache memory eviction policy", cache.cacheConfiguration.memoryStoreEvictionPolicy, equalTo(MemoryStoreEvictionPolicy.LFU)
+		cache != null
+		cache.cacheConfiguration.memoryStoreEvictionPolicy == MemoryStoreEvictionPolicy.LFU
 	}
 
 }

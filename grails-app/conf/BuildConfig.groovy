@@ -22,12 +22,14 @@ grails.project.dependency.resolution = {
 		test "org.hamcrest:hamcrest-all:1.1"
 		test("org.spockframework:spock-grails-support:0.5-groovy-1.7-SNAPSHOT") {
 			excludes "grails-crud", "grails-gorm", "grails-test", "grails-webflow", "spring-webflow", "oscache", "hsqldb", "servlet-api", "slf4j-log4j12", "jstl", "svnkit", "junit", "ant-junit"
+			exported = false
 		}
 		test "org.objenesis:objenesis:1.2"
 	}
 	plugins {
 		test(":spock:0.5-groovy-1.7-SNAPSHOT") {
 			excludes "spock-grails-support"
+			exported = false
 		}
 	}
 }
