@@ -1,24 +1,30 @@
 package grails.plugin.springcache.web
 
+import grails.plugin.geb.GebSpec
 import grails.plugin.springcache.SpringcacheService
-import grails.plugins.selenium.SeleniumAware
 import musicstore.Album
-import musicstore.auth.Role
-import musicstore.auth.User
-import musicstore.pages.HomePage
-import musicstore.pages.LoginPage
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.grails.plugins.springsecurity.service.AuthenticateService
-import org.grails.rateable.Rating
-import org.grails.rateable.RatingLink
+import spock.lang.Shared
+import musicstore.auth.*
+import musicstore.pages.*
+import org.grails.rateable.*
 
-@Mixin(SeleniumAware)
-abstract class AbstractContentCachingTestCase extends GroovyTestCase {
+abstract class AbstractContentCachingSpec extends GebSpec {
 
-	SpringcacheService springcacheService
-	AuthenticateService authenticateService
+	@Shared SpringcacheService springcacheService
+	@Shared AuthenticateService authenticateService
 
-	void tearDown() {
-		super.tearDown()
+	def setupSpec() {
+		// TODO: can we autowire in Geb?
+		def ctx = ApplicationHolder.application.mainContext
+		springcacheService = ctx.springcacheService
+		authenticateService = ctx.authenticateService
+		println "sprincacheService = $springcacheService"
+		println "authenticateService = $authenticateService"
+	}
+
+	def cleanup() {
 		springcacheService.flushAll()
 		springcacheService.clearStatistics()
 	}
@@ -34,7 +40,8 @@ abstract class AbstractContentCachingTestCase extends GroovyTestCase {
 		User.withTransaction {tx ->
 			def userRole = Role.findByAuthority("ROLE_USER")
 			def user = new User(username: username, userRealName: userRealName, email: "$username@energizedwork.com", enabled: true)
-			user.passwd = authenticateService.encodePassword("password")
+			println "authenticateService = $authenticateService"
+			user.passwd = ApplicationHolder.application.mainContext.authenticateService.encodePassword("password")
 			user.save(failOnError: true)
 
 			userRole.addToPeople user
@@ -53,15 +60,8 @@ abstract class AbstractContentCachingTestCase extends GroovyTestCase {
 		}
 	}
 
-	HomePage loginAs(String username, String password = "password") {
-		def loginPage = LoginPage.open()
-		loginPage.j_username = username
-		loginPage.j_password = password
-		return loginPage.login()
-	}
-
 	void logout() {
-		selenium.open "/logout"
+		go "/logout"
 	}
 
 }

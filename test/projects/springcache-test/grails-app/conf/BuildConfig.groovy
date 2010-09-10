@@ -16,6 +16,7 @@ grails.project.dependency.resolution = {
 		mavenRepo "http://repository.jboss.com/maven2/"
 	}
 	dependencies {
+		test "org.seleniumhq.selenium:selenium-firefox-driver:2.0a5"
 	}
 }
 grails.plugin.location.springcache = "../../.."

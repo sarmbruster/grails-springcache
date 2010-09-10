@@ -31,6 +31,8 @@
       <sourceFolder url="file://$MODULE_DIR$/grails-app/utils" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/grails-app/taglib" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/unit" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/test/selenium" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/test/functional" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -44,8 +46,6 @@
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.groovy/groovy-all/jars/groovy-all-1.6.9.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.spockframework/spock-core/jars/spock-core-0.5-groovy-1.6-SNAPSHOT.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.spockframework/spock-grails-support/jars/spock-grails-support-0.5-groovy-1.6-SNAPSHOT.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.hamcrest/hamcrest-all/jars/hamcrest-all-1.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.seleniumhq.selenium.client-drivers/selenium-java-client-driver/jars/selenium-java-client-driver-1.0.2.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.apache.tomcat/servlet-api/jars/servlet-api-6.0.29.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/javax.servlet/jstl/jars/jstl-1.2.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/opensymphony/oscache/jars/oscache-2.4.jar!/" />
@@ -82,6 +82,12 @@
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/cglib/cglib-nodep/jars/cglib-nodep-2.2.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.grails/grails-core/jars/grails-core-1.2.3.jar!/" />
           <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.grails/grails-crud/jars/grails-crud-1.2.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.seleniumhq.selenium/selenium-common/jars/selenium-common-2.0a5.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.geb/geb-core/jars/geb-core-0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.geb/geb-spock/jars/geb-spock-0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.geb/geb-grails/jars/geb-grails-0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.geb/geb-junit4/jars/geb-junit4-0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../.ivy2/cache/org.codehaus.geb/geb-junit3/jars/geb-junit3-0.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

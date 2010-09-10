@@ -12,7 +12,7 @@ import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class StaticScaffoldingCachingTests extends AbstractContentCachingTestCase {
+class StaticScaffoldingCachingTests extends AbstractContentCachingSpec {
 
 	Ehcache albumControllerCache
 

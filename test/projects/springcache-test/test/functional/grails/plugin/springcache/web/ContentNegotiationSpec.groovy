@@ -10,15 +10,14 @@ import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMiss
 import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.hamcrest.MatcherAssert.assertThat
+import grails.plugin.geb.GebSpec
 
-class ContentNegotiationTests extends FunctionalTestCase {
+class ContentNegotiationSpec extends GebSpec {
 
 	SpringcacheService springcacheService
 	Ehcache latestControllerCache
 
-	void setUp() {
-		super.setUp()
-
+	def setup() {
 		def port = System.properties."server.port" ?: "8080"
 		baseURL = "http://localhost:$port"
 

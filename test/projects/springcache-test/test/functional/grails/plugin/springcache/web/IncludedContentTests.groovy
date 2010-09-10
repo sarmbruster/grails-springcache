@@ -14,15 +14,13 @@ import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
 
-class IncludedContentTests extends AbstractContentCachingTestCase {
+class IncludedContentTests extends AbstractContentCachingSpec {
 
 	Ehcache latestControllerCache
 	Ehcache popularControllerCache
 	Album album1, album2, album3
 
-	void setUp() {
-		super.setUp()
-
+	def setup() {
 		album1 = Album.build(artist: Artist.build(name: "Edward Sharpe & the Magnetic Zeros"), name: "Up From Below", year: "2009")
 		album2 = Album.build(artist: Artist.build(name: "Yeasayer"), name: "Odd Blood", year: "2010")
 		album3 = Album.build(artist: Artist.build(name: "Yeah Yeah Yeahs"), name: "It's Blitz!", year: "2009")

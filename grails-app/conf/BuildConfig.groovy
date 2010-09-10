@@ -24,7 +24,9 @@ grails.project.dependency.resolution = {
 			excludes "grails-crud", "grails-gorm", "grails-test", "grails-webflow", "spring-webflow", "oscache", "hsqldb", "servlet-api", "slf4j-log4j12", "jstl", "svnkit", "junit", "ant-junit"
 			exported = false
 		}
-		test "org.objenesis:objenesis:1.2"
+		test("org.objenesis:objenesis:1.2") {
+			exported = false
+		}
 	}
 	plugins {
 		test(":spock:0.5-groovy-1.7-SNAPSHOT") {
