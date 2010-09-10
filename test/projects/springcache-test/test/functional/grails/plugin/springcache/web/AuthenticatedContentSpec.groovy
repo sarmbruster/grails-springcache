@@ -22,36 +22,35 @@ class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 	}
 
 	def "login state is displayed on uncached page"() {
-		when:
+		given: "I am not logged in when I visit the homepage"
 		to HomePage
 
-		then:
-		!isLoggedIn()
-
-		when:
+		when: "I log in"
 		to LoginPage
 		loginAs "blackbeard"
 
-		then:
+		then: "I am on the home page and now logged in"
 		at HomePage
-		isLoggedIn()
+		!old(loggedIn)
+		loggedIn
 		loggedInMessage == "Logged in as blackbeard"
 	}
 
 	def "login state is not cached in the page"() {
-		when:
+		given: "I am not logged in when I visit the album list page"
 		to AlbumListPage
 
-		then:
-		!isLoggedIn()
-
-		when:
+		when: "I log in"
 		to LoginPage
 		loginAs "blackbeard"
 		to AlbumListPage
 
-		then:
-		isLoggedIn()
+		then: "the page content is retrieved from the cache"
+		albumControllerCache.statistics.cacheHits == old(albumControllerCache.statistics.cacheHits) + 1
+
+		and: "the authentication message is displayed"
+		!old(loggedIn)
+		loggedIn
 		loggedInMessage == "Logged in as blackbeard"
 	}
 
@@ -63,13 +62,6 @@ class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 		then:
 		at LoginPage
 		userControllerCache.statistics.objectCount == 0L
-
-		when:
-		loginAs "blackbeard", "password", UserListPage
-
-		then:
-		at UserListPage
-		userControllerCache.statistics.objectCount == 1L
 	}
 
 }

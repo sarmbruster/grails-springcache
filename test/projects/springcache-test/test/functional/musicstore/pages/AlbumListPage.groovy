@@ -8,13 +8,14 @@ class AlbumListPage extends Page {
 	static at = { title == "Album List" }
 
 	static content = {
+		loggedInMessage(required: false) { $("#loggedInUser").text() } // TODO: duplicated in several pages
+		loginLink(required: false, to: LoginPage) { $("#loginLink a") }
 		rows(required: false) { $("tbody tr") }
 		flashMessage(required: false) { $(".message").text() }
-		loggedInMessage(required: false) { $("#loggedInUser").text() } // TODO: duplicated in several pages
 	}
 
 	boolean isLoggedIn() {
-		loggedInMessage != null
+		loginLink.empty
 	}
 
 }

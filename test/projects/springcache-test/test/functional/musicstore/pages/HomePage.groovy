@@ -15,7 +15,7 @@ class HomePage extends Page {
 	}
 
 	boolean isLoggedIn() {
-		loggedInMessage != null
+		loginLink.empty
 	}
 
 }
