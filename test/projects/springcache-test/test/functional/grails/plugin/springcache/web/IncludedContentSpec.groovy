@@ -34,64 +34,58 @@ class IncludedContentSpec extends AbstractContentCachingSpec {
 	}
 
 	def "included content is cached"() {
-		given:
-		def expectedList = [album3, album2, album1]*.toString()
-		
-		when:
+		given: "I am on the home page"
 		to HomePage
-		
-		then:
-		latestAlbums == expectedList
 
-		when:
+		when: "I refresh the page"
 		driver.navigate().refresh()
 		
-		then:
-		latestAlbums == expectedList
+		then: "the same content is displayed"
+		latestAlbums == [album3, album2, album1]*.toString()
+		latestAlbums == old(latestAlbums)
 
-		and:
+		and: "the cache was hit the second time the page loaded"
 		latestControllerCache.statistics.cacheMisses == 1L
 		latestControllerCache.statistics.cacheHits == 1L
 	}
 
 	def "included content can be flushed by another controller"() {
-		given:
-		def expectedList = [album3, album2, album1]*.toString()
-		
-		when:
+		given: "The latest albums module is cached"
 		to HomePage
 		
-		then:
-		latestAlbums == expectedList
-
-		when:
+		when: "I create a new album"
 		to AlbumCreatePage
 		albumForm.artist = "Mumford & Sons"
 		albumForm.name = "Sigh No More"
 		albumForm.year = "2009"
 		createButton.click()
 		
+		and: "I return to the home page"
 		to HomePage
+
+		then: "the latest albums cache was flushed"
+		latestControllerCache.statistics.cacheHits == 0L
+		latestControllerCache.statistics.cacheMisses == 2L
 		
-		then:
+		and: "the new album appears in the latest list"
 		latestAlbums == ["Sigh No More by Mumford & Sons (2009)"] + old(latestAlbums)
 	}
 
 	def "multiple includes are cached separately"() {
-		given:
+		given: "some ratings exist"
 		def user = setUpUser("blackbeard", "Edward Teach")
 		setUpAlbumRating(album1, user, 5.0)
 		setUpAlbumRating(album2, user, 3.0)
 		setUpAlbumRating(album3, user, 4.0)
 
-		when:
+		when: "I visit the home page"
 		to HomePage
 		
-		then:
+		then: "I see the popular and latest album lists"
 		latestAlbums == [album3, album2, album1]*.toString()
 		popularAlbums == [album1, album3, album2]*.toString()
 
-		and:
+		and: "their content is cached separately"
 		latestControllerCache.statistics.objectCount == 1L
 		latestControllerCache.statistics.cacheMisses == 1L
 		latestControllerCache.statistics.cacheHits == 0L
@@ -101,30 +95,32 @@ class IncludedContentSpec extends AbstractContentCachingSpec {
 	}
 
 	def "included content flushed by rateable"() {
-		given:
+		given: "some ratings exist"
 		setUpUser("ponytail", "Steven Segal")
 		def user = setUpUser("roundhouse", "Chuck Norris")
 		setUpAlbumRating(album1, user, 5.0)
 		setUpAlbumRating(album2, user, 2.0)
 		setUpAlbumRating(album3, user, 1.0)
 
-		when:
-		to LoginPage
-		loginAs("ponytail")
-		
-		then: "the popular list should contain the expected data"
-		popularAlbums == [album1, album2, album3]*.toString()
-
-		when: "voting on the show page should flush the popular list's cache"
-		to AlbumShowPage, album3.id
-		vote 5
+		and: "the popular albums module is cached"
 		to HomePage
 		
-		then: "the cache has been flushed so the list should appear in a different order"
-		popularAlbums = [album3, album1, album2]*.toString()
-
-		and:
+		when: "I rate an album"
+		to LoginPage
+		loginAs("ponytail")
+		to AlbumShowPage, album3.id
+		vote 5
+		
+		and: "I return to the home page"
+		to HomePage
+		
+		then: "the cache has not been hit"
+		popularControllerCache.statistics.cacheHits == 0L
 		popularControllerCache.statistics.cacheMisses == 2L
+
+		and: "the popular albums are listed a different order"
+		old(popularAlbums) == [album1, album2, album3]*.toString()
+		popularAlbums == [album3, album1, album2]*.toString()
 	}
 
 }
