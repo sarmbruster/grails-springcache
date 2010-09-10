@@ -8,14 +8,9 @@ class AlbumListPage extends Page {
 	static at = { title == "Album List" }
 
 	static content = {
-		loggedInMessage(required: false) { $("#loggedInUser").text() } // TODO: duplicated in several pages
-		loginLink(required: false, to: LoginPage) { $("#loginLink a") }
+		authModule { module AuthModule }
 		rows(required: false) { $("tbody tr") }
 		flashMessage(required: false) { $(".message").text() }
-	}
-
-	boolean isLoggedIn() {
-		loginLink.empty
 	}
 
 }

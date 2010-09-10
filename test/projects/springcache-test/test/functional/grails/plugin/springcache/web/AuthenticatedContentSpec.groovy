@@ -31,9 +31,9 @@ class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 
 		then: "I am on the home page and now logged in"
 		at HomePage
-		!old(loggedIn)
-		loggedIn
-		loggedInMessage == "Logged in as blackbeard"
+		!old(authModule.loggedIn)
+		authModule.loggedIn
+		authModule.loggedInMessage == "Logged in as blackbeard"
 	}
 
 	def "login state is not cached in the page"() {
@@ -49,9 +49,9 @@ class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 		albumControllerCache.statistics.cacheHits == old(albumControllerCache.statistics.cacheHits) + 1
 
 		and: "the authentication message is displayed"
-		!old(loggedIn)
-		loggedIn
-		loggedInMessage == "Logged in as blackbeard"
+		!old(authModule.loggedIn)
+		authModule.loggedIn
+		authModule.loggedInMessage == "Logged in as blackbeard"
 	}
 
 	def "non success responses are not cached"() {

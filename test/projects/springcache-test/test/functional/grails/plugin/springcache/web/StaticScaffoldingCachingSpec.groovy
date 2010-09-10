@@ -11,7 +11,7 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 	@Shared Ehcache albumControllerCache = ApplicationHolder.application.mainContext.albumControllerCache
 
 	def cleanup() {
-		Album.withTransaction {
+		Album.withNewSession {
 			Album.list()*.delete()
 			Artist.list()*.delete()
 		}
@@ -27,8 +27,10 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 	}
 
 	def "reloading a page hits the cache"() {
-		when: "I open and refresh the album list page"
+		given: "I am on the album list page"
 		to AlbumListPage
+		
+		when: "I refresh the page"
 		driver.navigate().refresh()
 
 		then: "the cache is missed once and hit once"
