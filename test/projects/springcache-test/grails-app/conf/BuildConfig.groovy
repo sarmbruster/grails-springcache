@@ -10,13 +10,11 @@ grails.project.dependency.resolution = {
 		grailsCentral()
 		mavenLocal()
 		mavenCentral()
-		mavenRepo "http://snapshots.repository.codehaus.org"
-		mavenRepo "http://repository.codehaus.org"
-		mavenRepo "http://download.java.net/maven/2/"
-		mavenRepo "http://repository.jboss.com/maven2/"
+		mavenRepo "http://m2repo.spockframework.org/ext/"
 	}
 	dependencies {
 		test "org.seleniumhq.selenium:selenium-firefox-driver:2.0a5"
+		test "org.hamcrest:hamcrest-all:1.2"
 	}
 }
 grails.plugin.location.springcache = "../../.."
