@@ -9,12 +9,12 @@ class LoginPage extends Page {
 
 	static content = {
 		loginForm { $("#loginForm") }
-		loginButton { loginForm.find("input[type=submit]") }
+		loginButton(to: HomePage) { loginForm.find("input[type=submit]") }
 	}
 
-	void loginAs(String username, String password = "password") {
+	void loginAs(String username, String password = "password", Class<? extends Page> page = HomePage) {
 		loginForm.j_username = username
 		loginForm.j_password = password
-		loginButton.click()
+		loginButton.click(page)
 	}
 }

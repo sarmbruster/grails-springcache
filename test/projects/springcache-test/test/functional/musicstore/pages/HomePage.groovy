@@ -11,7 +11,7 @@ class HomePage extends Page {
 		loggedInMessage(required: false) { $("#loggedInUser").text() }
 		loginLink(required: false, to: LoginPage) { $("#loginLink a") }
 		latestAlbums { $("#latestAlbums ol li")*.text() }
-		popularAlbums { $("#popularAlbums ol li")*.text() }
+		popularAlbums { $("#popularAlbums ol li .album")*.text() }
 	}
 
 	boolean isLoggedIn() {

@@ -1,24 +1,16 @@
 package grails.plugin.springcache.web
 
-import musicstore.pages.AlbumListPage
-import musicstore.pages.HomePage
-import musicstore.pages.UserListPage
+import spock.lang.*
+import musicstore.pages.*
 import net.sf.ehcache.Ehcache
-import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
-import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
-import static grails.plugin.springcache.matchers.CacheSizeMatcher.isEmptyCache
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.equalTo
-import grails.plugin.geb.GebSpec
-import musicstore.auth.User
-import musicstore.pages.LoginPage
+import grails.plugin.geb.*
+import musicstore.pages.*
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 
-	def authenticateService
-	def fixtureLoader
-	Ehcache albumControllerCache
-	Ehcache userControllerCache
+	@Shared Ehcache albumControllerCache = ApplicationHolder.application.mainContext.albumControllerCache
+	@Shared Ehcache userControllerCache = ApplicationHolder.application.mainContext.userControllerCache
 
 	def setup() {
 		setUpUser "blackbeard", "Edward Teach"
@@ -66,13 +58,14 @@ class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 	def "non success responses are not cached"() {
 		when:
 		to UserListPage
+		page LoginPage
 
 		then:
 		at LoginPage
 		userControllerCache.statistics.objectCount == 0L
 
 		when:
-		loginAs "blackbeard"
+		loginAs "blackbeard", "password", UserListPage
 
 		then:
 		at UserListPage

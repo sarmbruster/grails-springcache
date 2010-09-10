@@ -12,17 +12,8 @@ import org.grails.rateable.*
 
 abstract class AbstractContentCachingSpec extends GebSpec {
 
-	@Shared SpringcacheService springcacheService
-	@Shared AuthenticateService authenticateService
-
-	def setupSpec() {
-		// TODO: can we autowire in Geb?
-		def ctx = ApplicationHolder.application.mainContext
-		springcacheService = ctx.springcacheService
-		authenticateService = ctx.authenticateService
-		println "sprincacheService = $springcacheService"
-		println "authenticateService = $authenticateService"
-	}
+	@Shared SpringcacheService springcacheService = ApplicationHolder.application.mainContext.springcacheService
+	@Shared AuthenticateService authenticateService = ApplicationHolder.application.mainContext.authenticateService
 
 	def cleanup() {
 		springcacheService.flushAll()
