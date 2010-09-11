@@ -103,13 +103,12 @@ class IncludedContentSpec extends AbstractContentCachingSpec {
 		setUpAlbumRating(album3, user, 1.0)
 
 		and: "the popular albums module is cached"
-		to HomePage
-		
-		when: "I rate an album"
 		to LoginPage
 		loginAs("ponytail")
+		
+		when: "I rate an album"
 		to AlbumShowPage, album3.id
-		vote 5
+		rate 5
 		
 		and: "I return to the home page"
 		to HomePage
