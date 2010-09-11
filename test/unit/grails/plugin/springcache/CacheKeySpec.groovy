@@ -43,8 +43,10 @@ class CacheKeySpec extends Specification {
 		TARGET_1 | "x"     | []                  | TARGET_1 | "x"     | ["x"]
 		TARGET_1 | "x"     | ["a", null]         | TARGET_1 | "x"     | ["a"]
 		TARGET_1 | "x"     | ["a", null]         | TARGET_1 | "x"     | ["b", null]
+		TARGET_1 | "x"     | ["a", "b"]          | TARGET_1 | "x"     | ["a", null, "b"]
 		TARGET_1 | "x"     | [["a"] as Object[]] | TARGET_1 | "x"     | [["b"] as Object[]]
 		TARGET_1 | "x"     | [["a"] as Object[]] | TARGET_1 | "x"     | ["a"]
+		TARGET_1 | "x"     | [[1] as int[]]      | TARGET_1 | "x"     | [1]
 	}
 	
 	@Unroll("cache keys for multiple calls to the same method passing #args are equal")
