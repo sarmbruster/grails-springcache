@@ -11,9 +11,8 @@ class LatestController {
 		def albums = Album.list(sort: "dateCreated", order: "desc", max: 10)
 		withFormat {
 			html albumInstanceList: albums
-			xml {
-				render albums as XML
-			}
+			xml { render albums as XML }
+			json { render albums as JSON }
 		}
 	}
 

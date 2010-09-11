@@ -1,61 +1,50 @@
 package grails.plugin.springcache.web
 
-import functionaltestplugin.FunctionalTestCase
+import spock.lang.*
 import grails.plugin.springcache.SpringcacheService
-import musicstore.Album
-import musicstore.Artist
+import musicstore.*
 import net.sf.ehcache.Ehcache
-import static grails.plugin.springcache.matchers.CacheHitsMatcher.hasCacheHits
-import static grails.plugin.springcache.matchers.CacheMissesMatcher.hasCacheMisses
-import static grails.plugin.springcache.matchers.CacheSizeMatcher.hasCacheSize
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static org.hamcrest.MatcherAssert.assertThat
-import grails.plugin.geb.GebSpec
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import groovyx.net.http.*
 
-class ContentNegotiationSpec extends GebSpec {
+class ContentNegotiationSpec extends Specification {
 
-	SpringcacheService springcacheService
-	Ehcache latestControllerCache
-
-	def setup() {
-		def port = System.properties."server.port" ?: "8080"
-		baseURL = "http://localhost:$port"
-
-		javaScriptEnabled = false
-
-		Album.withTransaction { tx ->
+	@Shared SpringcacheService springcacheService = ApplicationHolder.application.mainContext.springcacheService
+	@Shared Ehcache latestControllerCache = ApplicationHolder.application.mainContext.latestControllerCache
+	
+	def setupSpec() {
+		Album.withNewSession {
 			def artist = Artist.build(name: "The Cure")
 			Album.build(artist: artist, name: "Pornography", year: "1982")
 		}
 	}
 
-	void tearDown() {
-		super.tearDown()
-
-		Album.withTransaction {tx ->
+	def cleanupSpec() {
+		Album.withNewSession {
 			Album.list()*.delete()
 			Artist.list()*.delete()
 		}
+		
 		springcacheService.flushAll()
 		springcacheService.clearStatistics()
 	}
 
-	void testCachedContentNotServedWhenAcceptHeaderIsDifferent() {
-		get "/latest/albums"
-		assertStatus SC_OK
-		assertContentType "text/html"
-		assertThat latestControllerCache, hasCacheHits(0)
-		assertThat latestControllerCache, hasCacheMisses(1)
-		assertThat latestControllerCache, hasCacheSize(1)
-
-		get("/latest/albums") {
-			headers["Accept"] = "text/xml"
-		}
-		assertStatus SC_OK
-		assertContentType "text/xml"
-		assertThat latestControllerCache, hasCacheHits(0)
-		assertThat latestControllerCache, hasCacheMisses(2)
-		assertThat latestControllerCache, hasCacheSize(2)
+	@Unroll("content requested with content type '#contentType' is cached separately")
+	def "content requested with different formats is cached separately"() {
+		when: "the latest album module is requested in a particular format"
+		def response = new RESTClient().get(uri: "http://localhost:8080/latest/albums", headers : [Accept : contentType])
+		
+		then: "the correct content type is returned"
+		response.status == 200
+		response.contentType == contentType
+		
+		and: "the response is cached separately"
+		latestControllerCache.statistics.cacheHits == 0L
+		latestControllerCache.statistics.cacheMisses == old(latestControllerCache.statistics.cacheMisses) + 1
+		latestControllerCache.statistics.objectCount == old(latestControllerCache.statistics.objectCount) + 1
+		
+		where:
+		contentType << ["text/html", "text/xml", "application/json"]
 	}
 
 }
