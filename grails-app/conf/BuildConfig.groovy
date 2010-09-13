@@ -21,7 +21,7 @@ grails.project.dependency.resolution = {
 			exported = false
 		}
 		test("org.spockframework:spock-grails-support:0.5-groovy-1.7-SNAPSHOT") {
-			excludes "grails-crud", "grails-gorm", "grails-test", "grails-webflow", "spring-webflow", "oscache", "hsqldb", "servlet-api", "slf4j-log4j12", "jstl", "svnkit", "junit", "ant-junit"
+			excludes "grails-crud", "grails-gorm", "grails-test", "grails-webflow", "spring-webflow", "oscache", "hsqldb", "servlet-api", "slf4j-log4j12", "jstl", "svnkit", "junit", "ant-junit", "groovy-all"
 			exported = false
 		}
 		test("org.objenesis:objenesis:1.2") {
