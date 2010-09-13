@@ -18,8 +18,8 @@ grails.project.dependency.resolution = {
 		}
 		test("org.gmock:gmock:0.8.0") {
 			excludes "junit"
+			exported = false
 		}
-		test "org.hamcrest:hamcrest-all:1.1"
 		test("org.spockframework:spock-grails-support:0.5-groovy-1.7-SNAPSHOT") {
 			excludes "grails-crud", "grails-gorm", "grails-test", "grails-webflow", "spring-webflow", "oscache", "hsqldb", "servlet-api", "slf4j-log4j12", "jstl", "svnkit", "junit", "ant-junit"
 			exported = false
