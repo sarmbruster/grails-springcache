@@ -13,7 +13,7 @@ grails.project.dependency.resolution = {
 		mavenCentral()
 	}
 	dependencies {
-		compile("net.sf.ehcache:ehcache-web:2.0.1") {
+		compile("net.sf.ehcache:ehcache-web:2.0.2") {
 			excludes "ehcache-core" // ehcache-core is provided by Grails
 		}
 		test("org.gmock:gmock:0.8.0") {
