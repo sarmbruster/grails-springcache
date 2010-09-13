@@ -4,3 +4,7 @@ out/
 target/
 test/reports
 lib/build
+.classpath
+.settings
+.project
+devDB.*
