@@ -1,4 +1,5 @@
 BUGS
+- direct access to SpringcacheService breaks if springcache.disabled set in config
 - check caching of service methods with defaulted params
 - HEAD and GET requests seem to generate different keys
 
