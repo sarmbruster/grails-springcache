@@ -11,6 +11,7 @@ class AlbumListPage extends Page {
 		authModule { module AuthModule }
 		rows(required: false) { $("tbody tr") }
 		flashMessage(required: false) { $(".message").text() }
+		paginationModule { module PaginationModule }
 	}
 
 }
