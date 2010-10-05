@@ -95,6 +95,7 @@ springcache {
 		userControllerCache
 		latestControllerCache
 		popularControllerCache
+		simpleCache
 		configuredCache {
 			timeToLive = 86400
 		}

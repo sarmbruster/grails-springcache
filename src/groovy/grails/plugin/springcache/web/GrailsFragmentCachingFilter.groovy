@@ -28,6 +28,7 @@ import net.sf.ehcache.CacheManager
 import net.sf.ehcache.constructs.web.GenericResponseWrapper
 import net.sf.ehcache.constructs.web.PageInfo
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
+import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.codehaus.groovy.grails.web.servlet.WrappedResponseHolder
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
@@ -106,6 +107,15 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			} else {
 				log.debug "Serving cached content for $key"
 				pageInfo = element.objectValue
+
+				// As the page is cached, we need to add an instance of the associated
+				// controller to the request. This is required by GrailsLayoutDecoratorMapper
+				// to pick the appropriate layout.
+				def context = request[REQUEST_CACHE_CONTEXT_ATTR] 
+				if (context?.controllerName) {
+					def controller = context.controllerArtefact.newInstance()
+					request.setAttribute(GrailsApplicationAttributes.CONTROLLER, controller)
+				}
 			}
 		} catch(LockTimeoutException e) {
 			//do not release the lock, because you never acquired it

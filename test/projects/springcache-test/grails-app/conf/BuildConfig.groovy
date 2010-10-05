@@ -15,7 +15,7 @@ grails.project.dependency.resolution = {
 	dependencies {
 		test "org.seleniumhq.selenium:selenium-firefox-driver:2.0a5"
 		test("org.codehaus.groovy.modules.http-builder:http-builder:0.5.0") {
-			excludes "groovy"
+			excludes "groovy", "xml-apis", "commons-logging"
 		}
 	}
 }

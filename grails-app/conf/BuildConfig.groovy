@@ -14,7 +14,7 @@ grails.project.dependency.resolution = {
 	}
 	dependencies {
 		compile("net.sf.ehcache:ehcache-web:2.0.2") {
-			excludes "ehcache-core" // ehcache-core is provided by Grails
+			excludes "ehcache-core", "xml-apis" // ehcache-core is provided by Grails
 		}
 		test("org.gmock:gmock:0.8.0") {
 			excludes "junit"
