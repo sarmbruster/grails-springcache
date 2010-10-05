@@ -11,7 +11,7 @@ import spock.lang.Shared
  */
 class LayoutsSpec extends AbstractContentCachingSpec {
 
-	@Shared simpleCache = ApplicationHolder.application.mainContext.simpleCache
+	@Shared layoutsCache = ApplicationHolder.application.mainContext.layoutsCache
 	
 	def "Layout by controller name renders correctly with cached view"() {
 		given: "The view is hit once and cached."
@@ -25,7 +25,7 @@ class LayoutsSpec extends AbstractContentCachingSpec {
 		$("body").text() == "Index page"
 
 		and: "The cache is used"
-		simpleCache.statistics.cacheHits == 1L
+		layoutsCache.statistics.cacheHits == 1L
 	}
 	
 	def "Layout by action name renders correctly with cached view"() {
@@ -40,6 +40,21 @@ class LayoutsSpec extends AbstractContentCachingSpec {
 		$("body").text() == "Hello world!"
 
 		and: "The cache is used"
-		simpleCache.statistics.cacheHits == 1L
+		layoutsCache.statistics.cacheHits == 1L
+	}
+
+	def "Layout by static property renders correctly with cached view"() {
+		given: "The view is hit once and cached"
+		go "/staticLayout/index"
+
+		when: "I load the page again"
+		go "/staticLayout/index"
+
+		then: "the view and layout are rendered correctly"
+		page.title == "Avast there!"
+		$("body").text() == "Yarr!"
+
+		and: "The cache is hit"
+		layoutsCache.statistics.cacheHits == 1L
 	}
 }
