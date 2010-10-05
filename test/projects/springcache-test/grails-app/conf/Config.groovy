@@ -43,6 +43,7 @@ grails.logging.jul.usebridge = true
 grails.spring.bean.packages = []
 
 grails.app.context = "/"
+grails.sitemesh.default.layout = "application"
 
 // set per-environment serverURL stem for creating absolute links
 environments {
@@ -95,7 +96,7 @@ springcache {
 		userControllerCache
 		latestControllerCache
 		popularControllerCache
-		simpleCache
+		layoutsCache
 		configuredCache {
 			timeToLive = 86400
 		}

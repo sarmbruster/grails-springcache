@@ -57,4 +57,19 @@ class LayoutsSpec extends AbstractContentCachingSpec {
 		and: "The cache is hit"
 		layoutsCache.statistics.cacheHits == 1L
 	}
+
+	def "Layout by config renders correctly with cached view"() {
+		given: "The view is hit once and cached"
+		go "/noLayout/index"
+
+		when: "I load the page again"
+		go "/noLayout/index"
+
+		then: "the view and layout are rendered correctly"
+		page.title == "Configured default layout!"
+		$("body").text() == "O HAI!"
+
+		and: "The cache is hit"
+		layoutsCache.statistics.cacheHits == 1L
+	}
 }
