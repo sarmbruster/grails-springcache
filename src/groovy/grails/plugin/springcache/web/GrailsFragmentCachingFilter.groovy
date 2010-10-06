@@ -63,7 +63,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		request[REQUEST_CACHE_CONTEXT_ATTR] = new FilterContext()
 		if (handleFlush(request)) {
 			chain.doFilter(request, response)
-		} else if (shouldCache(request)) {
+		} else if (isCacheableRequest(request)) {
 			super.doFilter(request, response, chain)
 		} else {
 			chain.doFilter(request, response)
@@ -181,12 +181,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		return keyGenerator.generateKey(context).toString()
 	}
 
-	private boolean shouldCache(HttpServletRequest request) {
+	private boolean isCacheableRequest(HttpServletRequest request) {
 		def context = request[REQUEST_CACHE_CONTEXT_ATTR]
 		Cacheable cacheable = getAnnotation(context, Cacheable)
 		if (cacheable) {
 			request[REQUEST_CACHE_NAME_ATTR] = cacheable.value()
-			logRequestDetails(request, context, "Caching request")
+			logRequestDetails(request, context, "Caching enabled for request")
 			return true
 		} else {
 			log.debug "No cacheable annotation found for $request.method:$request.requestURI $context"
