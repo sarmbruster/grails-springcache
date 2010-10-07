@@ -19,7 +19,7 @@ void tearDown() {
 
 h3. Disabling
 
-Rather than tearing down caches between tests you may prefer to disable the plugin altogether. This is done by setting the config key @springcache.disabled = true@ which can be done on a per-environment basis. For example:
+Rather than tearing down caches between tests you may prefer to disable the plugin altogether. This is done by setting the config key @springcache.enabled = false@ which can be done on a per-environment basis. For example:
 
 {code}
 springcache {
@@ -28,7 +28,7 @@ springcache {
 
 environments {
     development {
-        springcache.disabled = true
+        springcache.enabled = false
     }
 }
 {code}

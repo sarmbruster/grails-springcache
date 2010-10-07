@@ -21,6 +21,7 @@ import grails.plugin.springcache.aop.FlushingAspect
 import grails.plugin.springcache.web.GrailsFragmentCachingFilter
 import org.springframework.web.filter.DelegatingFilterProxy
 import grails.plugin.springcache.web.key.DefaultKeyGenerator
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class SpringcacheGrailsPlugin {
 
@@ -41,7 +42,7 @@ class SpringcacheGrailsPlugin {
 	def documentation = "http://gpc.github.com/grails-springcache"
 
 	def doWithWebDescriptor = {xml ->
-		if (!application.config.springcache.disabled) {
+		if (isEnabled(application)) {
 			def filters = xml.filter
 			def lastFilter = filters[filters.size() - 1]
 			lastFilter + {
@@ -73,7 +74,7 @@ class SpringcacheGrailsPlugin {
 	}
 
 	def doWithSpring = {
-		if (application.config.springcache.disabled) {
+		if (!isEnabled(application)) {
 			log.warn "Springcache plugin is disabled"
 		} else {
 			springcacheAutoProxyCreator(AnnotationAwareAspectJAutoProxyCreator) {
@@ -131,6 +132,12 @@ class SpringcacheGrailsPlugin {
 	}
 
 	private static final log = LoggerFactory.getLogger("grails.plugin.springcache.SpringcacheGrailsPlugin")
+
+	private isEnabled(GrailsApplication application) {
+		application.config.with {
+			(springcache.enabled == null || springcache.enabled != false) && !springcache.disabled 
+		}
+	}
 
 }
 
