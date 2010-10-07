@@ -1,0 +1,5 @@
+h3. Incompatibilities with specific Grails versions
+
+h4. Grails 1.3.4
+
+Due to a bug with Grails itself query string parameters are not included in the generated cache key. This can be a serious issue if you are using pagination for example as query string parameters such as @offset@ will be ignored resulting in the same cached content being served for every page.
