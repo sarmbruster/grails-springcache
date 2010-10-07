@@ -12,10 +12,6 @@ buildscript {
     }
 }
 
-configurations {
-	doc
-}
-
 repositories {
 	mavenCentral()
 	mavenRepo urls: "http://repository.jboss.org/maven2/"
@@ -25,20 +21,6 @@ repositories {
 dependencies {
 	compile "org.grails:grails-crud:1.3.5",
 			"org.grails:grails-gorm:1.3.5"
-	doc "org.markdownj:markdownj:0.3.0-1.0.2b4"
 }
 
 apply plugin: "grails"
-
-task doc(dependsOn: configurations.doc) << {
-	def text = new File("README.markdown").text
-	text = text.replaceAll(/\*+/, "*")
-	text = text.replaceAll(/`/, "@")
-	text = text.replaceAll(/<a href="(.*?)">(.*?)<\/a>/) { match, href, label ->
-		"[$label|$href]"
-	}
-	text = text.replaceAll(/(?m)^#+/) {
-		"h${it.size()}."
-	}
-	println text
-}
