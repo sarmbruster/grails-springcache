@@ -32,7 +32,6 @@ class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
 	
 	def "keys differ for different request content types"() {
 		given:
-		// spock mocks can't handle interactions with dynamic methods so have to use something else
 		def request = mock(HttpServletRequest) {
 			format.returns("html")
 			format.returns("html")
@@ -56,7 +55,6 @@ class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
 
 	def "content type 'all' is ignored"() {
 		given:
-		// spock mocks can't handle interactions with dynamic methods so have to use something else
 		def request = mock(HttpServletRequest) {
 			format.returns("all")
 			format.returns(null)
