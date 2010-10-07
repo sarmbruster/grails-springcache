@@ -60,6 +60,20 @@ class DefaultKeyGeneratorSpec extends Specification {
 		key4 == key5
 	}
 
+	def "array parameters are handled"() {
+		given:
+		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
+		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
+		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["2"] as String[]]))
+		def key4 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1", ""] as String[]]))
+		def key5 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["", "1", ""] as String[]]))
+
+		expect:
+		key1 == key2
+		key1 != key3
+		key4 != key5
+	}
+
 	def "parameter order is not important"() {
 		given:
 		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
@@ -97,5 +111,4 @@ class DefaultKeyGeneratorSpec extends Specification {
 		expect:
 		key1 == key2
 	}
-
 }

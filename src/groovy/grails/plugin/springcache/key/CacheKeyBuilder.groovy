@@ -43,10 +43,16 @@ class CacheKeyBuilder {
 		if (o == null) {
 			appendNull()
 		} else if (o.getClass().isArray()) {
-			append Arrays.hashCode(o)
+			append Arrays.deepHashCode(o)
 		} else {
 			append o.hashCode()
 		}
+		this
+	}
+
+	CacheKeyBuilder append(Map.Entry entry) {
+		append entry.key
+		append entry.value
 		this
 	}
 

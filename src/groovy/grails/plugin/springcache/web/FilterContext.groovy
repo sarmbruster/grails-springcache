@@ -29,7 +29,7 @@ class FilterContext {
 	HttpServletRequest request
 
 	FilterContext() {
-		request = request = RequestContextHolder.requestAttributes?.request
+		request = RequestContextHolder.requestAttributes?.request
 		controllerName = RequestContextHolder.requestAttributes?.controllerName
 		actionName = RequestContextHolder.requestAttributes?.actionName ?: controllerArtefact?.defaultAction
 		params = RequestContextHolder.requestAttributes?.parameterMap?.asImmutable()
