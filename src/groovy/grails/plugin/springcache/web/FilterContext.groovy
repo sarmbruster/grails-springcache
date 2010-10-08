@@ -15,11 +15,13 @@
  */
 package grails.plugin.springcache.web
 
+import grails.plugin.springcache.annotations.*
+import grails.plugin.springcache.web.key.KeyGenerator
+import java.lang.annotation.Annotation
 import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import org.springframework.web.context.request.RequestContextHolder
+import org.codehaus.groovy.grails.commons.*
 
 class FilterContext {
 
@@ -27,6 +29,9 @@ class FilterContext {
 	String actionName
 	Map params
 	HttpServletRequest request
+
+	@Lazy String cacheName = getAnnotation(Cacheable)?.value()
+	@Lazy KeyGenerator keyGenerator = getAnnotation(KeyGeneratorType)?.value()?.newInstance()
 
 	FilterContext() {
 		request = RequestContextHolder.requestAttributes?.request
@@ -47,6 +52,15 @@ class FilterContext {
 			return null
 		}
 	}()
+
+	boolean isRequestCacheable() {
+		cacheName
+	}
+
+	private Annotation getAnnotation(Class type) {
+		// first look on the action, then the controller class
+		return actionClosure?.getAnnotation(type) ?: controllerArtefact?.clazz?.getAnnotation(type)
+	}
 
 	String toString() {
 		def buffer = new StringBuilder("[")
