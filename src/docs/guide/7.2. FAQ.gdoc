@@ -1,3 +1,7 @@
+h3. Can I evict only some of the contents of a cache instead of flushing the whole thing?
+
+No. It's not possible to 'reverse engineer' cache keys into the values that were used to generate them so how would you know which keys to evict? If you find yourself asking this question you should consider using more focused caches rather than putting everything into the same bucket. The pursuit of 100% efficiency where no service method or controller action is _ever_ invoked when its contents could conceivably have been served from a cache is subject to the law of diminishing returns. Any time you flush a cache you may well discard _some_ entries that _could_ potentially still have been used but so long as your caches are set up sensibly that's really not something that you should worry about.
+
 h3. My cache config doesn't seem to be working.
 
 Ensure all your config for the _Springcache_ plugin is nested inside a single @springcache@ block in @Config.groovy@ otherwise only the last block will take effect.
