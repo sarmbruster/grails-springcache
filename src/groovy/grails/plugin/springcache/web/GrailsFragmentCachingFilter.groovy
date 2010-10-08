@@ -25,7 +25,7 @@ import grails.plugin.springcache.web.key.KeyGenerator
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
-import net.sf.ehcache.constructs.web.*
+
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.servlet.*
 
@@ -204,7 +204,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
 	private KeyGenerator getKeyGenerator(FilterContext context) {
 		// TODO: cache this by controller/action
-		CacheKeyStrategy cacheKeyStrategy = getAnnotation(context, CacheKeyStrategy)
+		KeyGeneratorType cacheKeyStrategy = getAnnotation(context, KeyGeneratorType)
 		cacheKeyStrategy ? cacheKeyStrategy.value().newInstance() : defaultKeyGenerator
 	}
 

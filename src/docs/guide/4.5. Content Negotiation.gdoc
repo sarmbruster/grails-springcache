@@ -4,7 +4,7 @@ By default the key generator used by the page fragment caching filter does not t
 import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
 
 	@Cacheable("albumControllerCache")
-	@CacheKeyStrategy(MimeTypeAwareKeyGenerator)
+	@KeyGeneratorType(MimeTypeAwareKeyGenerator)
 	def list = {
 	    def albumList = Album.list()
 		withFormat {
