@@ -4,12 +4,12 @@ import musicstore.Album
 import grails.converters.*
 import grails.plugin.springcache.annotations.Cacheable
 import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-import grails.plugin.springcache.annotations.CacheKeyStrategy
+import grails.plugin.springcache.annotations.KeyGeneratorType
 
 class LatestController {
 
 	@Cacheable("latestControllerCache")
-	@CacheKeyStrategy(MimeTypeAwareKeyGenerator)
+	@KeyGeneratorType(MimeTypeAwareKeyGenerator)
 	def albums = {
 		def albums = Album.list(sort: "dateCreated", order: "desc", max: 10)
 		withFormat {

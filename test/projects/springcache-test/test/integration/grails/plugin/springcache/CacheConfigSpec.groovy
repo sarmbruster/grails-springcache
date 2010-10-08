@@ -1,4 +1,4 @@
-package pirates
+package grails.plugin.springcache
 
 import grails.plugin.spock.IntegrationSpec
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy

@@ -18,6 +18,10 @@ package grails.plugin.springcache.web.key
 import grails.plugin.springcache.key.CacheKeyBuilder
 import grails.plugin.springcache.web.FilterContext
 
+/**
+ * A key generator that simply uses controller name, action name and request parameters
+ * as the basis of the key.
+ */
 class DefaultKeyGenerator extends AbstractKeyGenerator {
 
 	protected void generateKeyInternal(CacheKeyBuilder builder, FilterContext context) {

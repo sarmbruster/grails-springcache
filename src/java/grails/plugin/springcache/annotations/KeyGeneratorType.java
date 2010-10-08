@@ -25,6 +25,6 @@ import grails.plugin.springcache.web.key.*;
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Inherited
 @Documented
-public @interface CacheKeyStrategy {
+public @interface KeyGeneratorType {
 	Class<? extends KeyGenerator> value();
 }

@@ -1,9 +1,10 @@
-package pirates
+package grails.plugin.springcache
 
 import grails.plugin.spock.IntegrationSpec
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
+import pirates.*
 
 class CachingSpec extends IntegrationSpec {
 

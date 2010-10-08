@@ -8,7 +8,6 @@
 
 ## General
 
-* deprecate springcache.disabled=true in favour of springcache.enabled=false
 * expose caching statistics (JMX?)
 * support reloading via onChange and onConfigChange [GRAILSPLUGINS-1825][1825]
 

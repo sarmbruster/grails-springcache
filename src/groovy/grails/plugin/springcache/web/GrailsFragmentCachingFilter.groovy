@@ -16,29 +16,28 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
-import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import java.lang.annotation.Annotation
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
-import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
 import grails.plugin.springcache.annotations.*
+import grails.plugin.springcache.web.key.KeyGenerator
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
+import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.servlet.*
-import grails.plugin.springcache.web.key.KeyGenerator
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
-
-	private static final REQUEST_CACHE_NAME_ATTR = "${GrailsFragmentCachingFilter.name}.CACHE"
-	private static final REQUEST_CACHE_CONTEXT_ATTR = "${GrailsFragmentCachingFilter.name}.CACHE_CONTEXT"
 
 	private final log = LoggerFactory.getLogger(getClass())
 	private final timingLog = LoggerFactory.getLogger("${getClass().name}.TIMINGS")
 	SpringcacheService springcacheService
 	CacheManager cacheManager
+	KeyGenerator defaultKeyGenerator
+
+	private final ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
 
 	/**
 	 * Overrides doInit in CachingFilter to be a no-op. The superclass initializes a single cache that is used for all
@@ -54,13 +53,19 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 * on annotations on target controller.
 	 */
 	@Override protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-		request[REQUEST_CACHE_CONTEXT_ATTR] = new FilterContext()
-		if (handleFlush(request)) {
-			chain.doFilter(request, response)
-		} else if (isCacheableRequest(request)) {
-			super.doFilter(request, response, chain)
-		} else {
-			chain.doFilter(request, response)
+		initContext()
+		try {
+			if (handleFlush(request)) {
+				chain.doFilter(request, response)
+			} else if (context.isRequestCacheable()) {
+				logRequestDetails(request, context, "Caching enabled for request")
+				super.doFilter(request, response, chain)
+			} else {
+				log.debug "No cacheable annotation found for $request.method:$request.requestURI $context"
+				chain.doFilter(request, response)
+			}
+		} finally {
+			destroyContext()
 		}
 	}
 
@@ -73,8 +78,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		timer.start(getCachedUri(request))
 		boolean isCached = true
 
-		String cacheName = request[REQUEST_CACHE_NAME_ATTR]
-		def cache = springcacheService.getOrCreateBlockingCache(cacheName)
+		def cache = springcacheService.getOrCreateBlockingCache(context.cacheName)
 
 		def key = calculateKey(request)
 
@@ -87,10 +91,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 					// Page is not cached - build the response, cache it, and send to client
 					pageInfo = buildPage(request, response, chain)
 					if (pageInfo.isOk()) {
-						log.debug "PageInfo ok. Adding to cache $cacheName with key $key"
+						log.debug "PageInfo ok. Adding to cache $cache.name with key $key"
 						cache.put(new Element(key, pageInfo))
 					} else {
-						log.debug "PageInfo was not ok(200). Putting null into cache $cacheName with key $key"
+						log.debug "PageInfo was not ok(200). Putting null into cache $cache.name with key $key"
 						cache.put(new Element(key, null))
 					}
 				} catch (Throwable t) {
@@ -105,7 +109,6 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				// As the page is cached, we need to add an instance of the associated
 				// controller to the request. This is required by GrailsLayoutDecoratorMapper
 				// to pick the appropriate layout.
-				def context = request[REQUEST_CACHE_CONTEXT_ATTR]
 				if (context?.controllerName) {
 					def controller = context.controllerArtefact.newInstance()
 					request.setAttribute(GrailsApplicationAttributes.CONTROLLER, controller)
@@ -145,7 +148,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		}
 		wrapper.flush()
 
-		long timeToLiveSeconds = cacheManager.getEhcache(request[REQUEST_CACHE_NAME_ATTR]).cacheConfiguration.timeToLiveSeconds
+		long timeToLiveSeconds = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
 
 		def contentType = wrapper.contentType ?: response.contentType
 		return new PageInfo(wrapper.status, contentType, wrapper.headers, wrapper.cookies,
@@ -166,31 +169,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		throw new UnsupportedOperationException("Not supported in this implementation")
 	}
 
-	/**
-	 * Creates a cache key based on the target controller and action and any params (i.e. you want to cache
-	 * /pirate/show/1 and /pirate/show/2 separately).
-	 */
 	@Override protected String calculateKey(HttpServletRequest request) {
-		def context = request[REQUEST_CACHE_CONTEXT_ATTR]
-		KeyGenerator keyGenerator = getKeyGenerator(context)
+		def keyGenerator = context.keyGenerator ?: defaultKeyGenerator
 		return keyGenerator.generateKey(context).toString()
 	}
 
-	private boolean isCacheableRequest(HttpServletRequest request) {
-		def context = request[REQUEST_CACHE_CONTEXT_ATTR]
-		Cacheable cacheable = getAnnotation(context, Cacheable)
-		if (cacheable) {
-			request[REQUEST_CACHE_NAME_ATTR] = cacheable.value()
-			logRequestDetails(request, context, "Caching enabled for request")
-			return true
-		} else {
-			log.debug "No cacheable annotation found for $request.method:$request.requestURI $context"
-			return false
-		}
-	}
-
 	boolean handleFlush(HttpServletRequest request) {
-		def context = request[REQUEST_CACHE_CONTEXT_ATTR]
 		CacheFlush cacheFlush = getAnnotation(context, CacheFlush)
 		if (cacheFlush) {
 			logRequestDetails(request, context, "Flushing request")
@@ -200,13 +184,6 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			log.debug "No cacheflush annotation found for $request.method:$request.requestURI $context"
 			return false
 		}
-	}
-
-	private KeyGenerator getKeyGenerator(FilterContext context) {
-		// TODO: cache this by controller/action
-		// TODO: configurable default
-		CacheKeyStrategy cacheKeyStrategy = getAnnotation(context, CacheKeyStrategy)
-		cacheKeyStrategy ? cacheKeyStrategy.value().newInstance() : new DefaultKeyGenerator()
 	}
 
 	private Annotation getAnnotation(FilterContext context, Class type) {
@@ -239,6 +216,18 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			return request[WebUtils.INCLUDE_REQUEST_URI_ATTRIBUTE]
 		}
 		return request.requestURI
+	}
+
+	private void initContext() {
+		contextHolder.set(new FilterContext())
+	}
+
+	private FilterContext getContext() {
+		contextHolder.get()
+	}
+
+	private void destroyContext() {
+		contextHolder.remove()
 	}
 
 }
