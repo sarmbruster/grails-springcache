@@ -1,6 +1,5 @@
 # Bugs
 
-* direct access to SpringcacheService breaks if springcache.disabled set in config [GRAILSPLUGINS-2497][2497]
 * check caching of service methods with defaulted params
 * HEAD and GET requests seem to generate different keys
 
@@ -27,5 +26,4 @@
 * use annotations on taglibs
 * cacheable version of g:render?
 
-[2497]:http://jira.codehaus.org/browse/GRAILSPLUGINS-2497
 [1825]:http://jira.codehaus.org/browse/GRAILSPLUGINS-1825
