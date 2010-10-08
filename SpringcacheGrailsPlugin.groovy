@@ -133,7 +133,7 @@ class SpringcacheGrailsPlugin {
 
 	private static final log = LoggerFactory.getLogger("grails.plugin.springcache.SpringcacheGrailsPlugin")
 
-	private isEnabled(GrailsApplication application) {
+	private boolean isEnabled(GrailsApplication application) {
 		application.config.with {
 			(springcache.enabled == null || springcache.enabled != false) && !springcache.disabled 
 		}

@@ -5,6 +5,7 @@ h4. 1.3
  * Deprecates @springcache.disabled = true@ in favour of @springcache.enabled = false@
  * Fixes bug with key generation from String[] parameters
  * Updates _ehcache-web_ to version 2.0.2
+ * Makes @SpringcacheService@ methods safe no-ops when plugin is disabled "GRAILSPLUGINS-2497":http://jira.codehaus.org/browse/GRAILSPLUGINS-2497
 
 h4. 1.2.1
 

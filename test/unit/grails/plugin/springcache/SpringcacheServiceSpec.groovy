@@ -31,7 +31,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 	def setup() {
 		manager.addCache "cache1"
 		manager.addCache "cache2"
-		
+
 		cache1 = manager.getEhcache("cache1")
 		cache2 = manager.getEhcache("cache2")
 
@@ -39,7 +39,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 		service = new SpringcacheService(springcacheCacheManager: manager)
 	}
 
-    @Unroll("calling flush(#flushArgument) flushes the correct cache or caches")
+	@Unroll("calling flush(#flushArgument) flushes the correct cache or caches")
 	def "calling flush flushes the correct cache or caches"() {
 		given:
 		cache1.put(new Element("key", "value"))
@@ -51,7 +51,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 		then:
 		cache1.size == cache1Size
 		cache2.size == cache2Size
-		
+
 		where:
 		flushArgument        | cache1Size | cache2Size
 		"cache1"             | 0          | 1
@@ -63,7 +63,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 	def "exceptions on flush are handled"() {
 		given:
 		cache1.put(new Element("key", "value"))
-		
+
 		and:
 		def cache3 = Mock(Ehcache)
 		cache3.name >> "cache3"
@@ -118,7 +118,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 	def "doWithCache retrieves value from cache"() {
 		given:
 		cache1.put(new Element("key", value))
-		
+
 		when:
 		def result = service.doWithCache("cache1", "key") {
 			fail "Closure should not have been invoked"
@@ -126,7 +126,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 
 		then:
 		result == value
-		
+
 		where:
 		value << ["value", null]
 	}
@@ -139,7 +139,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 
 		then:
 		result == "value"
-		
+
 		and:
 		cache1.get("key").objectValue == "value"
 	}
@@ -160,7 +160,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 
 		then:
 		result == "value"
-		
+
 		and:
 		cache1.get("key").objectValue == "value"
 		!cache1.get("key").expired
@@ -171,7 +171,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 		def result = service.doWithCache("cache1", "key") {
 			return null
 		}
-		
+
 		then:
 		result == null
 
@@ -188,7 +188,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 		service.doWithCache("cacheA", "key") {
 			fail "Closure should not have been invoked"
 		}
-		
+
 		then:
 		thrown NoSuchCacheException
 	}
@@ -257,7 +257,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 
 		then:
 		thrown DeliberateException
-		
+
 		and:
 		// this will time out if service call did not clear the lock
 		blockingCache.get("key") == null
@@ -275,7 +275,7 @@ class SpringcacheServiceSpec extends UnitSpec {
 		service.doWithBlockingCache("blockingCache", "key") {
 			return "value"
 		}
-		
+
 		then:
 		thrown LockTimeoutException
 	}
@@ -293,10 +293,52 @@ class SpringcacheServiceSpec extends UnitSpec {
 
 		then:
 		thrown DeliberateException
-		
+
 		and:
 		// this will time out if service call did not clear the lock
 		blockingCache.get("key") == null
+	}
+
+	@Unroll("the #methodName method passes through when the plugin is disabled")
+	def "caching methods pass through when the plugin is disabled"() {
+		given:
+		mockConfig "springcache.enabled = false"
+		service.springcacheCacheManager = null
+
+		when:
+		def result = service."$methodName"("cache1", "key") { "value" }
+
+		then:
+		result == "value"
+
+		and:
+		cache1.statistics.objectCount == 0L
+		cache1.statistics.cacheHits == 0L
+		cache1.statistics.cacheMisses == 0L
+
+		where:
+		methodName << ["doWithCache", "doWithBlockingCache"]
+	}
+
+	@Unroll("the #methodName method is a no-op when the plugin is disabled")
+	def "flush and clear methods are no-ops when the plugin is disabled"() {
+		given:
+		mockConfig "springcache.enabled = false"
+		service.springcacheCacheManager = null
+
+		when:
+		service."$methodName"(*arguments)
+
+		then:
+		notThrown(Throwable)
+
+		where:
+		methodName                 | arguments
+		"flushAll"                 | []
+		"clearStatistics"          | []
+		"flush"                    | ["cache1"]
+		"getOrCreateCache"         | ["cache1"]
+		"getOrCreateBlockingCache" | ["cache1"]
 	}
 }
 
