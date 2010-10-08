@@ -25,7 +25,7 @@ import grails.plugin.springcache.web.key.KeyGenerator
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
-
+import net.sf.ehcache.constructs.web.*
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.servlet.*
 
