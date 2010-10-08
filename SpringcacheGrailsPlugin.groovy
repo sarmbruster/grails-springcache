@@ -25,7 +25,7 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class SpringcacheGrailsPlugin {
 
-	def version = "1.2.2-SNAPSHOT"
+	def version = "1.3-SNAPSHOT"
 	def grailsVersion = "1.2.0 > *"
 	def dependsOn = [:]
 	def pluginExcludes = [

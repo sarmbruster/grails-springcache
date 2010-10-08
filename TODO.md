@@ -14,7 +14,6 @@
 ## Controller caching
 
 * request method aware key generator (different cache key for HTTP GET/POST/HEAD, etc.)
-* specify key strategy with annotation on action [GRAILSPLUGINS-2548][2548]
 * specify parameters to include/exclude from key with annotation on action
 * option to disable content caching filter
 * configurable cacheable & cacheflush for controllers in plugins?
@@ -30,4 +29,3 @@
 
 [2497]:http://jira.codehaus.org/browse/GRAILSPLUGINS-2497
 [1825]:http://jira.codehaus.org/browse/GRAILSPLUGINS-1825
-[2548]:http://jira.codehaus.org/browse/GRAILSPLUGINS-2548
