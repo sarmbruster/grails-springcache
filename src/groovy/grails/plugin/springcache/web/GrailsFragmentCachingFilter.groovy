@@ -37,7 +37,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	CacheManager cacheManager
 	KeyGenerator defaultKeyGenerator
 
-	private ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
+	private final ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
 
 	/**
 	 * Overrides doInit in CachingFilter to be a no-op. The superclass initializes a single cache that is used for all
