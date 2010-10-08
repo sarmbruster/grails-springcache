@@ -110,7 +110,3 @@ grails.rateable.rater.evaluator = {
 	}
 	return null
 }
-
-beans {
-	springcacheFilter.keyGenerator = new grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator()
-}

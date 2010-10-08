@@ -16,24 +16,19 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
-import grails.plugin.springcache.annotations.CacheFlush
-import grails.plugin.springcache.annotations.Cacheable
-import grails.plugin.springcache.web.key.KeyGenerator
+import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import java.lang.annotation.Annotation
-import javax.servlet.FilterChain
-import javax.servlet.FilterConfig
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import net.sf.ehcache.CacheManager
-import net.sf.ehcache.constructs.web.GenericResponseWrapper
-import net.sf.ehcache.constructs.web.PageInfo
+import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
-import org.codehaus.groovy.grails.web.servlet.WrappedResponseHolder
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
-import net.sf.ehcache.Element
-import net.sf.ehcache.constructs.blocking.LockTimeoutException
+import grails.plugin.springcache.annotations.*
+import javax.servlet.*
+import javax.servlet.http.*
+import net.sf.ehcache.*
+import net.sf.ehcache.constructs.web.*
+import org.codehaus.groovy.grails.web.servlet.*
+import grails.plugin.springcache.web.key.KeyGenerator
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -44,7 +39,6 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	private final timingLog = LoggerFactory.getLogger("${getClass().name}.TIMINGS")
 	SpringcacheService springcacheService
 	CacheManager cacheManager
-	KeyGenerator keyGenerator
 
 	/**
 	 * Overrides doInit in CachingFilter to be a no-op. The superclass initializes a single cache that is used for all
@@ -111,13 +105,13 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				// As the page is cached, we need to add an instance of the associated
 				// controller to the request. This is required by GrailsLayoutDecoratorMapper
 				// to pick the appropriate layout.
-				def context = request[REQUEST_CACHE_CONTEXT_ATTR] 
+				def context = request[REQUEST_CACHE_CONTEXT_ATTR]
 				if (context?.controllerName) {
 					def controller = context.controllerArtefact.newInstance()
 					request.setAttribute(GrailsApplicationAttributes.CONTROLLER, controller)
 				}
 			}
-		} catch(LockTimeoutException e) {
+		} catch (LockTimeoutException e) {
 			//do not release the lock, because you never acquired it
 			throw e
 		}
@@ -178,6 +172,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 */
 	@Override protected String calculateKey(HttpServletRequest request) {
 		def context = request[REQUEST_CACHE_CONTEXT_ATTR]
+		KeyGenerator keyGenerator = getKeyGenerator(context)
 		return keyGenerator.generateKey(context).toString()
 	}
 
@@ -205,6 +200,13 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			log.debug "No cacheflush annotation found for $request.method:$request.requestURI $context"
 			return false
 		}
+	}
+
+	private KeyGenerator getKeyGenerator(FilterContext context) {
+		// TODO: cache this by controller/action
+		// TODO: configurable default
+		CacheKeyStrategy cacheKeyStrategy = getAnnotation(context, CacheKeyStrategy)
+		cacheKeyStrategy ? cacheKeyStrategy.value().newInstance() : new DefaultKeyGenerator()
 	}
 
 	private Annotation getAnnotation(FilterContext context, Class type) {
