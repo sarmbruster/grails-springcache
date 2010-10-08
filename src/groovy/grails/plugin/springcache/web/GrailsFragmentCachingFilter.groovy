@@ -21,6 +21,7 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
 import grails.plugin.springcache.annotations.*
+import grails.plugin.springcache.web.key.KeyGenerator
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
