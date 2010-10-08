@@ -114,6 +114,7 @@ class SpringcacheGrailsPlugin {
 			springcacheFilter(GrailsFragmentCachingFilter) {
 				springcacheService = ref("springcacheService")
 				cacheManager = ref("springcacheCacheManager")
+				defaultKeyGenerator = new DefaultKeyGenerator()
 			}
 		}
 	}

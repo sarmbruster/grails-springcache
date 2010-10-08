@@ -39,6 +39,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	private final timingLog = LoggerFactory.getLogger("${getClass().name}.TIMINGS")
 	SpringcacheService springcacheService
 	CacheManager cacheManager
+	KeyGenerator defaultKeyGenerator
 
 	/**
 	 * Overrides doInit in CachingFilter to be a no-op. The superclass initializes a single cache that is used for all
@@ -204,9 +205,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
 	private KeyGenerator getKeyGenerator(FilterContext context) {
 		// TODO: cache this by controller/action
-		// TODO: configurable default
 		CacheKeyStrategy cacheKeyStrategy = getAnnotation(context, CacheKeyStrategy)
-		cacheKeyStrategy ? cacheKeyStrategy.value().newInstance() : new DefaultKeyGenerator()
+		cacheKeyStrategy ? cacheKeyStrategy.value().newInstance() : defaultKeyGenerator
 	}
 
 	private Annotation getAnnotation(FilterContext context, Class type) {
