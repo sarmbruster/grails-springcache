@@ -1,17 +1,14 @@
-The Springcache plugin uses an instance of the interface @grails.plugin.springcache.web.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @grails.plugin.springcache.annotations.KeyGeneratorType@ annotation alongside the @\@Cacheable@ annotation. The annotation takes a single argument which is the @KeyGenerator@ class to use. At request time a new instance will be created and used to generate keys for that action.
+The Springcache plugin uses an instance of the interface @grails.plugin.springcache.web.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGeneratorType@ element to the @\@Cacheable@ annotation specifying the @KeyGenerator@ class to use. At request time a new instance will be created and used to generate keys for that action.
 
 {code}
-	@Cacheable("albumControllerCache")
-	@KeyGeneratorType(MyKeyGenerator)
+	@Cacheable(cache = "albumControllerCache", keyGeneratorType = MyKeyGenerator)
 	def list = {
 	    // ...
 	}
 {code}
 
-As with @\@Cacheable@ you can apply the @\@KeyGeneratorType@ annotation at the class level as well as at the action level.
-
 {note}
-The @\@KeyGeneratorType@ annotation is only for content caching and just works on controllers, it cannot be used on service methods.
+The @keyGeneratorType@ element is only for content caching and just works on controllers, it is ignored by the @\@Cacheable@ annotation on service methods.
 {note}
 
 h3. Key generator types
@@ -28,7 +25,7 @@ The @MimeTypeAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds the reque
 
 h3. Overriding the default key generator
 
-If you want _all_ the cached actions in your applications to use a different @KeyGenerator@ implementation instead of having to add @\@KeyGeneratorType@ annotations everywhere you can just override the Spring bean property on the filter in @Config.groovy@ like this:
+If you want _all_ the cached actions in your applications to use a different @KeyGenerator@ implementation instead of having to add @keyGeneratorType@ elements everywhere you can just override the Spring bean property on the filter in @Config.groovy@ like this:
 
 {code}
 beans {

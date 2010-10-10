@@ -2,15 +2,22 @@ The _Springcache_ plugin provides two annotations that are the basis of how you 
 
 h3. The @\@Cachable@ annotation
 
-The @Cacheable@ annotation is applied to methods on Spring managed beans such as Grails services to cache method results or to controller actions to cache page fragments. The annotation requires a single argument which is the name of the cache that will be used.
+The @Cacheable@ annotation is applied to methods on Spring managed beans such as Grails services to cache method results or to controller actions to cache page fragments. The annotation requires a cache name specified either as a standalone value or with the @cache@ element. The following declarations are equivalent:
+
+{code}
+\@Cacheable("myCache")
+\@Cacheable(cache = "myCache")
+{code}
+
+For content caching only you can also supply a @keyGeneratorType@ element, see [Content Cache Keys|guide:4.4. Content Cache Keys]
 
 h3. The @\@CacheFlush@ annotation
 
-The @CacheFlush@ annotation can be applied in the same places as the @Cacheable@ annotation but instead of caching results it will cause a cache or set of caches to be flushed. The @CacheFlush@ annotation can take a single argument or a String array. Either way the arguments can simply be literal cache names or regular expression patterns that may match multiple cache names. For example:
+The @CacheFlush@ annotation can be applied in the same places as the @Cacheable@ annotation but instead of caching results it will cause a cache or set of caches to be flushed. The @CacheFlush@ annotation can take a single element or a String array. Either way the elements can simply be literal cache names or regular expression patterns that may match multiple cache names. For example:
 
 {code}
-@CacheFlush("myCache")
-@CacheFlush(/\w+ControllerCache/)
-@CacheFlush(["cacheA", "cacheB", "cacheC"])
-@CacheFlush([/cache[A-Z]/, "myCache"])
+\@CacheFlush("myCache")
+\@CacheFlush(/\w+ControllerCache/)
+\@CacheFlush(["cacheA", "cacheB", "cacheC"])
+\@CacheFlush([/cache[A-Z]/, "myCache"])
 {code}
