@@ -18,11 +18,11 @@ package grails.plugin.springcache.web
 import grails.plugin.springcache.annotations.Cacheable
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
+import grails.plugin.springcache.web.key.*
 import org.codehaus.groovy.grails.commons.*
-import spock.lang.*
 import static org.hamcrest.CoreMatchers.*
-import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-import grails.plugin.springcache.web.key.DefaultKeyGenerator
+import spock.lang.*
+import static spock.util.matcher.MatcherSupport.that
 
 class FilterContextSpec extends Specification {
 
@@ -113,7 +113,7 @@ class FilterContextSpec extends Specification {
 		def context = new FilterContext()
 
 		expect:
-		keyGeneratorMatcher.matches(context.keyGenerator)
+		that context.keyGenerator, keyGeneratorMatcher
 
 		where:
 		controllerName | actionName | keyGeneratorMatcher

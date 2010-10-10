@@ -9,7 +9,7 @@ The @Cacheable@ annotation is applied to methods on Spring managed beans such as
 \@Cacheable(cache = "myCache")
 {code}
 
-For content caching only you can also supply a @keyGeneratorType@ element, see [Content Cache Keys|guide:4.4. Content Cache Keys]
+For content caching only you can also supply a @keyGeneratorType@ element, see [Content Cache Keys|guide:contentCacheKeys]
 
 h3. The @\@CacheFlush@ annotation
 
