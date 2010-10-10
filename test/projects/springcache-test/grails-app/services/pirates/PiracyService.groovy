@@ -17,7 +17,7 @@ class PiracyService {
 		}
 	}
 
-	@Cacheable("pirateCache")
+	@Cacheable(cache = "pirateCache")
 	List findPirateNames(String name) {
 		Pirate.withCriteria {
 			projections {

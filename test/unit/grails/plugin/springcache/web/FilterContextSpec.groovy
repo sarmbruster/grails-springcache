@@ -22,7 +22,7 @@ import org.codehaus.groovy.grails.commons.*
 import spock.lang.*
 import static org.hamcrest.CoreMatchers.*
 import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-import grails.plugin.springcache.annotations.KeyGeneratorType
+import grails.plugin.springcache.web.key.DefaultKeyGenerator
 
 class FilterContextSpec extends Specification {
 
@@ -30,9 +30,11 @@ class FilterContextSpec extends Specification {
 
 	def setup() {
 		// set up the controller as an artefact
-		def artefact = new DefaultGrailsControllerClass(TestController)
 		def application = Mock(GrailsApplication)
-		application.getArtefactByLogicalPropertyName("Controller", "test") >> artefact
+		[cachedTest: CachedTestController, uncachedTest: UncachedTestController, restfulTest: RestfulTestController].each { name, controllerClass ->
+			def artefact = new DefaultGrailsControllerClass(controllerClass)
+			application.getArtefactByLogicalPropertyName("Controller", name) >> artefact
+		}
 		ApplicationHolder.application = application
 
 		// put the mock request in the evil static holder
@@ -51,11 +53,11 @@ class FilterContextSpec extends Specification {
 		!expectedAction || context.actionClosure != null
 		
 		where:
-		controllerName | actionName | expectedController | expectedAction
-		null           | null       | null               | false
-		"test"         | "list"     | TestController     | true
-		"test"         | null       | TestController     | true // action is controller's default action
-		"test"         | "blah"     | TestController     | false
+		controllerName | actionName | expectedController   | expectedAction
+		null           | null       | null                 | false
+		"cachedTest"   | "list1"    | CachedTestController | true
+		"cachedTest"   | null       | CachedTestController | true // action is controller's default action
+		"cachedTest"   | "blah"     | CachedTestController | false
 	}
 
 	@Unroll("isRequestCacheable returns #shouldBeCacheable when controller is '#controllerName' and action is '#actionName'")
@@ -71,9 +73,13 @@ class FilterContextSpec extends Specification {
 		where:
 		controllerName | actionName | shouldBeCacheable
 		null           | null       | false
-		"test"         | "list"     | true
-		"test"         | null       | true
-	    "test"         | "blah"     | true
+		"uncachedTest" | null       | false
+		"uncachedTest" | "index"    | false
+		"cachedTest"   | "list1"    | true
+		"cachedTest"   | "list2"    | true
+		"cachedTest"   | "list3"    | true
+		"cachedTest"   | null       | true
+	    "cachedTest"   | "blah"     | true
 	}
 
 	@Unroll("cache name is '#expectedCacheName' when controller is '#controllerName' and action is '#actionName'")
@@ -89,9 +95,14 @@ class FilterContextSpec extends Specification {
 		where:
 		controllerName | actionName | expectedCacheName
 		null           | null       | null
-		"test"         | "list"     | "listActionCache"
-		"test"         | null       | "testControllerCache"
-	    "test"         | "blah"     | "testControllerCache"
+		"uncachedTest" | null       | null
+		"uncachedTest" | "index"    | null
+		"cachedTest"   | "index"    | "testControllerCache"
+		"cachedTest"   | "list1"    | "listActionCache"
+		"cachedTest"   | "list2"    | "listActionCache"
+		"cachedTest"   | "list3"    | "listActionCache"
+		"cachedTest"   | null       | "testControllerCache"
+	    "cachedTest"   | "blah"     | "testControllerCache"
 	}
 
 	@Unroll("key generator is #keyGeneratorMatcher when controller is '#controllerName' and action is '#actionName'")
@@ -107,19 +118,42 @@ class FilterContextSpec extends Specification {
 		where:
 		controllerName | actionName | keyGeneratorMatcher
 		null           | null       | nullValue()
-		"test"         | "list"     | instanceOf(MimeTypeAwareKeyGenerator)
-		"test"         | null       | nullValue()
-	    "test"         | "blah"     | nullValue()
-		// TODO: test for @KeyGeneratorType at controller level
+		"uncachedTest" | null       | nullValue()
+		"uncachedTest" | "index"    | nullValue()
+		"cachedTest"   | "index"    | instanceOf(DefaultKeyGenerator)
+		"cachedTest"   | "list1"    | instanceOf(DefaultKeyGenerator)
+		"cachedTest"   | "list2"    | instanceOf(DefaultKeyGenerator)
+		"cachedTest"   | "list3"    | instanceOf(MimeTypeAwareKeyGenerator)
+		"cachedTest"   | null       | instanceOf(DefaultKeyGenerator)
+	    "cachedTest"   | "blah"     | instanceOf(DefaultKeyGenerator)
+		"restfulTest"  | "list"     | instanceOf(MimeTypeAwareKeyGenerator)
 	}
 }
 
 @Cacheable("testControllerCache")
-class TestController {
+class CachedTestController {
 
 	def index = {}
 
 	@Cacheable("listActionCache")
-	@KeyGeneratorType(MimeTypeAwareKeyGenerator)
+	def list1 = {}
+
+	@Cacheable(cache = "listActionCache")
+	def list2 = {}
+
+	@Cacheable(cache = "listActionCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
+	def list3 = {}
+}
+
+class UncachedTestController {
+
+	def index = {}
+
+}
+
+@Cacheable(cache = "testControllerCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
+class RestfulTestController {
+
 	def list = {}
+
 }

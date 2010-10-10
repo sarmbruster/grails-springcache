@@ -34,7 +34,7 @@ class CachingAspect {
 	@Around("@annotation(cacheable)")
 	Object invokeCachedMethod(ProceedingJoinPoint pjp, Cacheable cacheable) {
 		if (log.isDebugEnabled()) log.debug "Intercepted ${pjp.toLongString()}"
-		String cacheName = cacheable.value()
+		String cacheName = cacheable.cache() ?: cacheable.value()
 		CacheKey key = CacheKey.generate(pjp)
 		return springcacheService.doWithCache(cacheName, key) {
 			pjp.proceed()

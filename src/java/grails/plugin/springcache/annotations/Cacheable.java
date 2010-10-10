@@ -16,6 +16,7 @@
 package grails.plugin.springcache.annotations;
 
 import java.lang.annotation.*;
+import grails.plugin.springcache.web.key.*;
 
 /**
  * Annotation used to mark methods whose return values should be cached.
@@ -29,5 +30,7 @@ import java.lang.annotation.*;
 @Inherited
 @Documented
 public @interface Cacheable {
-	String value();
+	String value() default "";
+	String cache() default "";
+	Class<? extends KeyGenerator> keyGeneratorType() default DefaultKeyGenerator.class;
 }

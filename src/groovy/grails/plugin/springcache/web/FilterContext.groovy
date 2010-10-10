@@ -30,8 +30,9 @@ class FilterContext {
 	Map params
 	HttpServletRequest request
 
-	@Lazy String cacheName = getAnnotation(Cacheable)?.value()
-	@Lazy KeyGenerator keyGenerator = getAnnotation(KeyGeneratorType)?.value()?.newInstance()
+	@Lazy String cacheName = cacheable?.cache() ?: cacheable?.value()
+	@Lazy KeyGenerator keyGenerator = cacheable?.keyGeneratorType()?.newInstance()
+	@Lazy private Cacheable cacheable = getAnnotation(Cacheable)
 
 	FilterContext() {
 		request = RequestContextHolder.requestAttributes?.request
