@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator
 import org.slf4j.LoggerFactory
 import org.springframework.cache.ehcache.*
 import grails.plugin.springcache.aop.CachingAspect
@@ -77,10 +76,6 @@ class SpringcacheGrailsPlugin {
 		if (!isEnabled(application)) {
 			log.warn "Springcache plugin is disabled"
 		} else {
-			springcacheAutoProxyCreator(AnnotationAwareAspectJAutoProxyCreator) {
-				proxyTargetClass = true
-			}
-
 			springcacheCacheManager(EhCacheManagerFactoryBean) {
 				cacheManagerName = "Springcache Plugin Cache Manager"
 			}
