@@ -18,13 +18,13 @@ class PiracyService {
 	}
 
 	@Cacheable(cache = "pirateCache")
-	List findPirateNames(String name) {
+	List findPirateNames(String name, boolean reverse = false) {
 		Pirate.withCriteria {
 			projections {
 				property "name"
 			}
 			ilike "name", "%$name%"
-			order "name", "asc"
+			order "name", (reverse ? "desc" : "asc")
 		}
 	}
 

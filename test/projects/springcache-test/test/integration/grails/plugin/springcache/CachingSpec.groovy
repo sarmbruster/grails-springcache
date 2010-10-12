@@ -52,8 +52,8 @@ class CachingSpec extends IntegrationSpec {
 		springcacheCacheManager.addCache(cache)
 
 		when: "A cacheable method is called twice with different arguments"
-		def result1 = piracyService.findPirateNames("jack")
-		def result2 = piracyService.findPirateNames("black")
+		def result1 = piracyService.findPirateNames("jack", false)
+		def result2 = piracyService.findPirateNames("black", false)
 
 		then: "The cache is not hit"
 		cache.statistics.cacheHits == 0L
@@ -64,6 +64,25 @@ class CachingSpec extends IntegrationSpec {
 		and: "The results are correct"
 		result1 == ["Calico Jack"]
 		result2 == ["Black Bart", "Blackbeard"]
+	}
+
+	def "cached results are for subsequent method calls with default arguments"() {
+		given: "A cache exists"
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
+		springcacheCacheManager.addCache(cache)
+
+		and: "the cache is primed"
+		def result1 = piracyService.findPirateNames("black", false)
+
+		when: "A cacheable method is called with default arguments"
+		def result2 = piracyService.findPirateNames("black")
+
+		then: "The cache is hit"
+		cache.statistics.cacheHits == 1L
+
+		and: "The results are correct"
+		result1 == ["Black Bart", "Blackbeard"]
+		result2 == result1
 	}
 
 	def "caches can be flushed"() {
