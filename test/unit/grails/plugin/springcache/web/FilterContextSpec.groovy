@@ -20,7 +20,7 @@ import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
 import grails.plugin.springcache.web.key.*
 import org.codehaus.groovy.grails.commons.*
-import static org.hamcrest.CoreMatchers.*
+import static org.hamcrest.Matchers.*
 import spock.lang.*
 import static spock.util.matcher.MatcherSupport.that
 
