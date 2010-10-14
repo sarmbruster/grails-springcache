@@ -10,6 +10,10 @@ Simply add an @\@Cacheable@ annotation to methods that should cache their result
 Be aware that the annotations will only have any effect on Spring-managed beans. If you create instances of your class directly rather than getting them from the application context they will not be decorated with caching/flushing behaviour.
 {note}
 
+{note}
+Method caching requires AspectJ auto-weaving to be enabled. If you have @grails.spring.disable.aspectj.autoweaving = false@ set in config then method caching will not work. Content caching is unaffected as it uses a different mechanism.
+{note}
+
 A simple example might be:
 
 h4. PiracyService.groovy

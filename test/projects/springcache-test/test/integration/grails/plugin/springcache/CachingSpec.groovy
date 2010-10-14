@@ -85,6 +85,25 @@ class CachingSpec extends IntegrationSpec {
 		result2 == result1
 	}
 
+	def "caching is applied to internal calls"() {
+		given: "A cache exists"
+		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
+		springcacheCacheManager.addCache(cache)
+
+		and: "the cache is primed"
+		def result1 = piracyService.listPirateNames()
+
+		when: "a method is called that in turn calls the cached method internally"
+		def result2 = piracyService.getAllPirateNames()
+
+		then: "The cache is hit"
+		cache.statistics.cacheHits == 1L
+
+		and: "The results are correct"
+		result1 == ["Black Bart", "Blackbeard", "Calico Jack"]
+		result2 == result1
+	}
+
 	def "caches can be flushed"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
@@ -166,5 +185,4 @@ class CachingSpec extends IntegrationSpec {
 		cache != null
 		cache.cacheConfiguration.memoryStoreEvictionPolicy == MemoryStoreEvictionPolicy.LFU
 	}
-
 }

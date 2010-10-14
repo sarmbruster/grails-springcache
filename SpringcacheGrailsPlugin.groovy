@@ -76,6 +76,10 @@ class SpringcacheGrailsPlugin {
 		if (!isEnabled(application)) {
 			log.warn "Springcache plugin is disabled"
 		} else {
+			if (application.config.grails.spring.disable.aspectj.autoweaving) {
+				log.warn "Service method caching is not compatible with the config setting 'grails.spring.disable.aspectj.autoweaving = false'"
+			}
+
 			springcacheCacheManager(EhCacheManagerFactoryBean) {
 				cacheManagerName = "Springcache Plugin Cache Manager"
 			}

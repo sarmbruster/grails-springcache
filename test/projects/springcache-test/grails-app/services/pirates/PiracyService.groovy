@@ -1,7 +1,10 @@
 package pirates
 
-import grails.plugin.springcache.annotations.CacheFlush
-import grails.plugin.springcache.annotations.Cacheable
+import org.springframework.aop.framework.AopContext
+import grails.plugin.springcache.annotations.*
+import org.codehaus.groovy.runtime.metaclass.OwnedMetaClass
+import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class PiracyService {
 
@@ -15,6 +18,10 @@ class PiracyService {
 			}
 			order "name", "asc"
 		}
+	}
+
+	List getAllPirateNames() {
+		listPirateNames()
 	}
 
 	@Cacheable(cache = "pirateCache")
