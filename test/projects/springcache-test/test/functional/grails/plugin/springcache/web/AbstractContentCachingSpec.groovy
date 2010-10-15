@@ -3,11 +3,11 @@ package grails.plugin.springcache.web
 import grails.plugin.geb.GebSpec
 import grails.plugin.springcache.SpringcacheService
 import musicstore.Album
+import musicstore.pages.HomePage
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.grails.plugins.springsecurity.service.AuthenticateService
-import spock.lang.Shared
+import spock.lang.*
 import musicstore.auth.*
-import musicstore.pages.*
 import org.grails.rateable.*
 
 abstract class AbstractContentCachingSpec extends GebSpec {
@@ -16,8 +16,13 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 	@Shared AuthenticateService authenticateService = ApplicationHolder.application.mainContext.authenticateService
 
 	def cleanup() {
-		springcacheService.flushAll()
-		springcacheService.clearStatistics()
+		if (!isStepwise()) {
+			clearAllCaches()
+		}
+	}
+
+	def cleanupSpec() {
+		clearAllCaches()
 	}
 
 	protected void setUpAlbumRating(Album album, User rater, double stars) {
@@ -30,7 +35,7 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 	}
 
 	protected User setUpUser(username, userRealName) {
-		User.withTransaction {tx ->
+		User.withTransaction { tx ->
 			def userRole = Role.findByAuthority("ROLE_USER")
 			def user = new User(username: username, userRealName: userRealName, email: "$username@energizedwork.com", enabled: true)
 			user.passwd = authenticateService.encodePassword("password")
@@ -45,7 +50,7 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 
 	protected void tearDownUsers() {
 		def userRole = Role.findByAuthority("ROLE_USER")
-		User.withTransaction {tx ->
+		User.withTransaction { tx ->
 			User.list().each {
 				userRole.removeFromPeople(it)
 			}
@@ -55,6 +60,15 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 	void logout() {
 		go "/logout"
 		page HomePage
+	}
+
+	private void clearAllCaches() {
+		springcacheService.flushAll()
+		springcacheService.clearStatistics()
+	}
+
+	private boolean isStepwise() {
+		getClass().getAnnotation(Stepwise)
 	}
 
 }

@@ -1,14 +1,11 @@
 package grails.plugin.springcache.web
 
-import grails.plugin.geb.GebSpec
 import net.sf.ehcache.Ehcache
 import musicstore.pages.*
 import spock.lang.*
 
 @Stepwise
-class ShardedCacheSpec extends GebSpec {
-
-	@Shared def springcacheCacheManager
+class ShardedCacheSpec extends AbstractContentCachingSpec {
 
 	def setupSpec() {
 		setUpUser "blackbeard", "Edward Teach"
@@ -37,7 +34,7 @@ class ShardedCacheSpec extends GebSpec {
 		title == expectedTitle
 
 		and: "their profile is cached separately"
-		Ehcache cache = springcacheCacheManager.getEhcache("profileCache-$username")
+		Ehcache cache = springcacheService.getOrCreateCache("profileCache-$username")
 		cache != null
 		cache.statistics.cacheMisses == 1
 
@@ -60,7 +57,7 @@ class ShardedCacheSpec extends GebSpec {
 		title == expectedTitle
 
 		and: "their profile is cached separately"
-		Ehcache cache = springcacheCacheManager.getEhcache("profileCache-$username")
+		Ehcache cache = springcacheService.getOrCreateCache("profileCache-$username")
 		cache.statistics.cacheHits == 1
 
 		where:
