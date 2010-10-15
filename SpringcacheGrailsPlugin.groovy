@@ -21,6 +21,7 @@ import grails.plugin.springcache.web.GrailsFragmentCachingFilter
 import org.springframework.web.filter.DelegatingFilterProxy
 import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import grails.plugin.springcache.DefaultCacheResolver
 
 class SpringcacheGrailsPlugin {
 
@@ -115,6 +116,8 @@ class SpringcacheGrailsPlugin {
 				cacheManager = ref("springcacheCacheManager")
 				defaultKeyGenerator = new DefaultKeyGenerator()
 			}
+
+			defaultCacheResolver(DefaultCacheResolver)
 		}
 	}
 

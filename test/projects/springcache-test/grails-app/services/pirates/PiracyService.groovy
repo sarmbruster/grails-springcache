@@ -1,17 +1,13 @@
 package pirates
 
-import org.springframework.aop.framework.AopContext
 import grails.plugin.springcache.annotations.*
-import org.codehaus.groovy.runtime.metaclass.OwnedMetaClass
-import org.springframework.context.ApplicationContext
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class PiracyService {
 
 	static transactional = false
 
 	@Cacheable("pirateCache")
-	List listPirateNames() {
+	List<String> listPirateNames() {
 		Pirate.withCriteria {
 			projections {
 				property "name"
@@ -20,12 +16,12 @@ class PiracyService {
 		}
 	}
 
-	List getAllPirateNames() {
+	List<String> getAllPirateNames() {
 		listPirateNames()
 	}
 
 	@Cacheable(cache = "pirateCache")
-	List findPirateNames(String name, boolean reverse = false) {
+	List<String> findPirateNames(String name, boolean reverse = false) {
 		Pirate.withCriteria {
 			projections {
 				property "name"
@@ -36,7 +32,7 @@ class PiracyService {
 	}
 
 	@Cacheable("shipCache")
-	List listShipNames() {
+	List<String> listShipNames() {
 		Ship.withCriteria {
 			projections {
 				property "name"
@@ -47,13 +43,26 @@ class PiracyService {
 
 	@CacheFlush("pirateCache")
 	void newPirate(String name) {
-		new Pirate(name: name).save(failOnError: true)
+		new Pirate(name: name, context: currentContext).save(failOnError: true)
 	}
 
 	@CacheFlush(["pirateCache", "shipCache"])
 	void newShip(String name, List crewNames) {
 		new Ship(name: name, crew: crewNames.collect {
-			Pirate.findByName(it) ?: new Pirate(name: it)
+			Pirate.findByName(it) ?: new Pirate(name: it, context: currentContext)
 		}).save(failOnError: true)
+	}
+
+	Context currentContext = Context.Historical
+
+	@Cacheable(cache = "pirateCache", cacheResolver = "piraticalContextCacheResolver")
+	List<String> listPiratesForContext() {
+		Pirate.withCriteria {
+			projections {
+				property "name"
+			}
+			eq "context", currentContext
+			order "name", "asc"
+		}
 	}
 }
