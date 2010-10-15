@@ -24,13 +24,25 @@ import static org.hamcrest.Matchers.*
 import spock.lang.*
 import static spock.util.matcher.MatcherSupport.that
 
+import org.springframework.context.support.StaticApplicationContext
+import grails.plugin.springcache.DefaultCacheResolver
+import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.support.MockApplicationContext
+import grails.plugin.springcache.CacheResolver
+
 class FilterContextSpec extends Specification {
 
 	GrailsWebRequest request = Mock()
+	MockApplicationContext appCtx = new MockApplicationContext()
 
 	def setup() {
-		// set up the controller as an artefact
+		// set up a spring context with a cacheResolver
+		ApplicationContext.metaClass.propertyMissing = { name -> delegate.getBean(name) }
+		appCtx.registerMockBean("defaultCacheResolver", new DefaultCacheResolver())
+
+		// set up the controllers as artefacts
 		def application = Mock(GrailsApplication)
+		application.mainContext >> appCtx
 		[cachedTest: CachedTestController, uncachedTest: UncachedTestController, restfulTest: RestfulTestController].each { name, controllerClass ->
 			def artefact = new DefaultGrailsControllerClass(controllerClass)
 			application.getArtefactByLogicalPropertyName("Controller", name) >> artefact
@@ -105,6 +117,23 @@ class FilterContextSpec extends Specification {
 	    "cachedTest"   | "blah"     | "testControllerCache"
 	}
 
+	def "the cache name is identified via the cache resolver specified by the annotation"() {
+		given: "there is a request context"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		and: "a cache resolver bean"
+		def mockCacheResolver = Mock(CacheResolver)
+		appCtx.registerMockBean("mockCacheResolver", mockCacheResolver)
+
+		expect:
+		context.cacheName == "ehcaCnoitcAtsil"
+
+		and:
+		1 * mockCacheResolver.resolveCacheName("listActionCache") >> "ehcaCnoitcAtsil"
+	}
+
 	@Unroll("key generator is #keyGeneratorMatcher when controller is '#controllerName' and action is '#actionName'")
 	def "a key generator is created if an annotation is present on the controller or action"() {
 		given: "there is a request context"
@@ -143,6 +172,9 @@ class CachedTestController {
 
 	@Cacheable(cache = "listActionCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
 	def list3 = {}
+
+	@Cacheable(cache = "listActionCache", cacheResolver = "mockCacheResolver")
+	def list4 = {}
 }
 
 class UncachedTestController {
