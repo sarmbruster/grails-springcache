@@ -1,4 +1,4 @@
-package social
+package pirates
 
 import grails.plugin.springcache.CacheResolver
 

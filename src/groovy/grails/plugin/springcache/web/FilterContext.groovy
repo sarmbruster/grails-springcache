@@ -22,6 +22,7 @@ import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.codehaus.groovy.grails.commons.*
+import grails.plugin.springcache.CacheResolver
 
 class FilterContext {
 
@@ -30,7 +31,7 @@ class FilterContext {
 	Map params
 	HttpServletRequest request
 
-	@Lazy String cacheName = cacheable?.cache() ?: cacheable?.value()
+	@Lazy String cacheName = resolveCacheName()
 	@Lazy KeyGenerator keyGenerator = cacheable?.keyGeneratorType()?.newInstance()
 	@Lazy private Cacheable cacheable = getAnnotation(Cacheable)
 
@@ -55,12 +56,22 @@ class FilterContext {
 	}()
 
 	boolean isRequestCacheable() {
-		cacheName
+		cacheable != null
 	}
 
 	private Annotation getAnnotation(Class type) {
 		// first look on the action, then the controller class
 		return actionClosure?.getAnnotation(type) ?: controllerArtefact?.clazz?.getAnnotation(type)
+	}
+
+	private String resolveCacheName() {
+		if (isRequestCacheable()) {
+			def baseName = cacheable.cache() ?: cacheable.value()
+			CacheResolver cacheResolver = ApplicationHolder.application.mainContext[cacheable.cacheResolver()]
+			cacheResolver.resolveCacheName(baseName)
+		} else {
+			null
+		}
 	}
 
 	String toString() {
