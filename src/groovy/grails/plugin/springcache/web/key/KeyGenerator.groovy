@@ -15,10 +15,11 @@
  */
 package grails.plugin.springcache.web.key
 
+import grails.plugin.springcache.CacheKey
 import grails.plugin.springcache.web.FilterContext
 
 interface KeyGenerator {
 
-	def generateKey(FilterContext context)
+	CacheKey generateKey(FilterContext context)
 
 }

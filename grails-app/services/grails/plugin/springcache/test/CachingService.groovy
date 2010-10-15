@@ -19,16 +19,16 @@ import grails.plugin.springcache.annotations.*
 
 class CachingService {
 
-	static scope = 'prototype'
+	static scope = "prototype"
 	
 	def value = 0
 	
-	@Cacheable('cachingServiceCache')
+	@Cacheable("cachingServiceCache")
 	def addValueTo(arg) {
 		value + arg
 	}
 
-	@CacheFlush(['cachingServiceCache'])
+	@CacheFlush("cachingServiceCache")
 	def flush() { }
 }
 
