@@ -15,7 +15,6 @@
  */
 package grails.plugin.springcache
 
-import org.aspectj.lang.JoinPoint
 import grails.plugin.springcache.key.CacheKeyBuilder
 
 /**
@@ -26,11 +25,11 @@ final class CacheKey implements Serializable {
 	private final int hash
 	private final long checksum
 
-	static CacheKey generate(JoinPoint joinPoint) {
+	static CacheKey generate(Object[] components) {
 		def builder = new CacheKeyBuilder()
-		builder << joinPoint.target
-		builder << joinPoint.signature.name
-		builder << joinPoint.args
+		for (component in components) {
+			builder << component
+		}
 		builder.toCacheKey()
 	}
 

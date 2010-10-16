@@ -15,8 +15,6 @@
  */
 package grails.plugin.springcache
 
-import org.aspectj.lang.JoinPoint
-import org.aspectj.lang.Signature
 import spock.lang.*
 
 class CacheKeySpec extends Specification {
@@ -27,8 +25,8 @@ class CacheKeySpec extends Specification {
 	@Unroll("cache keys for #targetA.#methodA(#argsA) and #targetB.#methodB(#argsB) differ")
 	def "cache keys differ based on target, method name and arguments"() {
 		given:
-		def key1 = CacheKey.generate(mockJoinPoint(targetA, methodA, argsA))
-		def key2 = CacheKey.generate(mockJoinPoint(targetB, methodB, argsB))
+		def key1 = CacheKey.generate(targetA, methodA, argsA)
+		def key2 = CacheKey.generate(targetB, methodB, argsB)
 		
 		expect:
 		key1 != key2
@@ -52,8 +50,8 @@ class CacheKeySpec extends Specification {
 	@Unroll("cache keys for multiple calls to the same method passing #args are equal")
 	def "cache keys are equal when target, method name and arguments are the same"() {
 		given:
-		def key1 = CacheKey.generate(mockJoinPoint(TARGET_1, "x", args))
-		def key2 = CacheKey.generate(mockJoinPoint(TARGET_1, "x", args.clone()))
+		def key1 = CacheKey.generate(TARGET_1, "x", args)
+		def key2 = CacheKey.generate(TARGET_1, "x", args.clone())
 
 		expect:
 		key1 == key2
@@ -70,15 +68,6 @@ class CacheKeySpec extends Specification {
 		[[true] as boolean[]],
 		["abc" as char[]]
 		]
-	}
-
-	static JoinPoint mockJoinPoint(Object target, String methodName, List args = []) {
-		def joinPoint = [:]
-		joinPoint.getTarget = {-> target }
-		joinPoint.getSignature = {-> [getName: {-> methodName }] as Signature }
-		joinPoint.getArgs = {-> args as Object[] }
-		joinPoint.toString = {-> "${target}.${signature.name}(${args.join(', ')})" as String }
-		return joinPoint as JoinPoint
 	}
 
 }

@@ -39,7 +39,7 @@ class CachingAspect implements ApplicationContextAware {
 	Object invokeCachedMethod(ProceedingJoinPoint pjp, Cacheable cacheable) {
 		if (log.isDebugEnabled()) log.debug "Intercepted ${pjp.toLongString()}"
 		def cacheName = resolveCacheName(cacheable)
-		def key = CacheKey.generate(pjp)
+		def key = CacheKey.generate(pjp.target, pjp.signature.name, pjp.args)
 		return springcacheService.doWithCache(cacheName, key) {
 			pjp.proceed()
 		}
