@@ -20,6 +20,7 @@ import grails.plugin.springcache.aop.FlushingAspect
 import grails.plugin.springcache.web.GrailsFragmentCachingFilter
 import org.springframework.web.filter.DelegatingFilterProxy
 import grails.plugin.springcache.web.key.DefaultKeyGenerator
+import grails.plugin.springcache.taglib.CachingTagLibDecorator
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import grails.plugin.springcache.DefaultCacheResolver
 
@@ -32,9 +33,11 @@ class SpringcacheGrailsPlugin {
 			"grails-app/views/**",
 			"web-app/**",
 			"**/.gitignore",
-			"grails-app/services/grails/plugin/springcache/test/**",
+			"grails-app/*/grails/plugin/springcache/test/**",
 	]
-
+	def observe = ["groovyPages"]
+	def loadAfter = ["groovyPages"]
+	
 	def author = "Grails Plugin Collective"
 	def authorEmail = "grails.plugin.collective@gmail.com"
 	def title = "Spring Cache Plugin"
@@ -124,10 +127,17 @@ class SpringcacheGrailsPlugin {
 	def doWithDynamicMethods = {ctx ->
 	}
 
-	def doWithApplicationContext = {applicationContext ->
+	def doWithApplicationContext = { applicationContext ->
+		def decorator = new CachingTagLibDecorator(applicationContext.springcacheService)
+		for (tagLibClass in application.tagLibClasses) {
+			decorator.decorate(tagLibClass, applicationContext."${tagLibClass.fullName}")
+		}
 	}
 
-	def onChange = {event ->
+	def onChange = { event ->
+		if (application.isTagLibClass(event.source)) {
+			new CachingTagLibDecorator(event.ctx.springcacheService).decorate(event.ctx."$event.source.fullName")
+		}
 	}
 
 	def onConfigChange = {event ->

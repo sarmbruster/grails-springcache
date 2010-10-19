@@ -23,7 +23,6 @@
 
 ## Tag lib caching
 
-* use annotations on taglibs
 * cacheable version of g:render?
 
 [1825]:http://jira.codehaus.org/browse/GRAILSPLUGINS-1825

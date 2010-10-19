@@ -1,0 +1,1 @@
+<testcaching:withBody>${params.body}</testcaching:withBody>
