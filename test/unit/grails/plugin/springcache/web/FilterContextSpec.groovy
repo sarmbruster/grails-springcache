@@ -118,20 +118,18 @@ class FilterContextSpec extends Specification {
 	}
 
 	def "the cache name is identified via the cache resolver specified by the annotation"() {
-		given: "there is a request context"
-		request.controllerName >> controllerName
-		request.actionName >> actionName
-		def context = new FilterContext()
-
-		and: "a cache resolver bean"
+		given: "a cache resolver bean"
 		def mockCacheResolver = Mock(CacheResolver)
 		appCtx.registerMockBean("mockCacheResolver", mockCacheResolver)
+		mockCacheResolver.resolveCacheName("listActionCache") >> { String name -> name.reverse() }
+
+		and: "a request context"
+		request.controllerName >> "cachedTest"
+		request.actionName >> "list4"
+		def context = new FilterContext()
 
 		expect:
 		context.cacheName == "ehcaCnoitcAtsil"
-
-		and:
-		1 * mockCacheResolver.resolveCacheName("listActionCache") >> "ehcaCnoitcAtsil"
 	}
 
 	@Unroll("key generator is #keyGeneratorMatcher when controller is '#controllerName' and action is '#actionName'")
