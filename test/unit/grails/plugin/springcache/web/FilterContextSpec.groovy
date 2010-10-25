@@ -25,6 +25,8 @@ import org.codehaus.groovy.grails.commons.*
 import static org.hamcrest.Matchers.*
 import spock.lang.*
 import static spock.util.matcher.MatcherSupport.that
+import grails.plugin.springcache.annotations.CacheFlush
+import grails.util.GrailsNameUtils
 
 class FilterContextSpec extends Specification {
 
@@ -38,7 +40,8 @@ class FilterContextSpec extends Specification {
 		// set up the controllers as artefacts
 		def application = Mock(GrailsApplication)
 		application.mainContext >> appCtx
-		[cachedTest: CachedTestController, uncachedTest: UncachedTestController, restfulTest: RestfulTestController].each { name, controllerClass ->
+		[CachedTestController, UncachedTestController, RestfulTestController, FlushingTestController].each { controllerClass ->
+			def name = GrailsNameUtils.getLogicalPropertyName(controllerClass.name, "Controller")
 			def artefact = new DefaultGrailsControllerClass(controllerClass)
 			application.getArtefactByLogicalPropertyName("Controller", name) >> artefact
 		}
@@ -67,7 +70,7 @@ class FilterContextSpec extends Specification {
 		"cachedTest"   | "blah"     | CachedTestController | false
 	}
 
-	@Unroll("isRequestCacheable returns #shouldBeCacheable when controller is '#controllerName' and action is '#actionName'")
+	@Unroll("shouldCache returns #shouldCache when controller is '#controllerName' and action is '#actionName'")
 	def "a request is considered cachable if there is an annotation on the controller or action"() {
 		given: "there is a request context"
 		request.controllerName >> controllerName
@@ -75,10 +78,10 @@ class FilterContextSpec extends Specification {
 		def context = new FilterContext()
 
 		expect:
-		context.isRequestCacheable() == shouldBeCacheable
+		context.shouldCache() == shouldCache
 
 		where:
-		controllerName | actionName | shouldBeCacheable
+		controllerName | actionName | shouldCache
 		null           | null       | false
 		"uncachedTest" | null       | false
 		"uncachedTest" | "index"    | false
@@ -87,6 +90,26 @@ class FilterContextSpec extends Specification {
 		"cachedTest"   | "list3"    | true
 		"cachedTest"   | null       | true
 	    "cachedTest"   | "blah"     | true
+	}
+
+	@Unroll("shouldFlush returns #shouldFlush when controller is '#controllerName' and action is '#actionName'")
+	def "a request is considered flushable if there is an annotation on the controller or action"() {
+		given: "there is a request context"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		expect:
+		context.shouldFlush() == shouldFlush
+
+		where:
+		controllerName | actionName | shouldFlush
+		null           | null       | false
+		"cachedTest"   | null       | false
+		"cachedTest"   | "index"    | false
+		"flushingTest" | null       | true
+		"flushingTest" | "update1"  | true
+		"flushingTest" | "update2"  | true
 	}
 
 	@Unroll("cache name is '#expectedCacheName' when controller is '#controllerName' and action is '#actionName'")
@@ -163,4 +186,13 @@ class RestfulTestController {
 
 	def list = {}
 
+}
+
+@CacheFlush("controller")
+class FlushingTestController {
+
+	def update1 = {}
+
+	@CacheFlush("update2Action")
+	def update2 = {}
 }

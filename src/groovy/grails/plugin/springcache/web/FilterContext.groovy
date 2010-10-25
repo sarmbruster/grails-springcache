@@ -19,47 +19,48 @@ import grails.plugin.springcache.annotations.Cacheable
 import grails.plugin.springcache.key.KeyGenerator
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
-import javax.servlet.http.HttpServletRequest
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.codehaus.groovy.grails.commons.*
+import grails.plugin.springcache.annotations.CacheFlush
 
 class FilterContext {
 
-	String controllerName
-	String actionName
-	Map params
-	HttpServletRequest request
+	final ContentCacheParameters cacheParameters
+
+	private final GrailsControllerClass controllerArtefact
+	private final Field actionClosure
 
 	@Lazy String cacheName = resolveCacheName()
 	@Lazy KeyGenerator keyGenerator = cacheable?.keyGeneratorType()?.newInstance()
 	@Lazy private Cacheable cacheable = getAnnotation(Cacheable)
+	@Lazy private CacheFlush cacheFlush = getAnnotation(CacheFlush)
 
 	FilterContext() {
-		request = RequestContextHolder.requestAttributes?.request
-		controllerName = RequestContextHolder.requestAttributes?.controllerName
-		actionName = RequestContextHolder.requestAttributes?.actionName ?: controllerArtefact?.defaultAction
-		params = RequestContextHolder.requestAttributes?.parameterMap?.asImmutable()
+		GrailsWebRequest requestAttributes = RequestContextHolder.requestAttributes
+		
+		def request = requestAttributes?.request
+		def params = requestAttributes?.parameterMap?.asImmutable()
+
+		def controllerName = requestAttributes?.controllerName
+		controllerArtefact = getControllerArtefact(controllerName)
+
+		def actionName = requestAttributes?.actionName ?: controllerArtefact?.defaultAction
+		actionClosure = getActionClosure(controllerName, actionName)
+
+		cacheParameters = new ContentCacheParameters(request: request, controllerName: controllerName, actionName: actionName, params: params)
 	}
 
-	@Lazy GrailsControllerClass controllerArtefact = {
-		controllerName ? ApplicationHolder.application.getArtefactByLogicalPropertyName("Controller", controllerName) : null
-	}()
-
-	@Lazy Field actionClosure = {
-		try {
-			return actionName ? controllerArtefact?.clazz?.getDeclaredField(actionName) : null
-		} catch (NoSuchFieldException e) {
-			// happens with dynamic scaffolded controllers
-			return null
-		}
-	}()
-
-	boolean isRequestCacheable() {
+	boolean shouldCache() {
 		cacheable != null
 	}
 
+	boolean shouldFlush() {
+		cacheFlush != null
+	}
+
 	private String resolveCacheName() {
-		if (isRequestCacheable()) {
+		if (shouldCache()) {
 			return cacheable.cache() ?: cacheable.value()
 		} else {
 			return null
@@ -69,6 +70,19 @@ class FilterContext {
 	private Annotation getAnnotation(Class type) {
 		// first look on the action, then the controller class
 		return actionClosure?.getAnnotation(type) ?: controllerArtefact?.clazz?.getAnnotation(type)
+	}
+
+	private GrailsControllerClass getControllerArtefact(String controllerName) {
+		controllerName ? ApplicationHolder.application.getArtefactByLogicalPropertyName("Controller", controllerName) : null
+	}
+
+	private Field getActionClosure(String controllerName, String actionName) {
+		try {
+			return actionName ? getControllerArtefact(controllerName)?.clazz?.getDeclaredField(actionName) : null
+		} catch (NoSuchFieldException e) {
+			// happens with dynamic scaffolded controllers
+			return null
+		}
 	}
 
 	String toString() {

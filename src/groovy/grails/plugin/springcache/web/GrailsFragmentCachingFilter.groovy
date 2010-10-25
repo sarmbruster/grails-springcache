@@ -58,7 +58,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		try {
 			if (handleFlush(request)) {
 				chain.doFilter(request, response)
-			} else if (context.isRequestCacheable()) {
+			} else if (context.shouldCache()) {
 				logRequestDetails(request, context, "Caching enabled for request")
 				super.doFilter(request, response, chain)
 			} else {
@@ -177,8 +177,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	boolean handleFlush(HttpServletRequest request) {
-		CacheFlush cacheFlush = getAnnotation(context, CacheFlush)
-		if (cacheFlush) {
+		if (context.shouldFlush()) {
+			CacheFlush cacheFlush = context.cacheFlush
 			logRequestDetails(request, context, "Flushing request")
 			springcacheService.flush(cacheFlush.value())
 			return true
