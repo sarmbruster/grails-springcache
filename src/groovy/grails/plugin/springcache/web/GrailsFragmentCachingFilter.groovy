@@ -16,17 +16,18 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
+import grails.plugin.springcache.annotations.CacheFlush
+import grails.plugin.springcache.key.KeyGenerator
 import java.lang.annotation.Annotation
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
+import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
-import grails.plugin.springcache.annotations.*
-import grails.plugin.springcache.web.key.KeyGenerator
+import org.springframework.web.context.request.RequestContextHolder
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
-import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.servlet.*
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
@@ -171,7 +172,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
 	@Override protected String calculateKey(HttpServletRequest request) {
 		def keyGenerator = context.keyGenerator ?: defaultKeyGenerator
-		return keyGenerator.generateKey(context).toString()
+		def cacheParams = new ContentCacheParameters(RequestContextHolder.requestAttributes)
+		return keyGenerator.generateKey(cacheParams).toString()
 	}
 
 	boolean handleFlush(HttpServletRequest request) {

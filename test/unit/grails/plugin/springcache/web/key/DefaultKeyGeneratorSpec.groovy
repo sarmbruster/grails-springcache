@@ -15,9 +15,10 @@
  */
 package grails.plugin.springcache.web.key
 
-import spock.lang.*
-import grails.plugin.springcache.web.FilterContext
+import grails.plugin.springcache.key.KeyGenerator
+import grails.plugin.springcache.web.ContentCacheParameters
 import org.springframework.mock.web.MockHttpServletRequest
+import spock.lang.Specification
 
 class DefaultKeyGeneratorSpec extends Specification {
 
@@ -25,9 +26,9 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "keys differ for different controller names"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
-		def key3 = generator.generateKey(new FilterContext(controllerName: "baz", actionName: "bar"))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar"))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar"))
+		def key3 = generator.generateKey(new ContentCacheParameters(controllerName: "baz", actionName: "bar"))
 
 		expect:
 		key1 == key2
@@ -36,9 +37,9 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "keys differ for different action names"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar"))
-		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz"))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar"))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar"))
+		def key3 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "baz"))
 
 		expect:
 		key1 == key2
@@ -47,11 +48,11 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "keys differ for different request parameters"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
-		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
-		def key4 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
-		def key5 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "baz", params: [id: "2"]))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [:]))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [:]))
+		def key3 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1"]))
+		def key4 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "baz", params: [id: "2"]))
+		def key5 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "baz", params: [id: "2"]))
 
 		expect:
 		key1 == key2
@@ -62,11 +63,11 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "array parameters are handled"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
-		def key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["2"] as String[]]))
-		def key4 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["1", ""] as String[]]))
-		def key5 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: ["", "1", ""] as String[]]))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: ["1"] as String[]]))
+		def key3 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: ["2"] as String[]]))
+		def key4 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: ["1", ""] as String[]]))
+		def key5 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: ["", "1", ""] as String[]]))
 
 		expect:
 		key1 == key2
@@ -76,8 +77,8 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "parameter order is not important"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [foo: "bar", id: "1"]))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [foo: "bar", id: "1"]))
 
 		expect:
 		key1 == key2
@@ -85,8 +86,8 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "keys differ when subsets of the parameters are different"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"]))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1"]))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1", foo: "bar"]))
 
 		expect:
 		key1 != key2
@@ -94,8 +95,8 @@ class DefaultKeyGeneratorSpec extends Specification {
 
 	def "controller and action parameters are ignored"() {
 		given:
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [:]))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [controller: "foo", action: "bar"]))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [:]))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [controller: "foo", action: "bar"]))
 
 		expect:
 		key1 == key2
@@ -105,8 +106,8 @@ class DefaultKeyGeneratorSpec extends Specification {
 		given:
 		def headRequest = new MockHttpServletRequest("HEAD", "/foo/bar")
 		def getRequest = new MockHttpServletRequest("GET", "/foo/bar")
-		def key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: headRequest))
-		def key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", params: [id: "1"], request: getRequest))
+		def key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1"], request: headRequest))
+		def key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", params: [id: "1"], request: getRequest))
 
 		expect:
 		key1 == key2

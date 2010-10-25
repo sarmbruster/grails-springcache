@@ -1,4 +1,4 @@
-The Springcache plugin uses an instance of the interface @grails.plugin.springcache.web.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGeneratorType@ element to the @\@Cacheable@ annotation specifying the @KeyGenerator@ class to use. At request time a new instance will be created and used to generate keys for that action.
+The Springcache plugin uses an instance of the interface @grails.plugin.springcache.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGeneratorType@ element to the @\@Cacheable@ annotation specifying the @KeyGenerator@ class to use. At request time a new instance will be created and used to generate keys for that action.
 
 {code}
 	@Cacheable(cache = "albumControllerCache", keyGeneratorType = MyKeyGenerator)

@@ -15,11 +15,11 @@
  */
 package grails.plugin.springcache.web.key
 
-import spock.lang.*
-import grails.plugin.spock.*
-import org.gmock.*
-import grails.plugin.springcache.web.FilterContext
+import grails.plugin.spock.UnitSpec
+import grails.plugin.springcache.key.KeyGenerator
+import grails.plugin.springcache.web.ContentCacheParameters
 import javax.servlet.http.HttpServletRequest
+import org.gmock.WithGMock
 
 @WithGMock
 class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
@@ -43,9 +43,9 @@ class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
 		def key2
 		def key3
 		play {
-			key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
-			key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
-			key3 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
+			key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
+			key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
+			key3 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
 		}
 
 		then:
@@ -64,8 +64,8 @@ class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
 		def key1
 		def key2
 		play {
-			key1 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
-			key2 = generator.generateKey(new FilterContext(controllerName: "foo", actionName: "bar", request: request))
+			key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
+			key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
 		}
 
 		then:

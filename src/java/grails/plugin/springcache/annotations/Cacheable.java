@@ -16,6 +16,7 @@
 package grails.plugin.springcache.annotations;
 
 import java.lang.annotation.*;
+import grails.plugin.springcache.key.*;
 import grails.plugin.springcache.web.key.*;
 
 /**

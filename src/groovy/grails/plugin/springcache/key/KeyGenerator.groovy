@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.springcache.web.key
+package grails.plugin.springcache.key
 
 import grails.plugin.springcache.CacheKey
-import grails.plugin.springcache.web.FilterContext
 
-interface KeyGenerator {
+interface KeyGenerator<T> {
 
-	CacheKey generateKey(FilterContext context)
+	CacheKey generateKey(T context)
 
 }

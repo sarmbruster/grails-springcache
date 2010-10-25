@@ -16,11 +16,11 @@
 package grails.plugin.springcache.web.key
 
 import grails.plugin.springcache.key.CacheKeyBuilder
-import grails.plugin.springcache.web.FilterContext
+import grails.plugin.springcache.web.ContentCacheParameters
 
 class MimeTypeAwareKeyGenerator extends DefaultKeyGenerator {
 
-	protected void generateKeyInternal(CacheKeyBuilder builder, FilterContext context) {
+	protected void generateKeyInternal(CacheKeyBuilder builder, ContentCacheParameters context) {
 		super.generateKeyInternal(builder, context)
 		def format = context.request.format
 		if (format && format != "all") {

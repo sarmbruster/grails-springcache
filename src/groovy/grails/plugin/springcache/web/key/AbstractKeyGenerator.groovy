@@ -17,16 +17,18 @@ package grails.plugin.springcache.web.key
 
 import grails.plugin.springcache.CacheKey
 import grails.plugin.springcache.key.CacheKeyBuilder
-import grails.plugin.springcache.web.FilterContext
 
-abstract class AbstractKeyGenerator implements KeyGenerator {
+import grails.plugin.springcache.key.KeyGenerator
+import grails.plugin.springcache.web.ContentCacheParameters
 
-	CacheKey generateKey(FilterContext context) {
+abstract class AbstractKeyGenerator implements KeyGenerator<ContentCacheParameters> {
+
+	CacheKey generateKey(ContentCacheParameters context) {
 		def builder = new CacheKeyBuilder()
 		generateKeyInternal(builder, context)
 		builder.toCacheKey()
 	}
 
-	protected abstract void generateKeyInternal(CacheKeyBuilder builder, FilterContext context)
+	protected abstract void generateKeyInternal(CacheKeyBuilder builder, ContentCacheParameters context)
 
 }

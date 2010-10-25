@@ -16,7 +16,7 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.annotations.Cacheable
-import grails.plugin.springcache.web.key.KeyGenerator
+import grails.plugin.springcache.key.KeyGenerator
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
