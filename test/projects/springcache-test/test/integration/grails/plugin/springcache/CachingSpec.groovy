@@ -4,9 +4,8 @@ import grails.plugin.spock.IntegrationSpec
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import pirates.*
-import static pirates.Context.Historical
 import spock.lang.AutoCleanup
+import pirates.*
 
 class CachingSpec extends IntegrationSpec {
 
@@ -14,9 +13,9 @@ class CachingSpec extends IntegrationSpec {
 	@AutoCleanup("removalAll") def springcacheCacheManager
 
 	def setup() {
-		Pirate.build(name: "Blackbeard", context: Historical)
-		Pirate.build(name: "Calico Jack", context: Historical)
-		Pirate.build(name: "Black Bart", context: Historical)
+		Pirate.build(name: "Blackbeard")
+		Pirate.build(name: "Calico Jack")
+		Pirate.build(name: "Black Bart")
 		Ship.build(name: "Queen Anne's Revenge", crew: Pirate.findAllByName("Blackbeard"))
 	}
 

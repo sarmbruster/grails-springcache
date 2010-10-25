@@ -43,26 +43,13 @@ class PiracyService {
 
 	@CacheFlush("pirateCache")
 	void newPirate(String name) {
-		new Pirate(name: name, context: currentContext).save(failOnError: true)
+		new Pirate(name: name).save(failOnError: true)
 	}
 
 	@CacheFlush(["pirateCache", "shipCache"])
 	void newShip(String name, List crewNames) {
 		new Ship(name: name, crew: crewNames.collect {
-			Pirate.findByName(it) ?: new Pirate(name: it, context: currentContext)
+			Pirate.findByName(it) ?: new Pirate(name: it)
 		}).save(failOnError: true)
-	}
-
-	Context currentContext = Context.Historical
-
-	@Cacheable(cache = "pirateCache", cacheResolver = "piraticalContextCacheResolver")
-	List<String> listPiratesForContext() {
-		Pirate.withCriteria {
-			projections {
-				property "name"
-			}
-			eq "context", currentContext
-			order "name", "asc"
-		}
 	}
 }

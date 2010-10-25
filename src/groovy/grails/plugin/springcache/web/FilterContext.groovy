@@ -15,14 +15,13 @@
  */
 package grails.plugin.springcache.web
 
-import grails.plugin.springcache.annotations.*
+import grails.plugin.springcache.annotations.Cacheable
 import grails.plugin.springcache.web.key.KeyGenerator
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.codehaus.groovy.grails.commons.*
-import grails.plugin.springcache.CacheResolver
 
 class FilterContext {
 
@@ -59,19 +58,17 @@ class FilterContext {
 		cacheable != null
 	}
 
+	private String resolveCacheName() {
+		if (isRequestCacheable()) {
+			return cacheable.cache() ?: cacheable.value()
+		} else {
+			return null
+		}
+	}
+
 	private Annotation getAnnotation(Class type) {
 		// first look on the action, then the controller class
 		return actionClosure?.getAnnotation(type) ?: controllerArtefact?.clazz?.getAnnotation(type)
-	}
-
-	private String resolveCacheName() {
-		if (isRequestCacheable()) {
-			def baseName = cacheable.cache() ?: cacheable.value()
-			CacheResolver cacheResolver = ApplicationHolder.application.mainContext[cacheable.cacheResolver()]
-			cacheResolver.resolveCacheName(baseName)
-		} else {
-			null
-		}
 	}
 
 	String toString() {

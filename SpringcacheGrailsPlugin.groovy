@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.slf4j.LoggerFactory
-import org.springframework.cache.ehcache.*
-import grails.plugin.springcache.aop.CachingAspect
-import grails.plugin.springcache.aop.FlushingAspect
-import grails.plugin.springcache.web.GrailsFragmentCachingFilter
-import org.springframework.web.filter.DelegatingFilterProxy
-import grails.plugin.springcache.web.key.DefaultKeyGenerator
+
 import grails.plugin.springcache.taglib.CachingTagLibDecorator
+import grails.plugin.springcache.web.GrailsFragmentCachingFilter
+import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import org.codehaus.groovy.grails.commons.GrailsApplication
-import grails.plugin.springcache.DefaultCacheResolver
+import org.slf4j.LoggerFactory
+import org.springframework.web.filter.DelegatingFilterProxy
+import grails.plugin.springcache.aop.*
+import org.springframework.cache.ehcache.*
 
 class SpringcacheGrailsPlugin {
 
@@ -119,8 +118,6 @@ class SpringcacheGrailsPlugin {
 				cacheManager = ref("springcacheCacheManager")
 				defaultKeyGenerator = new DefaultKeyGenerator()
 			}
-
-			defaultCacheResolver(DefaultCacheResolver)
 		}
 	}
 
