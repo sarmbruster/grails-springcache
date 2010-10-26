@@ -39,4 +39,14 @@ class ContentCacheParameters implements CacheParameters {
 		}
 	}
 
+	String toString() {
+		def buffer = new StringBuilder("[")
+		buffer << "controller=" << controllerName
+		if (controller == null) buffer << "?"
+		buffer << ", action=" << actionName
+		if (action == null) buffer << "?"
+		buffer << "]"
+		return buffer.toString()
+	}
+
 }

@@ -28,9 +28,6 @@ class FilterContext {
 
 	final ContentCacheParameters cacheParameters
 
-	private final GrailsControllerClass controllerArtefact
-	private final Field actionClosure
-
 	@Lazy String cacheName = resolveCacheName()
 	@Lazy KeyGenerator keyGenerator = cacheable?.keyGeneratorType()?.newInstance()
 	@Lazy private Cacheable cacheable = getAnnotation(Cacheable)
@@ -38,61 +35,22 @@ class FilterContext {
 
 	FilterContext() {
 		GrailsWebRequest requestAttributes = RequestContextHolder.requestAttributes
-		
-		def request = requestAttributes?.request
-		def params = requestAttributes?.parameterMap?.asImmutable()
-
-		def controllerName = requestAttributes?.controllerName
-		controllerArtefact = getControllerArtefact(controllerName)
-
-		def actionName = requestAttributes?.actionName ?: controllerArtefact?.defaultAction
-		actionClosure = getActionClosure(controllerName, actionName)
-
-		cacheParameters = new ContentCacheParameters(request: request, controllerName: controllerName, actionName: actionName, params: params)
+		cacheParameters = new ContentCacheParameters(requestAttributes)
 	}
 
 	boolean shouldCache() {
-		cacheable != null
 	}
 
 	boolean shouldFlush() {
-		cacheFlush != null
 	}
 
-	private String resolveCacheName() {
-		if (shouldCache()) {
-			return cacheable.cache() ?: cacheable.value()
-		} else {
-			return null
-		}
+	List<String> getCacheNames() {
 	}
 
-	private Annotation getAnnotation(Class type) {
-		// first look on the action, then the controller class
-		return actionClosure?.getAnnotation(type) ?: controllerArtefact?.clazz?.getAnnotation(type)
+	String getCacheName() {
 	}
 
-	private GrailsControllerClass getControllerArtefact(String controllerName) {
-		controllerName ? ApplicationHolder.application.getArtefactByLogicalPropertyName("Controller", controllerName) : null
-	}
+	KeyGenerator getKeyGenerator() {
 
-	private Field getActionClosure(String controllerName, String actionName) {
-		try {
-			return actionName ? getControllerArtefact(controllerName)?.clazz?.getDeclaredField(actionName) : null
-		} catch (NoSuchFieldException e) {
-			// happens with dynamic scaffolded controllers
-			return null
-		}
 	}
-
-	String toString() {
-		def buffer = new StringBuilder("[")
-		buffer << "controller=" << controllerName
-		if (controllerArtefact == null) buffer << "?"
-		buffer << ", action=" << actionName
-		if (actionClosure == null) buffer << "?"
-		buffer << "]"
-		return buffer.toString()
-	}
-
 }
