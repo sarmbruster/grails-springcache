@@ -56,7 +56,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	@Override protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
 		initContext()
 		try {
-			if (handleFlush(request)) {
+			if (context.shouldFlush()) {
+				handleFlush(request)
 				chain.doFilter(request, response)
 			} else if (context.shouldCache()) {
 				logRequestDetails(request, context, "Caching enabled for request")
@@ -176,16 +177,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		return keyGenerator.generateKey(cacheParams).toString()
 	}
 
-	boolean handleFlush(HttpServletRequest request) {
-		if (context.shouldFlush()) {
-			CacheFlush cacheFlush = context.cacheFlush
-			logRequestDetails(request, context, "Flushing request")
-			springcacheService.flush(cacheFlush.value())
-			return true
-		} else {
-			log.debug "No cacheflush annotation found for $request.method:$request.requestURI $context"
-			return false
-		}
+	private void handleFlush(HttpServletRequest request) {
+		CacheFlush cacheFlush = context.cacheFlush
+		logRequestDetails(request, context, "Flushing request")
+		springcacheService.flush(cacheFlush.value())
 	}
 
 	private Annotation getAnnotation(FilterContext context, Class type) {
