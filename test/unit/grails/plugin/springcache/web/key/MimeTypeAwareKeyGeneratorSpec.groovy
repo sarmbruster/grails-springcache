@@ -18,58 +18,38 @@ package grails.plugin.springcache.web.key
 import grails.plugin.spock.UnitSpec
 import grails.plugin.springcache.key.KeyGenerator
 import grails.plugin.springcache.web.ContentCacheParameters
-import javax.servlet.http.HttpServletRequest
-import org.gmock.WithGMock
+import grails.util.GrailsWebUtil
 
-@WithGMock
 class MimeTypeAwareKeyGeneratorSpec extends UnitSpec {
 
 	KeyGenerator generator = new MimeTypeAwareKeyGenerator()
-	
-	def setup() {
-		registerMetaClass HttpServletRequest
-	}
-	
+
 	def "keys differ for different request content types"() {
 		given:
-		def request = mock(HttpServletRequest) {
-			format.returns("html")
-			format.returns("html")
-			format.returns("xml")
-		}
+		def key1 = generator.generateKey(cacheParams("html"))
+		def key2 = generator.generateKey(cacheParams("html"))
+		def key3 = generator.generateKey(cacheParams("xml"))
 
-		when:
-		def key1
-		def key2
-		def key3
-		play {
-			key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
-			key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
-			key3 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
-		}
-
-		then:
+		expect:
 		key1 == key2
 		key1 != key3
 	}
 
 	def "content type 'all' is ignored"() {
 		given:
-		def request = mock(HttpServletRequest) {
-			format.returns("all")
-			format.returns(null)
-		}
-		
-		when:
-		def key1
-		def key2
-		play {
-			key1 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
-			key2 = generator.generateKey(new ContentCacheParameters(controllerName: "foo", actionName: "bar", request: request))
-		}
+		def key1 = generator.generateKey(cacheParams("all"))
+		def key2 = generator.generateKey(cacheParams(null))
 
-		then:
+		expect:
 		key1 == key2
+	}
+
+	static ContentCacheParameters cacheParams(String format) {
+		def webRequest = GrailsWebUtil.bindMockWebRequest()
+		webRequest.controllerName = "foo"
+		webRequest.actionName = "bar"
+		webRequest.currentRequest.metaClass.getFormat = {-> format }
+		new ContentCacheParameters(webRequest)
 	}
 
 }

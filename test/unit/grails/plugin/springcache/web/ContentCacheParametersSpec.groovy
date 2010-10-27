@@ -8,6 +8,7 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import spock.lang.Unroll
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.MatcherSupport.that
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 
 class ContentCacheParametersSpec extends UnitSpec {
 
@@ -25,10 +26,12 @@ class ContentCacheParametersSpec extends UnitSpec {
 	@Unroll("controller is #expectedController and action is #expectedAction when controllerName is '#controllerName' and actionName is '#actionName'")
 	def "controller and action are identified based on the request context"() {
 		given:
-		def m = [controllerName: controllerName, actionName: actionName, params: [:], request: null]
+		def webRequest = Mock(GrailsWebRequest)
+		webRequest.controllerName >> controllerName
+		webRequest.actionName >> actionName
 
 		when:
-		def cacheParameters = new ContentCacheParameters(m)
+		def cacheParameters = new ContentCacheParameters(webRequest)
 
 		then:
 		cacheParameters.controller?.clazz == expectedController
