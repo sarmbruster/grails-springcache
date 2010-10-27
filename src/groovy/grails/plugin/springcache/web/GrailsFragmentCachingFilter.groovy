@@ -111,8 +111,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				// As the page is cached, we need to add an instance of the associated
 				// controller to the request. This is required by GrailsLayoutDecoratorMapper
 				// to pick the appropriate layout.
-				if (context?.controllerName) {
-					def controller = context.controllerArtefact.newInstance()
+				if (context.cacheParameters.controllerName) {
+					def controller = context.cacheParameters.controllerClass.newInstance()
 					request.setAttribute(GrailsApplicationAttributes.CONTROLLER, controller)
 				}
 			}
@@ -178,9 +178,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	private void handleFlush(HttpServletRequest request) {
-		CacheFlush cacheFlush = context.cacheFlush
 		logRequestDetails(request, context, "Flushing request")
-		springcacheService.flush(cacheFlush.value())
+		springcacheService.flush(context.cacheNames)
 	}
 
 	private Annotation getAnnotation(FilterContext context, Class type) {
