@@ -1,12 +1,13 @@
 package grails.plugin.springcache.web
 
-import grails.plugin.springcache.CacheParameters
 import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
-import org.codehaus.groovy.grails.commons.*
-import org.codehaus.groovy.grails.web.servlet.mvc.*
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import org.codehaus.groovy.grails.commons.GrailsControllerClass
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 
-class ContentCacheParameters implements CacheParameters {
+class ContentCacheParameters {
 
 	private final GrailsWebRequest grailsWebRequest
 	@Lazy GrailsControllerClass controller = initController()
