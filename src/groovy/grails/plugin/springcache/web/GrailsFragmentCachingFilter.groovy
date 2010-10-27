@@ -36,7 +36,6 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	private final timingLog = LoggerFactory.getLogger("${getClass().name}.TIMINGS")
 	SpringcacheService springcacheService
 	CacheManager cacheManager
-	KeyGenerator defaultKeyGenerator
 
 	private final ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
 
@@ -172,9 +171,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	@Override protected String calculateKey(HttpServletRequest request) {
-		def keyGenerator = context.keyGenerator ?: defaultKeyGenerator
-		def cacheParams = new ContentCacheParameters(RequestContextHolder.requestAttributes)
-		return keyGenerator.generateKey(cacheParams).toString()
+		def keyGenerator = context.keyGenerator
+		return keyGenerator.generateKey(context.cacheParameters).toString()
 	}
 
 	private void handleFlush(HttpServletRequest request) {

@@ -22,15 +22,3 @@ The @DefaultKeyGenerator@ generates a key based on the controller name, action n
 h4. @grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator@
 
 The @MimeTypeAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds the request format to the key. You should use this key generator for actions that perform content negotiation, e.g. by using a @withFormat@ block.
-
-h3. Overriding the default key generator
-
-If you want _all_ the cached actions in your applications to use a different @KeyGenerator@ implementation instead of having to add @keyGeneratorType@ elements everywhere you can just override the Spring bean property on the filter in @Config.groovy@ like this:
-
-{code}
-beans {
-    springcacheFilter {
-		defaultKeyGenerator = new MyKeyGenerator()
-	}
-}
-{code}
