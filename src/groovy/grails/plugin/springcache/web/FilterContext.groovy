@@ -15,23 +15,18 @@
  */
 package grails.plugin.springcache.web
 
-import grails.plugin.springcache.annotations.Cacheable
 import grails.plugin.springcache.key.KeyGenerator
-import java.lang.annotation.Annotation
-import java.lang.reflect.Field
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
-import org.codehaus.groovy.grails.commons.*
+import grails.plugin.springcache.annotations.Cacheable
 import grails.plugin.springcache.annotations.CacheFlush
 
 class FilterContext {
 
 	final ContentCacheParameters cacheParameters
 
-	@Lazy String cacheName = resolveCacheName()
-	@Lazy KeyGenerator keyGenerator = cacheable?.keyGeneratorType()?.newInstance()
-	@Lazy private Cacheable cacheable = getAnnotation(Cacheable)
-	@Lazy private CacheFlush cacheFlush = getAnnotation(CacheFlush)
+	@Lazy private Cacheable cacheableAnnotation = findAnnotation(Cacheable)
+	@Lazy private CacheFlush cacheFlushAnnotation = findAnnotation(CacheFlush)
 
 	FilterContext() {
 		GrailsWebRequest requestAttributes = RequestContextHolder.requestAttributes
@@ -39,18 +34,32 @@ class FilterContext {
 	}
 
 	boolean shouldCache() {
+		cacheableAnnotation != null
 	}
 
 	boolean shouldFlush() {
+		cacheFlushAnnotation != null
 	}
 
 	List<String> getCacheNames() {
+		if (!shouldFlush()) throw new IllegalStateException("Only supported on flushing requests")
+		cacheFlushAnnotation.value()
 	}
 
 	String getCacheName() {
+		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
+		cacheableAnnotation.cache() ?: cacheableAnnotation.value()
 	}
 
 	KeyGenerator getKeyGenerator() {
-
+		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
+		cacheableAnnotation.keyGeneratorType().newInstance()
 	}
+
+	private <T> T findAnnotation(Class<T> annotationType) {
+		cacheParameters.with {
+			action?.getAnnotation(annotationType) ?: controllerClass?.getAnnotation(annotationType)
+		}
+	}
+
 }

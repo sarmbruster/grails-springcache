@@ -26,6 +26,10 @@ class ContentCacheParameters implements CacheParameters {
 		actionName ?: controller?.defaultAction
 	}
 
+	Class getControllerClass() {
+		controller?.clazz
+	}
+
 	private GrailsControllerClass initController() {
 		ApplicationHolder.application.getArtefactByLogicalPropertyName("Controller", controllerName)
 	}

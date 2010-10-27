@@ -51,25 +51,6 @@ class FilterContextSpec extends Specification {
 		RequestContextHolder.requestAttributes = request
 	}
 
-	@Unroll
-	def "controller and action are identified based on the request context"() {
-		given: "there is a request context"
-		request.controllerName >> controllerName
-		request.actionName >> actionName
-		def context = new FilterContext()
-
-		expect:
-		context.controllerArtefact?.clazz == expectedController
-		!expectedAction || context.actionClosure != null
-		
-		where:
-		controllerName | actionName | expectedController   | expectedAction
-		null           | null       | null                 | false
-		"cachedTest"   | "list1"    | CachedTestController | true
-		"cachedTest"   | null       | CachedTestController | true // action is controller's default action
-		"cachedTest"   | "blah"     | CachedTestController | false
-	}
-
 	@Unroll("shouldCache returns #shouldCache when controller is '#controllerName' and action is '#actionName'")
 	def "a request is considered cachable if there is an annotation on the controller or action"() {
 		given: "there is a request context"
@@ -124,15 +105,75 @@ class FilterContextSpec extends Specification {
 
 		where:
 		controllerName | actionName | expectedCacheName
-		null           | null       | null
-		"uncachedTest" | null       | null
-		"uncachedTest" | "index"    | null
 		"cachedTest"   | "index"    | "testControllerCache"
 		"cachedTest"   | "list1"    | "listActionCache"
 		"cachedTest"   | "list2"    | "listActionCache"
 		"cachedTest"   | "list3"    | "listActionCache"
 		"cachedTest"   | null       | "testControllerCache"
 	    "cachedTest"   | "blah"     | "testControllerCache"
+	}
+
+	@Unroll("cannot get cache name when controller is '#controllerName' and action is '#actionName'")
+	def "cannot get cache name for a non-caching request"() {
+		given: "a request for a non-caching action"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		when:
+		context.getCacheName()
+
+		then:
+		thrown(IllegalStateException)
+
+		where:
+		controllerName | actionName
+		null           | null
+		"uncachedTest" | null
+		"uncachedTest" | "index"
+		"flushingTest" | null       
+		"flushingTest" | "update1"
+		"flushingTest" | "update2"       
+	}
+
+	@Unroll("cache names are #expectedCacheNames when controller is '#controllerName' and action is '#actionName'")
+	def "the cache names are identified based on the annotation on the controller or action"() {
+		given: "there is a request context"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		expect:
+		context.cacheNames == expectedCacheNames
+
+		where:
+		controllerName | actionName | expectedCacheNames
+		"flushingTest" | null       | ["testControllerCache"]
+		"flushingTest" | "update1"  | ["testControllerCache"]
+		"flushingTest" | "update2"  | ["testControllerCache", "listActionCache"]
+	}
+
+	@Unroll("cannot get cache names when controller is '#controllerName' and action is '#actionName'")
+	def "cannot get cache names for a non-flushing request"() {
+		given: "a request for a non-flushing action"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		when:
+		context.getCacheNames()
+
+		then:
+		thrown(IllegalStateException)
+
+		where:
+		controllerName | actionName
+		null           | null
+		"uncachedTest" | null
+		"uncachedTest" | "index"
+		"cachedTest"   | null
+		"cachedTest"   | "index"
+		"cachedTest"   | "list1"
 	}
 
 	@Unroll("key generator is #keyGeneratorMatcher when controller is '#controllerName' and action is '#actionName'")
@@ -147,9 +188,6 @@ class FilterContextSpec extends Specification {
 
 		where:
 		controllerName | actionName | keyGeneratorMatcher
-		null           | null       | nullValue()
-		"uncachedTest" | null       | nullValue()
-		"uncachedTest" | "index"    | nullValue()
 		"cachedTest"   | "index"    | instanceOf(DefaultKeyGenerator)
 		"cachedTest"   | "list1"    | instanceOf(DefaultKeyGenerator)
 		"cachedTest"   | "list2"    | instanceOf(DefaultKeyGenerator)
@@ -158,6 +196,30 @@ class FilterContextSpec extends Specification {
 	    "cachedTest"   | "blah"     | instanceOf(DefaultKeyGenerator)
 		"restfulTest"  | "list"     | instanceOf(MimeTypeAwareKeyGenerator)
 	}
+
+	@Unroll("cannot get key generator when controller is '#controllerName' and action is '#actionName'")
+	def "cannot get key generator for a non-caching request"() {
+		given: "a request for a non-flushing action"
+		request.controllerName >> controllerName
+		request.actionName >> actionName
+		def context = new FilterContext()
+
+		when:
+		context.getKeyGenerator()
+
+		then:
+		thrown(IllegalStateException)
+
+		where:
+		controllerName | actionName
+		null           | null
+		"uncachedTest" | null
+		"uncachedTest" | "index"
+		"flushingTest" | null
+		"flushingTest" | "update1"
+		"flushingTest" | "update2"
+	}
+
 }
 
 @Cacheable("testControllerCache")
@@ -188,11 +250,11 @@ class RestfulTestController {
 
 }
 
-@CacheFlush("controller")
+@CacheFlush("testControllerCache")
 class FlushingTestController {
 
 	def update1 = {}
 
-	@CacheFlush("update2Action")
+	@CacheFlush(["testControllerCache", "listActionCache"])
 	def update2 = {}
 }
