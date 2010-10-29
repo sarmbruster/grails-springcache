@@ -7,7 +7,7 @@ import musicstore.pages.HomePage
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.grails.plugins.springsecurity.service.AuthenticateService
 import spock.lang.*
-import musicstore.auth.*
+import auth.*
 import org.grails.rateable.*
 
 abstract class AbstractContentCachingSpec extends GebSpec {

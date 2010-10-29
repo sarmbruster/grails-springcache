@@ -1,6 +1,4 @@
-package musicstore.auth
-
-import musicstore.auth.User
+package auth
 
 /**
  * Authority domain class.

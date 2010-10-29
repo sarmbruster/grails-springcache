@@ -1,4 +1,4 @@
-package musicstore.auth
+package auth
 /**
  * Logout Controller (Example).
  */

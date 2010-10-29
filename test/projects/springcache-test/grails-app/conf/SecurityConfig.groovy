@@ -1,8 +1,8 @@
 security {
 	active = true
 
-	loginUserDomainClass = "musicstore.auth.User"
-	authorityDomainClass = "musicstore.auth.Role"
+	loginUserDomainClass = "auth.User"
+	authorityDomainClass = "auth.Role"
 
 	useRequestMapDomainClass = false
 	useControllerAnnotations = true

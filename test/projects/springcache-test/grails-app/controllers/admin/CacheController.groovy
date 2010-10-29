@@ -1,4 +1,4 @@
-package musicstore.admin
+package admin
 
 import net.sf.ehcache.CacheManager
 

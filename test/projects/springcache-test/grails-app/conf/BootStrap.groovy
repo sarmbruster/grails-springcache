@@ -1,4 +1,4 @@
-import musicstore.auth.Role
+import auth.Role
 
 class BootStrap {
 

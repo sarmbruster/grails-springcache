@@ -1,4 +1,4 @@
-package musicstore.auth
+package auth
 
 class User {
 

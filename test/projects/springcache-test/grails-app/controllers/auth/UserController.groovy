@@ -1,4 +1,4 @@
-package musicstore.auth
+package auth
 
 import org.codehaus.groovy.grails.plugins.springsecurity.Secured
 import grails.plugin.springcache.annotations.Cacheable
