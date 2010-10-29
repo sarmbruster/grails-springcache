@@ -1,9 +1,19 @@
-import grails.plugin.geb.GebSpec
-import spock.lang.Stepwise
 import geb.Page
+import grails.plugin.geb.GebSpec
+import net.sf.ehcache.Ehcache
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 @Stepwise
 class AuthenticatedCachedActionSpec extends GebSpec {
+
+	@Shared Ehcache pirateCache = ApplicationHolder.application.mainContext.pirateCache
+
+	def cleanupSpec() {
+		pirateCache.removeAll()
+		pirateCache.clearStatistics()
+	}
 
 	def "the list page requires the user to log in"() {
 		when: "I try to hit the list page"
@@ -22,9 +32,10 @@ class AuthenticatedCachedActionSpec extends GebSpec {
 
 		then: "the list page is displayed"
 		at PirateListPage
-		pirateNames == ShiroUser.list().username
+		pirateNames == ShiroUser.list().name
 
 		and: "the content was not served from the cache"
+		pirateCache.statistics.cacheMisses == old(pirateCache.statistics.cacheMisses) + 1
 	}
 
 	def "content behind the authentication filter can be cached"() {
@@ -32,9 +43,10 @@ class AuthenticatedCachedActionSpec extends GebSpec {
 		driver.navigate().refresh()
 
 		then: "the list page is displayed"
-		pirateNames == ShiroUser.list().username
+		pirateNames == ShiroUser.list().name
 
 		and: "the content was served from the cache"
+		pirateCache.statistics.cacheHits == old(pirateCache.statistics.cacheHits) + 1
 	}
 
 }

@@ -13,3 +13,5 @@ grails.project.dependency.resolution = {
 		test "org.seleniumhq.selenium:selenium-firefox-driver:2.0a5"
     }
 }
+
+grails.plugin.location.springcache = "../../.."
