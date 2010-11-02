@@ -29,6 +29,7 @@ import javax.servlet.http.*
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -162,7 +163,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 * side-effect) and will decorate our cached response.
 	 */
 	@Override protected void writeResponse(HttpServletResponse response, PageInfo pageInfo) {
-		response.contentType = pageInfo.contentType
+//		if (!WebUtils.isIncludeRequest(request)) {
+			setStatus(response, pageInfo)
+			setContentType(response, pageInfo)
+			setCookies(pageInfo, response)
+			setHeaders(pageInfo, false, response)
+//		}
 		super.writeResponse(response, pageInfo)
 	}
 

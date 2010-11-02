@@ -1,11 +1,12 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
 import grails.plugin.springcache.SpringcacheService
-import musicstore.*
+import groovyx.net.http.RESTClient
 import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
-import groovyx.net.http.*
+import static javax.servlet.http.HttpServletResponse.SC_OK
+import musicstore.*
+import spock.lang.*
 
 class ContentNegotiationSpec extends Specification {
 
@@ -35,7 +36,7 @@ class ContentNegotiationSpec extends Specification {
 		def response = new RESTClient().get(uri: "http://localhost:8080/latest/albums", headers : [Accept : contentType])
 		
 		then: "the correct content type is returned"
-		response.status == 200
+		response.status == SC_OK
 		response.contentType == contentType
 		
 		and: "the response is cached separately"

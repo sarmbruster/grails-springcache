@@ -29,8 +29,7 @@ class AlbumController {
 		if (albumInstance.save(flush: true)) {
 			flash.message = "${message(code: 'default.created.message', args: [message(code: 'album.label', default: 'Album'), albumInstance.id])}"
 			redirect(action: "show", id: albumInstance.id)
-		}
-		else {
+		} else {
 			render(view: "create", model: [albumInstance: albumInstance])
 		}
 	}
@@ -41,9 +40,16 @@ class AlbumController {
 		if (!albumInstance) {
 			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'album.label', default: 'Album'), params.id])}"
 			redirect(action: "list")
-		}
-		else {
-			[albumInstance: albumInstance]
+			return
+		} else {
+			withCacheHeaders {
+				lastModified {
+					albumInstance.lastUpdated
+				}
+				generate {
+					render view: "show", model: [albumInstance: albumInstance]
+				}
+			}
 		}
 	}
 
@@ -52,8 +58,7 @@ class AlbumController {
 		if (!albumInstance) {
 			flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'album.label', default: 'Album'), params.id])}"
 			redirect(action: "list")
-		}
-		else {
+		} else {
 			return [albumInstance: albumInstance]
 		}
 	}

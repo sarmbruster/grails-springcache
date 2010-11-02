@@ -12,6 +12,11 @@ grails.project.dependency.resolution = {
     dependencies {
 		test "org.seleniumhq.selenium:selenium-firefox-driver:2.0a5"
     }
+	plugins {
+		compile(":shiro:1.1-SNAPSHOT") {
+			excludes "ehcache"
+		}
+	}
 }
 
 grails.plugin.location.springcache = "../../.."
