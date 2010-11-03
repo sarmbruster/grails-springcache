@@ -16,21 +16,17 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
-import grails.plugin.springcache.annotations.CacheFlush
-import grails.plugin.springcache.key.KeyGenerator
-import java.lang.annotation.Annotation
 import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
-import org.springframework.web.context.request.RequestContextHolder
 import javax.servlet.*
 import javax.servlet.http.*
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
+import static javax.servlet.http.HttpServletResponse.*
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -168,6 +164,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		if (WebUtils.isIncludeRequest(request)) {
 			super.writeResponse response, pageInfo
 		} else {
+			determineResponseStatus(request, response, pageInfo)
 			super.writeResponse request, response, pageInfo
 		}
 	}
@@ -188,6 +185,37 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	private void handleFlush(HttpServletRequest request) {
 		logRequestDetails(request, context, "Flushing request")
 		springcacheService.flush(context.cacheNames)
+	}
+
+	private void determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
+		println "Request headers"
+		request.headerNames.each { println "   $it" }
+		if (headerPresent(request, IF_MODIFIED_SINCE) && headerPresent(pageInfo, LAST_MODIFIED)) {
+			println request.getHeader(IF_MODIFIED_SINCE)
+			try {
+			long ifModifiedSince = request.getDateHeader(IF_MODIFIED_SINCE)
+			println "$IF_MODIFIED_SINCE = $ifModifiedSince"
+			long lastModified = pageInfo.headers[LAST_MODIFIED].value
+			println "$LAST_MODIFIED = $lastModified"
+			if (ifModifiedSince < lastModified) {
+				println "content not modified, sending 304"
+				response.status = SC_NOT_MODIFIED
+			}
+			} catch(e) {
+				e.printStackTrace()
+			}
+		} else {
+			println "request has if-modified-since? ${headerPresent(request, IF_MODIFIED_SINCE)}"
+			println "pageInfo has last-modified? ${headerPresent(pageInfo, LAST_MODIFIED)}"
+		}
+	}
+
+	private boolean headerPresent(HttpServletRequest request, String headerName) {
+		request.getHeader(headerName)
+	}
+
+	private boolean headerPresent(PageInfo pageInfo, String headerName) {
+		headerName in pageInfo.headers.name
 	}
 
 	private void logRequestDetails(HttpServletRequest request, FilterContext context, String message) {

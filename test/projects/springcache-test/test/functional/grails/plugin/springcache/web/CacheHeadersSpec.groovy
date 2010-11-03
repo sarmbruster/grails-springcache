@@ -2,13 +2,12 @@ package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
 import groovyx.net.http.RESTClient
-import musicstore.Album
 import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import static javax.servlet.http.HttpServletResponse.*
-import spock.lang.*
-import musicstore.Artist
+import musicstore.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
+import spock.lang.*
 
 class CacheHeadersSpec extends Specification {
 
