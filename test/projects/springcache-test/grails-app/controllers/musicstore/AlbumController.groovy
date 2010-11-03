@@ -43,6 +43,9 @@ class AlbumController {
 			return
 		} else {
 			withCacheHeaders {
+				etag {
+					"${albumInstance.ident()}:${albumInstance.version}"
+				}
 				lastModified {
 					albumInstance.lastUpdated
 				}

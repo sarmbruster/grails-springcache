@@ -27,6 +27,9 @@ import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 import static javax.servlet.http.HttpServletResponse.*
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.IF_NONE_MATCH
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.IF_NONE_MATCH
+import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -200,7 +203,19 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				statusCode = SC_NOT_MODIFIED
 			}
 		}
+		if (headerPresent(request, IF_NONE_MATCH) && headerPresent(pageInfo, ETAG)) {
+			def ifNoneMatch = request.getHeader(IF_NONE_MATCH)
+			def etag = getHeader(pageInfo, ETAG)
+			if (ifNoneMatch == etag) {
+				statusCode = SC_NOT_MODIFIED
+			}
+		}
 		statusCode
+	}
+
+	private String getHeader(PageInfo pageInfo, String headerName) {
+		def header = pageInfo.headers.find { it.name == headerName }
+		header.value
 	}
 
 	private long getDateHeader(PageInfo pageInfo, String headerName) {

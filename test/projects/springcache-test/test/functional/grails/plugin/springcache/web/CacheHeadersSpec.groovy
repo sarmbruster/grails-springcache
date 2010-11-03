@@ -48,14 +48,15 @@ class CacheHeadersSpec extends Specification {
 
 		and: "cache control headers are served with the cached response"
 		response1.headers[LAST_MODIFIED].value == response2.headers[LAST_MODIFIED].value
+		response1.headers[ETAG].value == response2.headers[ETAG].value
 	}
 
-	def "a 304 is served rather than a cached response if an if-modified-since header is sent"() {
+	@Unroll("a 304 is served rather than a cached response if the client sends #headers")
+	def "a 304 is served rather than a cached response if the client has cached the response"() {
 		given: "the cache is primed by an previous request"
 		http.get(uri: "http://localhost:8080/album/show/$album.id")
 
 		when: "the same action is invoked again with an if-modified-since header"
-		def headers = [(IF_MODIFIED_SINCE): date.currentDate]
 		def response = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
 
 		then: "the server responds with a 304"
@@ -63,6 +64,9 @@ class CacheHeadersSpec extends Specification {
 
 		and: "no content is served"
 		response.data == null
+
+		where:
+		headers << [[(IF_MODIFIED_SINCE): date.currentDate], [(IF_NONE_MATCH): "$album.id:$album.version"]]
 	}
 
 }
