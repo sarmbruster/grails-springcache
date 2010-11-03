@@ -190,15 +190,6 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		springcacheService.flush(context.cacheNames)
 	}
 
-	private Annotation getAnnotation(FilterContext context, Class type) {
-		// TODO: cache this by controller/action
-		def annotation = context.actionClosure?.getAnnotation(type)
-		if (!annotation) {
-			annotation = context.controllerArtefact?.clazz?.getAnnotation(type)
-		}
-		return annotation
-	}
-
 	private void logRequestDetails(HttpServletRequest request, FilterContext context, String message) {
 		if (log.isDebugEnabled()) {
 			log.debug "$message..."
