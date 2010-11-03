@@ -56,7 +56,7 @@ class CacheHeadersSpec extends Specification {
 		given: "the cache is primed by an previous request"
 		http.get(uri: "http://localhost:8080/album/show/$album.id")
 
-		when: "the same action is invoked again with an if-modified-since header"
+		when: "the same action is invoked again with a matching header"
 		def response = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
 
 		then: "the server responds with a 304"
@@ -67,6 +67,24 @@ class CacheHeadersSpec extends Specification {
 
 		where:
 		headers << [[(IF_MODIFIED_SINCE): date.currentDate], [(IF_NONE_MATCH): "$album.id:$album.version"]]
+	}
+
+	@Unroll("the cached response is served if the client sends #headers")
+	def "the cached response is served if the client's cached version does not match"() {
+		given: "the cache is primed by an previous request"
+		def response1 = http.get(uri: "http://localhost:8080/album/show/$album.id")
+
+		when: "the same action is invoked again with a non-matching header"
+		def response2 = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
+
+		then: "the server responds with a 200"
+		response2.status == SC_OK
+
+		and: "the cached content is served"
+		response1.data == response2.data
+
+		where:
+		headers << [[(IF_MODIFIED_SINCE): "Tue, 15 Nov 1994 12:45:26 GMT"], [(IF_NONE_MATCH): "x:x"]]
 	}
 
 }
