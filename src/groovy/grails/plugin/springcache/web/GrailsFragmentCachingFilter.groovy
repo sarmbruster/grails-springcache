@@ -164,8 +164,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		if (WebUtils.isIncludeRequest(request)) {
 			super.writeResponse response, pageInfo
 		} else {
-			determineResponseStatus(request, response, pageInfo)
-			super.writeResponse request, response, pageInfo
+			int statusCode = determineResponseStatus(request, response, pageInfo)
+			response.status = statusCode
+			setContentType(response, pageInfo)
+			setCookies(pageInfo, response)
+			setHeaders(pageInfo, acceptsGzipEncoding(request), response)
+			writeContent(request, response, pageInfo)
 		}
 	}
 
@@ -187,27 +191,21 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		springcacheService.flush(context.cacheNames)
 	}
 
-	private void determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
-		println "Request headers"
-		request.headerNames.each { println "   $it" }
+	private int determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
+		int statusCode = pageInfo.statusCode
 		if (headerPresent(request, IF_MODIFIED_SINCE) && headerPresent(pageInfo, LAST_MODIFIED)) {
-			println request.getHeader(IF_MODIFIED_SINCE)
-			try {
 			long ifModifiedSince = request.getDateHeader(IF_MODIFIED_SINCE)
-			println "$IF_MODIFIED_SINCE = $ifModifiedSince"
-			long lastModified = pageInfo.headers[LAST_MODIFIED].value
-			println "$LAST_MODIFIED = $lastModified"
-			if (ifModifiedSince < lastModified) {
-				println "content not modified, sending 304"
-				response.status = SC_NOT_MODIFIED
+			long lastModified = getDateHeader(pageInfo, LAST_MODIFIED)
+			if (ifModifiedSince >= lastModified) {
+				statusCode = SC_NOT_MODIFIED
 			}
-			} catch(e) {
-				e.printStackTrace()
-			}
-		} else {
-			println "request has if-modified-since? ${headerPresent(request, IF_MODIFIED_SINCE)}"
-			println "pageInfo has last-modified? ${headerPresent(pageInfo, LAST_MODIFIED)}"
 		}
+		statusCode
+	}
+
+	private long getDateHeader(PageInfo pageInfo, String headerName) {
+		def header = pageInfo.headers.find { it.name == headerName }
+		pageInfo.httpDateFormatter.parseDateFromHttpDate(header.value).time
 	}
 
 	private boolean headerPresent(HttpServletRequest request, String headerName) {

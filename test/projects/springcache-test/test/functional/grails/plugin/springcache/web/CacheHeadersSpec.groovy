@@ -3,6 +3,7 @@ package grails.plugin.springcache.web
 import grails.plugin.springcache.SpringcacheService
 import groovyx.net.http.RESTClient
 import net.sf.ehcache.Ehcache
+import org.apache.http.protocol.HttpDateGenerator
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import static javax.servlet.http.HttpServletResponse.*
 import musicstore.*
@@ -16,6 +17,7 @@ class CacheHeadersSpec extends Specification {
 
 	@Shared private Album album
 	private RESTClient http = new RESTClient()
+	@Shared private HttpDateGenerator date = new HttpDateGenerator()
 
 	def setupSpec() {
 		album = Album.withNewSession {
@@ -35,7 +37,6 @@ class CacheHeadersSpec extends Specification {
 
 	def "cache control headers from the original response are served with a cached response"() {
 		given: "the cache is primed by an previous request"
-//		def http = new RESTClient()
 		def response1 = http.get(uri: "http://localhost:8080/album/show/$album.id")
 
 		when: "the same action is invoked again"
@@ -51,11 +52,10 @@ class CacheHeadersSpec extends Specification {
 
 	def "a 304 is served rather than a cached response if an if-modified-since header is sent"() {
 		given: "the cache is primed by an previous request"
-//		def http = new RESTClient()
 		http.get(uri: "http://localhost:8080/album/show/$album.id")
 
 		when: "the same action is invoked again with an if-modified-since header"
-		def headers = [(IF_MODIFIED_SINCE): new Date()]
+		def headers = [(IF_MODIFIED_SINCE): date.currentDate]
 		def response = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
 
 		then: "the server responds with a 304"
