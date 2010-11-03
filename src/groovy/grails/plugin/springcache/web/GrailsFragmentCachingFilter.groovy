@@ -22,14 +22,11 @@ import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
 import javax.servlet.*
 import javax.servlet.http.*
+import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
-import static javax.servlet.http.HttpServletResponse.*
-import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.IF_NONE_MATCH
-import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.IF_NONE_MATCH
-import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -95,7 +92,11 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 					pageInfo = buildPage(request, response, chain)
 					if (pageInfo.isOk()) {
 						log.debug "PageInfo ok. Adding to cache $cache.name with key $key"
-						cache.put(new Element(key, pageInfo))
+						element = new Element(key, pageInfo)
+						if (pageInfo.timeToLiveSeconds) {
+							element.timeToLive = pageInfo.timeToLiveSeconds
+						}
+						cache.put(element)
 					} else {
 						log.debug "PageInfo was not ok(200). Putting null into cache $cache.name with key $key"
 						cache.put(new Element(key, null))
@@ -151,7 +152,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		}
 		wrapper.flush()
 
-		long timeToLiveSeconds = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
+		long timeToLiveSeconds = getTimeToLiveFromHeaders(wrapper)
 
 		def contentType = wrapper.contentType ?: response.contentType
 		return new PageInfo(wrapper.status, contentType, wrapper.headers, wrapper.cookies,
@@ -192,6 +193,16 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	private void handleFlush(HttpServletRequest request) {
 		logRequestDetails(request, context, "Flushing request")
 		springcacheService.flush(context.cacheNames)
+	}
+
+	private long getTimeToLiveFromHeaders(GenericResponseWrapper wrapper) {
+		def expires = wrapper.allHeaders.find { it.name == EXPIRES }
+		if (expires) {
+			long ttlSeconds = (expires.value - System.currentTimeMillis()) / 1000L
+			ttlSeconds
+		} else {
+			cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
+		}
 	}
 
 	private int determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {

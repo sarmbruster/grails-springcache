@@ -5,6 +5,7 @@ import groovyx.net.http.RESTClient
 import net.sf.ehcache.Ehcache
 import org.apache.http.protocol.HttpDateGenerator
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import static java.util.concurrent.TimeUnit.HOURS
 import static javax.servlet.http.HttpServletResponse.*
 import musicstore.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
@@ -17,7 +18,6 @@ class CacheHeadersSpec extends Specification {
 
 	@Shared private Album album
 	private RESTClient http = new RESTClient()
-	@Shared private HttpDateGenerator date = new HttpDateGenerator()
 
 	def setupSpec() {
 		album = Album.withNewSession {
@@ -30,7 +30,9 @@ class CacheHeadersSpec extends Specification {
 			Album.list()*.delete()
 			Artist.list()*.delete()
 		}
+	}
 
+	def cleanup() {
 		springcacheService.flushAll()
 		springcacheService.clearStatistics()
 	}
@@ -66,7 +68,7 @@ class CacheHeadersSpec extends Specification {
 		response.data == null
 
 		where:
-		headers << [[(IF_MODIFIED_SINCE): date.currentDate], [(IF_NONE_MATCH): "$album.id:$album.version"]]
+		headers << [[(IF_MODIFIED_SINCE): currentDate], [(IF_NONE_MATCH): "$album.id:$album.version"]]
 	}
 
 	@Unroll("the cached response is served if the client sends #headers")
@@ -85,6 +87,26 @@ class CacheHeadersSpec extends Specification {
 
 		where:
 		headers << [[(IF_MODIFIED_SINCE): "Tue, 15 Nov 1994 12:45:26 GMT"], [(IF_NONE_MATCH): "x:x"]]
+	}
+
+	def "a cache response's time-to-live is set according to the expires header if there is one"() {
+		when: "a response is cached"
+		http.get(uri: "http://localhost:8080/album/show/$album.id")
+
+		then: "a cache entry is created"
+		albumControllerCache.statistics.objectCount == 1
+
+		and: "the cache entry's ttl is the same as the response's expires header"
+		expiryTime == HOURS.toSeconds(1)
+	}
+
+	private String getCurrentDate() {
+		new HttpDateGenerator().currentDate
+	}
+
+	private long getExpiryTime() {
+		def key = albumControllerCache.getKeys().head()
+		albumControllerCache.get(key).timeToLive
 	}
 
 }
