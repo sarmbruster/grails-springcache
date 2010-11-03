@@ -30,6 +30,7 @@ import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -61,7 +62,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				chain.doFilter(request, response)
 			} else if (context.shouldCache()) {
 				logRequestDetails(request, context, "Caching enabled for request")
-				super.doFilter(request, response, chain)
+				def pageInfo = buildPageInfo(request, response, chain)
+				writeResponse(request, response, pageInfo)
 			} else {
 				log.debug "No cacheable annotation found for $request.method:$request.requestURI $context"
 				chain.doFilter(request, response)
@@ -162,14 +164,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 * necessary so that Sitemesh is activated (yeah, setContentType on GrailsContentBufferingResponse has a
 	 * side-effect) and will decorate our cached response.
 	 */
-	@Override protected void writeResponse(HttpServletResponse response, PageInfo pageInfo) {
-//		if (!WebUtils.isIncludeRequest(request)) {
-			setStatus(response, pageInfo)
-			setContentType(response, pageInfo)
-			setCookies(pageInfo, response)
-			setHeaders(pageInfo, false, response)
-//		}
-		super.writeResponse(response, pageInfo)
+	@Override protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
+		if (WebUtils.isIncludeRequest(request)) {
+			super.writeResponse response, pageInfo
+		} else {
+			super.writeResponse request, response, pageInfo
+		}
 	}
 
 	@Override protected CacheManager getCacheManager() {
@@ -179,6 +179,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	@Override protected String calculateKey(HttpServletRequest request) {
 		def keyGenerator = context.keyGenerator
 		return keyGenerator.generateKey(context.cacheParameters).toString()
+	}
+
+	@Override protected boolean acceptsGzipEncoding(HttpServletRequest request) {
+		false
 	}
 
 	private void handleFlush(HttpServletRequest request) {

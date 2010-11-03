@@ -7,11 +7,14 @@ import org.codehaus.groovy.grails.commons.ApplicationHolder
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import musicstore.*
 import spock.lang.*
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.ACCEPT
 
 class ContentNegotiationSpec extends Specification {
 
 	@Shared SpringcacheService springcacheService = ApplicationHolder.application.mainContext.springcacheService
 	@Shared Ehcache latestControllerCache = ApplicationHolder.application.mainContext.latestControllerCache
+
+	private RESTClient http = new RESTClient()
 	
 	def setupSpec() {
 		Album.withNewSession {
@@ -33,7 +36,7 @@ class ContentNegotiationSpec extends Specification {
 	@Unroll("content requested with content type '#contentType' is cached separately")
 	def "content requested with different formats is cached separately"() {
 		when: "the latest album module is requested in a particular format"
-		def response = new RESTClient().get(uri: "http://localhost:8080/latest/albums", headers : [Accept : contentType])
+		def response = http.get(uri: "http://localhost:8080/latest/albums", headers : [(ACCEPT) : contentType])
 		
 		then: "the correct content type is returned"
 		response.status == SC_OK
