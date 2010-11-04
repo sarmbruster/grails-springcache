@@ -26,7 +26,6 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
-import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.CACHE_CONTROL
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
@@ -161,9 +160,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	/**
-	 * Overrides writeResponse in PageFragmentCachingFilter to set the contentType before writing the response. This is
-	 * necessary so that Sitemesh is activated (yeah, setContentType on GrailsContentBufferingResponse has a
-	 * side-effect) and will decorate our cached response.
+	 * Overrides writeResponse in CachingFilter to 1 - only set status, contentType, cookies, etc. if this is the "main"
+	 * request and not an include. 2 - send a status code 304 if appropriate.
 	 */
 	@Override protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
 		if (WebUtils.isIncludeRequest(request)) {
@@ -201,6 +199,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		def expires = wrapper.allHeaders.find { it.name == CACHE_CONTROL }
 		if (expires) {
 			expires.value.find(/max-age=(\d+)/) { match, maxAge ->
+				log.debug "Found $CACHE_CONTROL max-age=$maxAge header in response"
 				ttl = maxAge.toLong()
 			}
 		}
@@ -209,49 +208,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
 	private int determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
 		int statusCode = pageInfo.statusCode
-		if (headerPresent(request, IF_MODIFIED_SINCE) && headerPresent(pageInfo, LAST_MODIFIED)) {
-			long ifModifiedSince = request.getDateHeader(IF_MODIFIED_SINCE)
-			long lastModified = getDateHeader(pageInfo, LAST_MODIFIED)
-			if (ifModifiedSince >= lastModified) {
-				statusCode = SC_NOT_MODIFIED
-			}
-		}
-		if (headerPresent(request, IF_NONE_MATCH) && headerPresent(pageInfo, ETAG)) {
-			def ifNoneMatch = request.getHeader(IF_NONE_MATCH)
-			def etag = getHeader(pageInfo, ETAG)
-			if (ifNoneMatch == etag) {
-				statusCode = SC_NOT_MODIFIED
-			}
+		def modified = pageInfo.isModified(request)
+		def match = pageInfo.isMatch(request)
+		if (!modified || match) {
+			statusCode = SC_NOT_MODIFIED
 		}
 		statusCode
-	}
-
-	private String getHeader(PageInfo pageInfo, String headerName) {
-		def header = pageInfo.headers.find { it.name == headerName }
-		header.value
-	}
-
-	private String getHeader(GenericResponseWrapper wrapper, String headerName) {
-		def header = wrapper.allHeaders.find { it.name == headerName }
-		header.value
-	}
-
-	private long getDateHeader(PageInfo pageInfo, String headerName) {
-		def header = pageInfo.headers.find { it.name == headerName }
-		pageInfo.httpDateFormatter.parseDateFromHttpDate(header.value).time
-	}
-
-	private long getDateHeader(GenericResponseWrapper wrapper, String headerName) {
-		def header = wrapper.allHeaders.find { it.name == headerName }
-		wrapper.httpDateFormatter.parseDateFromHttpDate(header.value).time
-	}
-
-	private boolean headerPresent(HttpServletRequest request, String headerName) {
-		request.getHeader(headerName)
-	}
-
-	private boolean headerPresent(PageInfo pageInfo, String headerName) {
-		headerName in pageInfo.headers.name
 	}
 
 	private void logRequestDetails(HttpServletRequest request, FilterContext context, String message) {

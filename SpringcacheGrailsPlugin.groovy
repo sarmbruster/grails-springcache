@@ -16,12 +16,13 @@
 
 import grails.plugin.springcache.taglib.CachingTagLibDecorator
 import grails.plugin.springcache.web.GrailsFragmentCachingFilter
-import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.slf4j.LoggerFactory
 import org.springframework.web.filter.DelegatingFilterProxy
 import grails.plugin.springcache.aop.*
 import org.springframework.cache.ehcache.*
+import grails.plugin.springcache.web.HeadersCategory
+import net.sf.ehcache.constructs.web.PageInfo
 
 class SpringcacheGrailsPlugin {
 
@@ -121,6 +122,7 @@ class SpringcacheGrailsPlugin {
 	}
 
 	def doWithDynamicMethods = {ctx ->
+		PageInfo.metaClass.mixin(HeadersCategory)
 	}
 
 	def doWithApplicationContext = { applicationContext ->

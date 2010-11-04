@@ -11,6 +11,7 @@ import musicstore.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 import spock.lang.*
 
+@Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2616")
 class CacheHeadersSpec extends Specification {
 
 	@Shared SpringcacheService springcacheService = ApplicationHolder.application.mainContext.springcacheService
