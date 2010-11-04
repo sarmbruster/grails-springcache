@@ -2,7 +2,6 @@ package musicstore
 
 import grails.plugin.springcache.annotations.*
 import static java.util.concurrent.TimeUnit.HOURS
-import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.EXPIRES
 
 class AlbumController {
 
@@ -51,7 +50,7 @@ class AlbumController {
 					albumInstance.lastUpdated
 				}
 				generate {
-					response.setDateHeader EXPIRES, System.currentTimeMillis() + HOURS.toMillis(1)
+					cache validFor: HOURS.toSeconds(1)
 					render view: "show", model: [albumInstance: albumInstance]
 				}
 			}

@@ -27,6 +27,7 @@ import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.CACHE_CONTROL
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -196,13 +197,14 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	private long getTimeToLiveFromHeaders(GenericResponseWrapper wrapper) {
-		def expires = wrapper.allHeaders.find { it.name == EXPIRES }
+		def ttl = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
+		def expires = wrapper.allHeaders.find { it.name == CACHE_CONTROL }
 		if (expires) {
-			long ttlSeconds = (expires.value - System.currentTimeMillis()) / 1000L
-			ttlSeconds
-		} else {
-			cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
+			expires.value.find(/max-age=(\d+)/) { match, maxAge ->
+				ttl = maxAge.toLong()
+			}
 		}
+		ttl
 	}
 
 	private int determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
@@ -229,9 +231,19 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		header.value
 	}
 
+	private String getHeader(GenericResponseWrapper wrapper, String headerName) {
+		def header = wrapper.allHeaders.find { it.name == headerName }
+		header.value
+	}
+
 	private long getDateHeader(PageInfo pageInfo, String headerName) {
 		def header = pageInfo.headers.find { it.name == headerName }
 		pageInfo.httpDateFormatter.parseDateFromHttpDate(header.value).time
+	}
+
+	private long getDateHeader(GenericResponseWrapper wrapper, String headerName) {
+		def header = wrapper.allHeaders.find { it.name == headerName }
+		wrapper.httpDateFormatter.parseDateFromHttpDate(header.value).time
 	}
 
 	private boolean headerPresent(HttpServletRequest request, String headerName) {
