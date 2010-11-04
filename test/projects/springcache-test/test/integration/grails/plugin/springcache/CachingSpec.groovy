@@ -6,6 +6,7 @@ import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
 import spock.lang.AutoCleanup
 import pirates.*
+import spock.lang.Issue
 
 class CachingSpec extends IntegrationSpec {
 
@@ -64,6 +65,7 @@ class CachingSpec extends IntegrationSpec {
 		result2 == ["Black Bart", "Blackbeard"]
 	}
 
+	@Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2553")
 	def "cached results are for subsequent method calls with default arguments"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
@@ -83,6 +85,7 @@ class CachingSpec extends IntegrationSpec {
 		result2 == result1
 	}
 
+	@Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2553")
 	def "caching is applied to internal calls"() {
 		given: "A cache exists"
 		def cache = new Cache("pirateCache", 100, false, true, 0, 0)
