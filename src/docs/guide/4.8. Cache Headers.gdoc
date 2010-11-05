@@ -25,7 +25,7 @@ response body instead of the cached response.
 
 h2. The Cache Headers Plugin
 
-_Springcache_ integrates well with the "Cache Headers":http://grails.org/plugin/cache-headers plugin. Some examples:
+The _Springcache_ plugin integrates well with the "Cache Headers":http://grails.org/plugin/cache-headers plugin. Some examples:
 
 h3. Preventing caching
 
@@ -62,11 +62,11 @@ h3. Controlling cache expiry
 As explained above cache time-to-live will respect the max-age in a cache control header.
 
 {code}
-	@Cacheable("myCache")
-	def myAction = {
-		cache validFor: 3600
-		// ...
-	}
+@Cacheable("myCache")
+def myAction = {
+	cache validFor: 3600
+	// ...
+}
 {code}
 
 In this example the response will be cached with a time-to-live of one hour _regardless_ of the default time-to-live
@@ -75,21 +75,21 @@ configured on the cache itself.
 h3. Sending Not-Modified responses
 
 {code}
-	@Cacheable("myCache")
-	def show = {
-		withCacheHeaders {
-			def book = Book.get(params.id)
-			etag {
-				"${book.ident()}:${book.version}"
-			}
-			lastModified {
-				book.dateCreated ?: book.dateUpdated
-			}
-			generate {
-				render view: "show", model: [item: book]
-			}
+@Cacheable("myCache")
+def show = {
+	withCacheHeaders {
+		def book = Book.get(params.id)
+		etag {
+			"${book.ident()}:${book.version}"
+		}
+		lastModified {
+			book.dateCreated ?: book.dateUpdated
+		}
+		generate {
+			render view: "show", model: [item: book]
 		}
 	}
+}
 {code}
 
 In this example the response will be cached and any subsequent requests that send matching @If-Modified-Since@ and/or
