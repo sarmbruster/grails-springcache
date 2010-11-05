@@ -2,7 +2,9 @@ package musicstore
 
 import grails.plugin.springcache.annotations.*
 import static java.util.concurrent.TimeUnit.HOURS
+import org.apache.commons.lang.math.RandomUtils
 
+@Cacheable("albumControllerCache")
 class AlbumController {
 
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
@@ -11,13 +13,13 @@ class AlbumController {
 		redirect(action: "list", params: params)
 	}
 
-	@Cacheable("albumControllerCache")
 	def list = {
 		params.max = Math.min(params.max ? params.int('max') : 10, 100)
 		[albumInstanceList: Album.list(params), albumInstanceTotal: Album.count()]
 	}
 
 	def create = {
+		cache neverExpires: true
 		def albumInstance = new Album()
 		albumInstance.properties = params
 		return [albumInstance: albumInstance]
@@ -34,7 +36,6 @@ class AlbumController {
 		}
 	}
 
-	@Cacheable("albumControllerCache")
 	def show = {
 		def albumInstance = Album.get(params.id)
 		if (!albumInstance) {
@@ -114,4 +115,17 @@ class AlbumController {
 			redirect(action: "list")
 		}
 	}
+
+	def random = {
+		def ids = Album.withCriteria {
+			projections {
+				property "id"
+			}
+		}
+		def id = ids[RandomUtils.nextInt(ids.size())]
+		def albumInstance = Album.get(id)
+		cache false
+		render view: "show", model: [albumInstance: albumInstance]
+	}
+
 }

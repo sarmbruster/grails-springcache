@@ -10,6 +10,7 @@ import static javax.servlet.http.HttpServletResponse.*
 import musicstore.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 import spock.lang.*
+import net.sf.ehcache.Element
 
 @Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2616")
 class CacheHeadersSpec extends Specification {
@@ -57,7 +58,7 @@ class CacheHeadersSpec extends Specification {
 	@Unroll("a 304 is served rather than a cached response if the client sends #headers")
 	def "a 304 is served rather than a cached response if the client has cached the response"() {
 		given: "the cache is primed by an previous request"
-		http.get(uri: "http://localhost:8080/album/show/$album.id")
+		http.get uri: "http://localhost:8080/album/show/$album.id"
 
 		when: "the same action is invoked again with a matching header"
 		def response = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
@@ -90,24 +91,45 @@ class CacheHeadersSpec extends Specification {
 		headers << [[(IF_MODIFIED_SINCE): "Tue, 15 Nov 1994 12:45:26 GMT"], [(IF_NONE_MATCH): "x:x"]]
 	}
 
-	def "a cache response's time-to-live is set according to the expires header if there is one"() {
+	def "a cached response's time-to-live is set according to the max-age header if there is one"() {
 		when: "a response is cached"
-		http.get(uri: "http://localhost:8080/album/show/$album.id")
+		http.get uri: "http://localhost:8080/album/show/$album.id"
 
 		then: "a cache entry is created"
 		albumControllerCache.statistics.objectCount == 1
 
 		and: "the cache entry's ttl is the same as the response's expires header"
-		expiryTime == HOURS.toSeconds(1)
+		cacheElement.timeToLive == HOURS.toSeconds(1)
+	}
+
+	@Ignore
+	def "a cache response is set to eternal if the cache-control header "() {
+		when: "a response is cached"
+		http.get uri: "http://localhost:8080/album/create"
+
+		then: "a cache entry is created"
+		albumControllerCache.statistics.objectCount == 1
+
+		and: "the cache entry's ttl is the same as the response's expires header"
+		cacheElement.timeToLive == 0
+		cacheElement.eternal
+	}
+
+	def "a page is not cached if the response contains a no-cache directive in the cache-control header"() {
+		when: "an action that sets cache:false is hit"
+		http.get uri: "http://localhost:8080/album/random"
+
+		then: "no cache entry is created"
+		albumControllerCache.statistics.objectCount == 0
+	}
+
+	private Element getCacheElement() {
+		def key = albumControllerCache.getKeys().head()
+		albumControllerCache.get(key)
 	}
 
 	private String getCurrentDate() {
 		new HttpDateGenerator().currentDate
-	}
-
-	private long getExpiryTime() {
-		def key = albumControllerCache.getKeys().head()
-		albumControllerCache.get(key).timeToLive
 	}
 
 }
