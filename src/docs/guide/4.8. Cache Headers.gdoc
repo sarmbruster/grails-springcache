@@ -1,0 +1,96 @@
+Content caching in the Springcache plugin attempts to respect any cache-control headers present in the original response.
+Specifically the plugin will handle certain response headers as follows:
+
+h4. Cache-Control: no-cache
+If this header is present in the response the content will _not_ be cached even if there is a @\@Cacheable@ annotation
+present on the controller or action. This allows you to prevent caching in certain circumstances or override the
+controller-wide caching policy in a particular action.
+
+h4. Cache-Control: max-age=x
+If the response is cached the time-to-live of the cache entry is set so that it corresponds to the max-age value in
+the @Cache-Control@ header. If no such header is present the cache's configured time-to-live is used.
+
+h4. ETag
+If the original response set an @ETag@ header _Springcache_ will set the same header if it serves the response from the
+cache.
+Additionally, if an incoming request has an @If-None-Match@ header that matches the @ETag@ of the cached response
+_Springcache_ will send a @304 Not Modified@ status code and an empty response body instead of the cached response.
+
+h4. Last-Modified
+If the original response set a @Last-Modified@ header _Springcache_ will set the same header if it serves the response
+from the cache.
+Additionally, if an incoming request has an @If-Modified-Since@ header with a timestamp later than the
+@Last-Modified@ header of the cached response _Springcache_ will send a @304 Not Modified@ status code and an empty
+response body instead of the cached response.
+
+h2. The Cache Headers Plugin
+
+_Springcache_ integrates well with the "Cache Headers":http://grails.org/plugin/cache-headers plugin. Some examples:
+
+h3. Preventing caching
+
+If you want to prevent _Springcache_ from caching a response in certain circumstances:
+
+{code}
+@Cacheable("myCache")
+def myAction = {
+	// ...
+	if (someConditionHoldsThatMeansThisShouldNotGetCached) {
+		cache false
+	}
+	// ...
+}
+{code}
+
+Alternatively you might want to declare @\@Cacheable@ at the class level and then exclude a particular action from the
+cache:
+
+{code}
+@Cacheable("myCache")
+class MyController {
+
+	// ...
+
+	def myAction = {
+		cache false
+		// ...
+	}
+{code}
+
+h3. Controlling cache expiry
+
+As explained above cache time-to-live will respect the max-age in a cache control header.
+
+{code}
+	@Cacheable("myCache")
+	def myAction = {
+		cache validFor: 3600
+		// ...
+	}
+{code}
+
+In this example the response will be cached with a time-to-live of one hour _regardless_ of the default time-to-live
+configured on the cache itself.
+
+h3. Sending Not-Modified responses
+
+{code}
+	@Cacheable("myCache")
+	def show = {
+		withCacheHeaders {
+			def book = Book.get(params.id)
+			etag {
+				"${book.ident()}:${book.version}"
+			}
+			lastModified {
+				book.dateCreated ?: book.dateUpdated
+			}
+			generate {
+				render view: "show", model: [item: book]
+			}
+		}
+	}
+{code}
+
+In this example the response will be cached and any subsequent requests that send matching @If-Modified-Since@ and/or
+@If-None-Match@ headers will be sent a @304 Not Modified@ response if they hit the cache.
