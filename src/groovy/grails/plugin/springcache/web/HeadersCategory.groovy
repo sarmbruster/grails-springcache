@@ -42,4 +42,23 @@ class HeadersCategory {
 		else ifNoneMatch == etag
 	}
 
+	Map<String, ?> getCacheDirectives() {
+		def cacheControl = getHeader(CACHE_CONTROL)
+		def directives = [:]
+		if (cacheControl) {
+			cacheControl.split(/,\s*/).each { String directive ->
+				directive.find(/([\w-]+)(?:=(.+))?/) { match, name, value ->
+					if (!value) {
+						directives[name] = true
+					} else if (value.isNumber()) {
+						directives[name] = value.toInteger()
+					} else {
+						directives[name] = value
+					}
+				}
+			}
+		}
+		directives
+	}
+
 }

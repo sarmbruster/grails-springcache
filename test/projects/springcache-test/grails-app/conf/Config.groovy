@@ -73,12 +73,12 @@ log4j = {
 			'org.hibernate',
 			'net.sf.ehcache.hibernate'
 
-	warn 'org.mortbay.log'
+	warn	'org.mortbay.log'
 
-	info 'net.sf.ehcache.constructs.web.filter'/*,
-			'grails.plugin.springcache.web.Timer'*/
+	info	'net.sf.ehcache.constructs.web.filter',
+			'grails.plugin.springcache.web.Timer'
 
-//	debug 'grails.plugin.springcache'
+	debug   'grails.plugin.springcache.web'
 
 }
 //log4j.logger.org.springframework.security='off,stdout'

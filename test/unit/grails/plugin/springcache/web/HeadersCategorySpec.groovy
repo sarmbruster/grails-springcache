@@ -62,4 +62,22 @@ class HeadersCategorySpec extends UnitSpec {
 		null | null        | false
 	}
 
+	@Unroll
+	def "can decode cache control directives"() {
+		given:
+		def headers = []
+		if (cacheControl) headers << ([CACHE_CONTROL, cacheControl] as String[])
+		def pageInfo = new PageInfo(SC_OK, "text/html", headers, [], new byte[0], false, 0L)
+
+		expect:
+		pageInfo.cacheDirectives == directives
+
+		where:
+		cacheControl                                                     | directives
+		null                                                             | [:]
+		"no-cache"                                                       | ["no-cache": true]
+		"max-age=21600"                                                  | ["max-age": 21600]
+		"no-cache, no-store, must-revalidate, pre-check=0, post-check=0" | ["no-cache": true, "no-store": true, "must-revalidate": true, "pre-check": 0, "post-check": 0]
+	}
+
 }

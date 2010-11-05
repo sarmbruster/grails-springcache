@@ -26,7 +26,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
-import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.CACHE_CONTROL
+import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
+import net.sf.ehcache.constructs.blocking.BlockingCache
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 
@@ -91,19 +92,22 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 					// Page is not cached - build the response, cache it, and send to client
 					pageInfo = buildPage(request, response, chain)
 					if (pageInfo.isOk()) {
-						log.debug "PageInfo ok. Adding to cache $cache.name with key $key"
-						element = new Element(key, pageInfo)
-						if (pageInfo.timeToLiveSeconds) {
-							element.timeToLive = pageInfo.timeToLiveSeconds
+						if (pageInfo.cacheDirectives["no-cache"]) {
+							log.debug "Response ok but Cache-Control: no-cache is present, not caching"
+							releaseCacheLock(cache, key)
+						} else {
+							element = new Element(key, pageInfo)
+							element.timeToLive = pageInfo.cacheDirectives["max-age"] ?: pageInfo.timeToLiveSeconds
+							log.debug "Response ok. Adding to cache $cache.name with key $key and ttl $element.timeToLive"
+							cache.put(element)
 						}
-						cache.put(element)
 					} else {
-						log.debug "PageInfo was not ok(200). Putting null into cache $cache.name with key $key"
-						cache.put(new Element(key, null))
+						log.debug "Response not ok ($pageInfo.statusCode). Putting null into cache $cache.name with key $key"
+						releaseCacheLock(cache, key)
 					}
 				} catch (Throwable t) {
 					// Must unlock the cache if the above fails. Will be logged at Filter
-					cache.put(new Element(key, null))
+					releaseCacheLock(cache, key)
 					throw t
 				}
 			} else {
@@ -152,7 +156,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		}
 		wrapper.flush()
 
-		long timeToLiveSeconds = getTimeToLiveFromHeaders(wrapper)
+		long timeToLiveSeconds = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
 
 		def contentType = wrapper.contentType ?: response.contentType
 		return new PageInfo(wrapper.status, contentType, wrapper.headers, wrapper.cookies,
@@ -194,23 +198,13 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		springcacheService.flush(context.cacheNames)
 	}
 
-	private long getTimeToLiveFromHeaders(GenericResponseWrapper wrapper) {
-		def ttl = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
-		def expires = wrapper.allHeaders.find { it.name == CACHE_CONTROL }
-		if (expires) {
-			expires.value.find(/max-age=(\d+)/) { match, maxAge ->
-				log.debug "Found $CACHE_CONTROL max-age=$maxAge header in response"
-				ttl = maxAge.toLong()
-			}
-		}
-		ttl
-	}
-
 	private int determineResponseStatus(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
 		int statusCode = pageInfo.statusCode
-		def modified = pageInfo.isModified(request)
-		def match = pageInfo.isMatch(request)
-		if (!modified || match) {
+		if (!pageInfo.isModified(request)) {
+			log.debug "Content not modified since ${request.getHeader(IF_MODIFIED_SINCE)} sending 304"
+			statusCode = SC_NOT_MODIFIED
+		} else if (pageInfo.isMatch(request)) {
+			log.debug "Content matches entity tag ${request.getHeader(IF_NONE_MATCH)} sending 304"
 			statusCode = SC_NOT_MODIFIED
 		}
 		statusCode
@@ -225,10 +219,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			if (WebUtils.isIncludeRequest(request)) {
 				log.debug "    includeURI = ${request[WebUtils.INCLUDE_REQUEST_URI_ATTRIBUTE]}"
 			}
-			log.debug "    controller = $context.controllerName"
-			log.debug "    action = $context.actionName"
+			log.debug "    controller = $context.cacheParameters.controllerName"
+			log.debug "    action = $context.cacheParameters.actionName"
 			log.debug "    format = $request.format"
-			log.debug "    params = $context.params"
+			log.debug "    params = $context.cacheParameters.params"
 		}
 	}
 
@@ -237,6 +231,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			return request[WebUtils.INCLUDE_REQUEST_URI_ATTRIBUTE]
 		}
 		return request.requestURI
+	}
+
+	private void releaseCacheLock(BlockingCache cache, String key) {
+		cache.put(new Element(key, null))
 	}
 
 	private void initContext() {
