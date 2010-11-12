@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.springcache.test
+package taglib
 
 import grails.plugin.springcache.annotations.*
 
 class TestCachingTagLib {
 
-	static namespace = 'testcaching'
+	static namespace = "testcaching"
 	
 	def value = 1
 	
-	@Cacheable("testCachingTagLib")
+	@Cacheable("tagLibCache")
 	def caching = {
 		out << value++
 	}
@@ -36,7 +36,7 @@ class TestCachingTagLib {
 		out << testcaching.caching(it)
 	}
 	
-	@Cacheable("testCachingTagLibWithBody")
+	@Cacheable("tagLibCache")
 	def withBody = { attrs, body ->
 		out << body()
 	}

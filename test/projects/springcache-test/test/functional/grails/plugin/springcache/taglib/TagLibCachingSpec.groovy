@@ -1,14 +1,14 @@
 package grails.plugin.springcache.taglib
 
+import grails.plugin.geb.GebSpec
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 import spock.lang.*
-import grails.plugin.spock.*
-import grails.util.BuildSettingsHolder
-import grails.plugin.remotecontrol.RemoteControl
 
 @Stepwise
-class TagLibCachingSpec extends IntegrationSpec {
+class TagLibCachingSpec extends GebSpec {
 
-	@Shared remote = new RemoteControl()
+	@Shared def grailsApplication = ApplicationHolder.application
+	@Shared def springcacheService = grailsApplication.mainContext.springcacheService
 	
 	def setup() {
 		clearCache()
@@ -87,66 +87,51 @@ class TagLibCachingSpec extends IntegrationSpec {
 	}
 	
 	
-	protected clearCache(name = "testCachingTagLib") {
-		remote.exec {
-			springcacheService.flush(name)
-		}
+	protected clearCache(name = "tagLibCache") {
+		springcacheService.flush(name)
 	}
 	
 	protected void setTagLibValue(value) {
-		remote.exec {
-			grailsApplication.mainContext['grails.plugin.springcache.test.TestCachingTagLib'].setValue(value)
-		}
-		
-		// issue with RC plugin - for some reason setting a property carries a reference to 'this' class
-		// results in a NoClassDefFoundError for TagLibCachingSpec, I don't know why
-		//grailsApplication.mainContext['grails.plugin.springcache.test.TestCachingTagLib'].value = value
+		grailsApplication.mainContext['taglib.TestCachingTagLib'].setValue(value)
 	}
 	
-	protected getA1() {
+	protected String getA1() {
 		getText("tagUsingA", "a1")
 	}
 	
-	protected getA2() {
+	protected String getA2() {
 		getText("tagUsingA", "a2")
 	}
 
-	protected getB1() {
+	protected String getB1() {
 		getText("tagUsingB", "a1")
 	}
 
-	protected getB2() {
+	protected String getB2() {
 		getText("tagUsingB", "a2")
 	}
 
-	protected withParams(params) {
+	protected String withParams(params) {
 		getText("tagUsingA", "withParams", params)
 	}
 	
-	protected getIndirect() {
+	protected String getIndirect() {
 		getText("tagUsingA", "indirect")
 	}
 
-	protected withBody(body) {
+	protected String withBody(body) {
 		getText("tagUsingA", "withBody", [body: body])
 	}
 	
-	protected getText(controllerName, actionName, params = null) {
-		getUrl(controllerName, actionName, params).text
-	}
-	
-	protected getUrl(controllerName, actionName, params = null) {
-		def url = baseUrl + controllerName + "/" + actionName
+	protected String getText(controllerName, actionName, params = null) {
+		def url = "/$controllerName/$actionName"
 		if (params) {
 			// we aren't encoding here, don't use things requiring encoding
 			url += "?" + params.collect { k,v -> "$k=$v" }.join("&")
 		}
-		new URL(url)
+		go url
+		find("body").text()
 	}
 	
-	protected getBaseUrl() {
-		def base = BuildSettingsHolder.settings.functionalTestBaseUrl
-		base.endsWith("/") ? base : base + "/"
-	}
 
 }

@@ -1,4 +1,4 @@
-package grails.plugin.springcache.test
+package taglib
 
 class TagUsingAController {
 

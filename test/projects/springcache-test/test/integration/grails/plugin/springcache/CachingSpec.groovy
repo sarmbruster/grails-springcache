@@ -7,11 +7,12 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy
 import spock.lang.AutoCleanup
 import pirates.*
 import spock.lang.Issue
+import net.sf.ehcache.CacheManager
 
 class CachingSpec extends IntegrationSpec {
 
-	def piracyService
 	@AutoCleanup("removalAll") def springcacheCacheManager
+	def piracyService
 
 	def setup() {
 		Pirate.build(name: "Blackbeard")

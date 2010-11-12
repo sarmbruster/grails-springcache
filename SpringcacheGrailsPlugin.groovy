@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import java.lang.management.ManagementFactory
+import javax.management.MBeanServer
 import grails.plugin.springcache.taglib.CachingTagLibDecorator
 import grails.plugin.springcache.web.GrailsFragmentCachingFilter
 import org.codehaus.groovy.grails.commons.GrailsApplication
@@ -23,6 +25,7 @@ import grails.plugin.springcache.aop.*
 import org.springframework.cache.ehcache.*
 import grails.plugin.springcache.web.HeadersCategory
 import net.sf.ehcache.constructs.web.PageInfo
+import net.sf.ehcache.management.ManagementService
 
 class SpringcacheGrailsPlugin {
 
@@ -130,6 +133,10 @@ class SpringcacheGrailsPlugin {
 		for (tagLibClass in application.tagLibClasses) {
 			decorator.decorate(tagLibClass, applicationContext."${tagLibClass.fullName}")
 		}
+		
+		println "MBeanServers: ${applicationContext.getBeansOfType(MBeanServer)}"
+		def mBeanServer = ManagementFactory.platformMBeanServer
+		ManagementService.registerMBeans(applicationContext.springcacheCacheManager, mBeanServer, false, false, false, true)
 	}
 
 	def onChange = { event ->
