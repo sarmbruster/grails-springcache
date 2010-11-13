@@ -82,7 +82,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		testCachingTagLib.value = 1
 
 		when:
-		template = '<testcaching:caching a="${params.a}" b="${params.b}" />'
+		template = '<testcaching:caching a="${a}" b="${b}" />'
 		params = [a: "a", b: "b"]
 
 		then:
@@ -97,7 +97,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		testCachingTagLib.value = 2
 
 		when:
-		template = '<testcaching:caching a="${params.a}" b="${params.b}" />'
+		template = '<testcaching:caching a="${a}" b="${b}" />'
 		params = [a: "a", b: "b"]
 
 		then:
@@ -109,7 +109,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 
 	def "using the same tag parameters in a different order hits the cache"() {
 		when:
-		template = '<testcaching:caching b="${params.b}" a="${params.a}" />'
+		template = '<testcaching:caching b="${b}" a="${a}" />'
 		params = [a: "a", b: "b"]
 
 		then:
@@ -121,7 +121,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 
 	def "using different tag parameters misses the cache"() {
 		when:
-		template = '<testcaching:caching a="${params.a}" b="${params.b}" />'
+		template = '<testcaching:caching a="${a}" b="${b}" />'
 		params = [a: "x", b: "y"]
 
 		then:

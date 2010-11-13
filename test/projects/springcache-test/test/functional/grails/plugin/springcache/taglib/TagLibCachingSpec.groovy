@@ -80,7 +80,7 @@ class TagLibCachingSpec extends GebSpec {
 		withBody("2") == "1"
 		
 		when:
-		clearCache("testCachingTagLibWithBody")
+		clearCache()
 		
 		then:
 		withBody("5") == "5"

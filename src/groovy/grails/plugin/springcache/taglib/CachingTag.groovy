@@ -21,28 +21,29 @@ import grails.plugin.springcache.annotations.Cacheable
 import org.codehaus.groovy.grails.web.pages.GroovyPageOutputStack
 import org.codehaus.groovy.grails.web.pages.FastStringWriter
 import org.codehaus.groovy.grails.web.taglib.GroovyPageAttributes
+import grails.plugin.springcache.key.CacheKeyBuilder
 
 /**
  * Wraps a closure "tag implementation" with caching logic.
- * 
+ *
  * This is only suitable for use with tag implementations, so is not a general
  * purpose solution for caching closures.
- * 
+ *
  * @see CachingTagLibDecorator
  */
 class CachingTag extends Closure {
 
 	private final log = LoggerFactory.getLogger(CachingTag.class)
-	
+
 	private final cached
 	private final annotation
 	private final springcacheService
-	
+
 	private final cacheName
-	
+
 	CachingTag(Closure cached, Cacheable annotation, springcacheService) {
 		super(null, null)
-		
+
 		this.cached = cached
 		this.annotation = annotation
 		this.springcacheService = springcacheService
@@ -51,44 +52,44 @@ class CachingTag extends Closure {
 
 	def doCall(Object[] args) {
 		def params = args[0]
-		def cacheKey = CacheKey.generate(toCacheKey(params))
-		
+		def cacheKey = toCacheKey(params)
+
 		def resultAndBuffer = springcacheService.doWithCache(cacheName, cacheKey) {
 			def outputStack = GroovyPageOutputStack.currentStack()
 
 			// Install an out that we can control
 			def writer = new FastStringWriter()
-			outputStack.push(writer,true)
-			
+			outputStack.push(writer, true)
+
 			// Invoke the tag
-			def result = cached.call(*args)
-			
+			def result = cached.call(* args)
+
 			// Remove our out
 			outputStack.pop()
-			
+
 			// Cache the buffer we wrote to and the result
 			new ResultAndBuffer(result: result, buffer: writer.buffer)
 		}
-		
+
 		GroovyPageOutputStack.currentWriter() << resultAndBuffer.buffer
-		
+
 		resultAndBuffer.result
 	}
-	
-	private toCacheKey(Map params) {
-		// Before 1.3.6, GroovyPageAttributes did not implement
-		// hashCode() and is therefore unusable for a cachekey.
-		// TODO - test for 1.3.6+ and use the params for the cache key if so
 
-		params.entrySet()
+	private CacheKey toCacheKey(Map params) {
+		def builder = new CacheKeyBuilder()
+		params.sort { it.key }.each { entry ->
+			builder << entry
+		}
+		builder.toCacheKey()
 	}
-	
-	Closure asWritable() { 
-		caches.asWritable() 
+
+	Closure asWritable() {
+		caches.asWritable()
 	}
 
 	Closure curry(Object[] arguments) {
-		new CachingTag(cached.curry(*arguments))
+		new CachingTag(cached.curry(* arguments))
 	}
 
 	Object getDelegate() {
@@ -97,7 +98,7 @@ class CachingTag extends Closure {
 
 	int getDirective() {
 		cached.getDirective()
-	} 
+	}
 
 	int getMaximumNumberOfParameters() {
 		cached.getMaximumNumberOfParameters()
@@ -112,8 +113,8 @@ class CachingTag extends Closure {
 	}
 
 	Object getProperty(String property) {
-		getMetaClass().getAttribute(this, property) ?: this.@cached.getProperty(property)
-	} 
+			getMetaClass().getAttribute(this, property) ?: this.@cached.getProperty(property)
+	}
 
 	int getResolveStrategy() {
 		cached.getResolveStrategy()
@@ -128,13 +129,13 @@ class CachingTag extends Closure {
 	}
 
 	Closure ncurry(int n, Object[] arguments) {
-		cached.ncurry(n, *arguments)
+		cached.ncurry(n, * arguments)
 	}
 
 	Closure rcurry(Object[] arguments) {
-		cached.rcurry(*arguments)
+		cached.rcurry(* arguments)
 	}
-	 
+
 	void setDelegate(Object delegate) {
 		cached.setDelegate(delegate)
 	}
