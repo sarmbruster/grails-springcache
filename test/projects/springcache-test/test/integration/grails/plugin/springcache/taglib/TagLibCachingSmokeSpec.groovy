@@ -48,87 +48,146 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		!(testCachingTagLib.noncaching instanceof CachingTag)
 	}
 
+	@Unroll
 	def "invoking a cacheable tag should prime the cache"() {
 		given:
-		testCachingTagLib.value = 1
+		testCachingTagLib.value = "INITIAL"
 
 		when:
-		template = "<testcaching:caching />"
+		template = tagTemplate
 
 		then:
-		output == "1"
+		output == expectedOutput
 
 		and:
 		cacheMisses == old(cacheMisses) + 1
 		cacheSize == old(cacheSize) + 1
+
+		where:
+		tagTemplate                                            | expectedOutput
+		"<testcaching:caching />"                              | "INITIAL"
+		"<testcaching:withBody>INITIAL</testcaching:withBody>" | "INITIAL"
 	}
 
+	@Unroll
 	def "invoking the same tag again should hit the cache"() {
 		given:
-		testCachingTagLib.value = 2
+		testCachingTagLib.value = "UPDATED"
 
 		when:
-		template = "<testcaching:caching />"
+		template = tagTemplate
 
 		then:
-		output == "1"
+		output == expectedOutput
 
 		and:
 		cacheHits == old(cacheHits) + 1
+
+		where:
+		tagTemplate                                            | expectedOutput
+		"<testcaching:caching />"                              | "INITIAL"
+		"<testcaching:withBody>UPDATED</testcaching:withBody>" | "INITIAL"
 	}
 
+	@Unroll
 	def "tag attributes affect the cache key"() {
 		given:
-		testCachingTagLib.value = 1
+		testCachingTagLib.value = "INITIAL"
 
 		when:
-		template = '<testcaching:caching a="${a}" b="${b}" />'
+		template = tagTemplate
 		params = [a: "a", b: "b"]
 
 		then:
-		output == "1"
+		output == expectedOutput
 		
 		and:
 		cacheMisses == old(cacheMisses) + 1
+
+		where:
+		tagTemplate                                                              | expectedOutput
+		'<testcaching:caching a="${a}" b="${b}" />'                              | "INITIAL"
+		'<testcaching:withBody a="${a}" b="${b}">INITIAL</testcaching:withBody>' | "INITIAL"
 	}
 
-	def "using the same tag parameters again means the cache is hit"() {
+	@Unroll
+	def "using the same tag attributes again hits the cache"() {
 		given:
-		testCachingTagLib.value = 2
+		testCachingTagLib.value = "UPDATED"
 
 		when:
-		template = '<testcaching:caching a="${a}" b="${b}" />'
+		template = tagTemplate
 		params = [a: "a", b: "b"]
 
 		then:
-		output == "1"
+		output == expectedOutput
 
 		and:
 		cacheHits == old(cacheHits) + 1
+
+		where:
+		tagTemplate                                                              | expectedOutput
+		'<testcaching:caching a="${a}" b="${b}" />'                              | "INITIAL"
+		'<testcaching:withBody a="${a}" b="${b}">INITIAL</testcaching:withBody>' | "INITIAL"
 	}
 
-	def "using the same tag parameters in a different order hits the cache"() {
+	@Unroll
+	def "using the same tag attributes in a different order hits the cache"() {
 		when:
-		template = '<testcaching:caching b="${b}" a="${a}" />'
+		template = tagTemplate
 		params = [a: "a", b: "b"]
 
 		then:
-		output == "1"
+		output == expectedOutput
 
 		and:
 		cacheHits == old(cacheHits) + 1
+
+		where:
+		tagTemplate                                                              | expectedOutput
+		'<testcaching:caching b="${b}" a="${a}" />'                              | "INITIAL"
+		'<testcaching:withBody b="${b}" a="${a}">INITIAL</testcaching:withBody>' | "INITIAL"
 	}
 
-	def "using different tag parameters misses the cache"() {
+	@Unroll
+	def "using different tag attributes misses the cache"() {
 		when:
-		template = '<testcaching:caching a="${a}" b="${b}" />'
+		template = tagTemplate
 		params = [a: "x", b: "y"]
 
 		then:
-		output == "2"
+		output == expectedOutput
 
 		and:
 		cacheMisses == old(cacheMisses) + 1
+
+		where:
+		tagTemplate                                                              | expectedOutput
+		'<testcaching:caching b="${b}" a="${a}" />'                              | "UPDATED"
+		'<testcaching:withBody b="${b}" a="${a}">INITIAL</testcaching:withBody>' | "UPDATED"
+	}
+
+	def "another tag invoking the cached tag internally will hit the cache"() {
+		when:
+		template = '<testcaching:indirect/>'
+
+		then:
+		output == "1"
+
+		and:
+		cacheHits == old(cacheHits) + 1
+	}
+
+	def "another tag invoking the cached tag internally with parameters will hit the cache"() {
+		when:
+		template = '<testcaching:indirect a="${a}" b="${b}" />'
+		params = [a: "a", b: "b"]
+
+		then:
+		output == "1"
+
+		and:
+		cacheHits == old(cacheHits) + 1
 	}
 
 	private long getCacheMisses() {
