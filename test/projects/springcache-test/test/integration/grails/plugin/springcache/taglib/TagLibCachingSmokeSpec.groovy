@@ -25,7 +25,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 	def springcacheService
 	def grailsApplication
 	@Shared Ehcache tagLibCache
-	@AutoCleanup("removalAll") @Shared def springcacheCacheManager
+	@Shared def springcacheCacheManager
 
 	def setupSpec() {
 		tagLibCache = new Cache("tagLibCache", 100, false, true, 0, 0)
@@ -36,6 +36,10 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		if (!springcacheCacheManager.cacheExists(tagLibCache.name)) {
 			springcacheCacheManager.addCache(tagLibCache)
 		}
+	}
+
+	def cleanupSpec() {
+		springcacheCacheManager.removeCache("tagLibCache")
 	}
 
 	def "cacheable tags should be an instance of cachingtag"() {
