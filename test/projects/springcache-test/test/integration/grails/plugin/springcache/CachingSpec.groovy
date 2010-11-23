@@ -4,14 +4,13 @@ import grails.plugin.spock.IntegrationSpec
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import spock.lang.AutoCleanup
-import pirates.*
+import pirates.Pirate
+import pirates.Ship
 import spock.lang.Issue
-import net.sf.ehcache.CacheManager
 
 class CachingSpec extends IntegrationSpec {
 
-	@AutoCleanup("removalAll") def springcacheCacheManager
+	def springcacheCacheManager
 	def piracyService
 
 	def setup() {
@@ -24,6 +23,9 @@ class CachingSpec extends IntegrationSpec {
 	def cleanup() {
 		Ship.list()*.delete()
 		Pirate.list()*.delete()
+
+		springcacheCacheManager.removeCache("pirateCache")
+		springcacheCacheManager.removeCache("shipCache")
 	}
 
 	def "cached results are returned from subsequent method calls"() {
