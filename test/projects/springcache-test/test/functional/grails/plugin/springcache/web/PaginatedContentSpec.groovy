@@ -1,12 +1,12 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
 import grails.plugin.geb.GebSpec
 import grails.plugin.springcache.SpringcacheService
-import musicstore.*
-import musicstore.pages.*
+import musicstore.pages.AlbumListPage
 import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import musicstore.*
+import spock.lang.*
 
 @Stepwise
 class PaginatedContentSpec extends GebSpec {
@@ -48,9 +48,9 @@ class PaginatedContentSpec extends GebSpec {
 		rows.size() == 10
 		
 		and: "the cache is missed"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 1L
-		albumControllerCache.statistics.objectCount == 1L
+		cacheHits == 0
+		cacheMisses == old(cacheMisses) + 1
+		cacheSize == old(cacheSize) + 1
 	}
 
 	def "navigating to the second page does not display cached content"() {
@@ -61,9 +61,9 @@ class PaginatedContentSpec extends GebSpec {
 		rows.size() == 1
 		
 		and: "the page is not served from the cache"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 2L
-		albumControllerCache.statistics.objectCount == 2L
+		cacheHits == 0
+		cacheMisses == old(cacheMisses) + 1
+		cacheSize == old(cacheSize) + 1
 	}
 	
 	def "returning to the first page misses the cache as query string parameters are present"() {
@@ -74,7 +74,7 @@ class PaginatedContentSpec extends GebSpec {
 		rows.size() == 10
 		
 		and: "the page is not served from the cache"
-		albumControllerCache.statistics.cacheMisses == 3L
+		cacheMisses == old(cacheMisses) + 1
 	}
 	
 	def "returning to the second page serves content from the cache"() {
@@ -84,8 +84,20 @@ class PaginatedContentSpec extends GebSpec {
 		then: "the correct content is displayed"
 		rows.size() == 1
 		
-		and: "the page is not served from the cache"
-		albumControllerCache.statistics.cacheHits == 1L
+		and: "the page is served from the cache"
+		cacheHits == old(cacheHits) + 1
 	}
 	
+	private long getCacheHits() {
+		return albumControllerCache.statistics.cacheHits
+	}
+
+	private long getCacheMisses() {
+		return albumControllerCache.statistics.cacheMisses
+	}
+
+	private long getCacheSize() {
+		return albumControllerCache.statistics.objectCount
+	}
+
 }

@@ -1,10 +1,10 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
-import musicstore.*
-import musicstore.pages.*
 import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import spock.lang.Shared
+import musicstore.*
+import musicstore.pages.*
 
 class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 
@@ -22,8 +22,8 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		to AlbumListPage
 
 		then: "the cache is missed"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 1L
+		cacheHits == 0L
+		cacheMisses == old(cacheMisses) + 1
 	}
 
 	def "reloading a page hits the cache"() {
@@ -34,8 +34,8 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		driver.navigate().refresh()
 
 		then: "the cache is missed once and hit once"
-		albumControllerCache.statistics.cacheHits == 1L
-		albumControllerCache.statistics.cacheMisses == 1L
+		cacheHits == 1L
+		cacheMisses == 1L
 	}
 
 	def "cached content can be flushed by other actions"() {
@@ -54,9 +54,9 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		rows.size() == old(rows.size()) + 1
 
 		and: "the cache is flushed"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 3L // 2 misses on list page, 1 on show
-		albumControllerCache.statistics.objectCount == 2L // show and list pages cached
+		cacheHits == 0L
+		cacheMisses == 3L // 2 misses on list page, 1 on show
+		cacheSize == 2L // show and list pages cached
 	}
 
 	def "failed save still flushes cache"() {
@@ -75,9 +75,9 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		to AlbumListPage
 
 		then: "it should miss the cache as the save action flushed it"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 2L
-		albumControllerCache.statistics.objectCount == 1L
+		cacheHits == 0L
+		cacheMisses == 2L
+		cacheSize == 1L
 	}
 
 	def "different show pages are cached separately"() {
@@ -94,9 +94,9 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		to AlbumShowPage, albumIds[1]
 
 		then: "the cache is missed both times"
-		albumControllerCache.statistics.cacheHits == 0L
-		albumControllerCache.statistics.cacheMisses == 2L
-		albumControllerCache.statistics.objectCount == 2L
+		cacheHits == 0L
+		cacheMisses == 2L
+		cacheSize == 2L
 	}
 
 	def "an invalid show page does not get cached"() {
@@ -108,6 +108,19 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		flashMessage == "Album not found with id 404"
 
 		and: "the cache was not hit"
-		albumControllerCache.statistics.objectCount == 1L // the cache will have been primed by the list page
+		cacheSize == 1L // the cache will have been primed by the list page
 	}
+
+	private long getCacheHits() {
+		return albumControllerCache.statistics.cacheHits
+	}
+
+	private long getCacheMisses() {
+		return albumControllerCache.statistics.cacheMisses
+	}
+
+	private long getCacheSize() {
+		return albumControllerCache.statistics.objectCount
+	}
+
 }
