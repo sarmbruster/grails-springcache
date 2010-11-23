@@ -1,1 +1,0 @@
-<testcaching:caching/> <testcaching:noncaching/>

@@ -20,7 +20,7 @@ import net.sf.ehcache.*
 import spock.lang.*
 
 @Stepwise
-class TagLibCachingSmokeSpec extends GroovyPagesSpec {
+class TagLibCachingSpec extends GroovyPagesSpec {
 
 	def springcacheService
 	def grailsApplication
