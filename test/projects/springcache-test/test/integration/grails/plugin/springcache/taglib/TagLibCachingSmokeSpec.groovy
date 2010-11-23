@@ -168,7 +168,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		where:
 		tagTemplate                                                              | expectedOutput
 		'<testcaching:caching b="${b}" a="${a}" />'                              | "UPDATED"
-		'<testcaching:withBody b="${b}" a="${a}">INITIAL</testcaching:withBody>' | "UPDATED"
+		'<testcaching:withBody b="${b}" a="${a}">UPDATED</testcaching:withBody>' | "UPDATED"
 	}
 
 	def "another tag invoking the cached tag internally will hit the cache"() {
@@ -176,7 +176,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		template = '<testcaching:indirect/>'
 
 		then:
-		output == "1"
+		output == "INITIAL"
 
 		and:
 		cacheHits == old(cacheHits) + 1
@@ -188,7 +188,7 @@ class TagLibCachingSmokeSpec extends GroovyPagesSpec {
 		params = [a: "a", b: "b"]
 
 		then:
-		output == "1"
+		output == "INITIAL"
 
 		and:
 		cacheHits == old(cacheHits) + 1

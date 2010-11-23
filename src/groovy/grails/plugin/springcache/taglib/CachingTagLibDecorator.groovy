@@ -16,8 +16,8 @@
 package grails.plugin.springcache.taglib
 
 import grails.plugin.springcache.annotations.Cacheable
-import org.codehaus.groovy.grails.commons.GrailsTagLibClass
 import org.slf4j.LoggerFactory
+import org.codehaus.groovy.grails.commons.*
 
 /**
  * Inspects tag lib instances, looking for tags annotated with cacheable. Any that are found, are
@@ -37,6 +37,7 @@ class CachingTagLibDecorator {
 	
 	void decorate(GrailsTagLibClass tagLibClass, tagLib) {
 		def clazz = tagLibClass.clazz
+		def namespace = GrailsClassUtils.getStaticPropertyValue(clazz, "namespace") ?: "g"
 		
 		tagLibClass.tags.each { tagName ->
 			def field = getTagField(tagName, clazz)
@@ -48,7 +49,7 @@ class CachingTagLibDecorator {
 						log.debug("decorating tag '$tagName' of $clazz.name with caching")
 					}
 					
-					tagLib."$tagName" = new CachingTag(tag, annotation, springcacheService)
+					tagLib."$tagName" = new CachingTag(namespace, tagName, tag, annotation, springcacheService)
 				}
 			}
 		}

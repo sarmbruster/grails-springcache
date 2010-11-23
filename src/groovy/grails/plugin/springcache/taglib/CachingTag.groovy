@@ -15,13 +15,11 @@
  */
 package grails.plugin.springcache.taglib
 
-import org.slf4j.LoggerFactory
 import grails.plugin.springcache.CacheKey
 import grails.plugin.springcache.annotations.Cacheable
-import org.codehaus.groovy.grails.web.pages.GroovyPageOutputStack
-import org.codehaus.groovy.grails.web.pages.FastStringWriter
-import org.codehaus.groovy.grails.web.taglib.GroovyPageAttributes
 import grails.plugin.springcache.key.CacheKeyBuilder
+import org.slf4j.LoggerFactory
+import org.codehaus.groovy.grails.web.pages.*
 
 /**
  * Wraps a closure "tag implementation" with caching logic.
@@ -35,15 +33,19 @@ class CachingTag extends Closure {
 
 	private final log = LoggerFactory.getLogger(CachingTag.class)
 
-	private final cached
-	private final annotation
+	private final String namespace
+	private final String tagName
+	private final Closure cached
+	private final Cacheable annotation
 	private final springcacheService
 
 	private final cacheName
 
-	CachingTag(Closure cached, Cacheable annotation, springcacheService) {
+	CachingTag(String namespace, String tagName, Closure cached, Cacheable annotation, springcacheService) {
 		super(null, null)
 
+		this.namespace = namespace
+		this.tagName = tagName
 		this.cached = cached
 		this.annotation = annotation
 		this.springcacheService = springcacheService
@@ -78,6 +80,8 @@ class CachingTag extends Closure {
 
 	private CacheKey toCacheKey(Map params) {
 		def builder = new CacheKeyBuilder()
+		builder << namespace
+		builder << tagName
 		params.sort { it.key }.each { entry ->
 			builder << entry
 		}
