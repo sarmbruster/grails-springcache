@@ -1,19 +1,18 @@
 package grails.plugin.springcache.web
 
+import auth.User
 import grails.plugin.geb.GebSpec
 import grails.plugin.springcache.SpringcacheService
 import musicstore.Album
 import musicstore.pages.HomePage
+import org.apache.shiro.crypto.hash.Sha256Hash
 import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.grails.plugins.springsecurity.service.AuthenticateService
-import spock.lang.*
-import auth.*
 import org.grails.rateable.*
+import spock.lang.*
 
 abstract class AbstractContentCachingSpec extends GebSpec {
 
 	@Shared SpringcacheService springcacheService = ApplicationHolder.application.mainContext.springcacheService
-	@Shared AuthenticateService authenticateService = ApplicationHolder.application.mainContext.authenticateService
 
 	def cleanup() {
 		if (!isStepwise()) {
@@ -36,29 +35,18 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 
 	protected User setUpUser(username, userRealName) {
 		User.withTransaction { tx ->
-			def userRole = Role.findByAuthority("ROLE_USER")
-			def user = new User(username: username, userRealName: userRealName, email: "$username@energizedwork.com", enabled: true)
-			user.passwd = authenticateService.encodePassword("password")
+			def user = new User(username: username, passwordHash: new Sha256Hash("password").toHex(), name: userRealName)
+			user.addToPermissions("*:*")
 			user.save(failOnError: true)
-
-			userRole.addToPeople user
-			userRole.save(failOnError: true)
-
-			return user
 		}
 	}
 
 	protected void tearDownUsers() {
-		def userRole = Role.findByAuthority("ROLE_USER")
-		User.withTransaction { tx ->
-			User.list().each {
-				userRole.removeFromPeople(it)
-			}
-		}
+		User.list()*.delete()
 	}
 
 	void logout() {
-		go "/logout"
+		go "/auth/signOut"
 		page HomePage
 	}
 

@@ -11,12 +11,12 @@
 			<img src="${resource(dir: 'images', file: 'spinner.gif')}" alt="Spinner"/>
 		</div>
 		<div id="grailsLogo" class="logo"><a href="http://grails.org"><img src="${resource(dir: 'images', file: 'grails_logo.png')}" alt="Grails" border="0"/></a></div>
-		<g:isLoggedIn>
-			<div id="loggedInUser"><g:message code="auth.loggedInAs" args="[loggedInUsername()]" default="Logged in as {0}"/></div>
-		</g:isLoggedIn>
-		<g:isNotLoggedIn>
+		<shiro:isLoggedIn>
+			<div id="loggedInUser"><g:message code="auth.loggedInAs" args="[shiro.principal()]" default="Logged in as {0}"/></div>
+		</shiro:isLoggedIn>
+		<shiro:isNotLoggedIn>
 			<div id="loginLink"><g:link controller="login"><g:message code="default.login.label" default="Login here"/></g:link></div>
-		</g:isNotLoggedIn>
+		</shiro:isNotLoggedIn>
 		<g:layoutBody/>
 	</body>
 </html>

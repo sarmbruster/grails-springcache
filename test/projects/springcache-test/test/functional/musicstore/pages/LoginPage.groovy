@@ -4,17 +4,17 @@ import geb.Page
 
 class LoginPage extends Page {
 
-	static url = "/login"
+	static url = "/auth/login"
 	static at = { title == "Login" }
 
 	static content = {
-		loginForm { $("#loginForm") }
+		loginForm { $("form") }
 		loginButton(to: HomePage) { loginForm.find("input[type=submit]") }
 	}
 
 	void loginAs(String username, String password = "password", Class<? extends Page> page = HomePage) {
-		loginForm.j_username = username
-		loginForm.j_password = password
+		loginForm.username = username
+		loginForm.password = password
 		loginButton.click(page)
 	}
 }

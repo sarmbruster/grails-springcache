@@ -1,9 +1,7 @@
 package auth
 
-import org.codehaus.groovy.grails.plugins.springsecurity.Secured
 import grails.plugin.springcache.annotations.Cacheable
 
-@Secured(["ROLE_USER"])
 class UserController {
 
 	static scaffold = true

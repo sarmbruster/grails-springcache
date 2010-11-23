@@ -1,3 +1,5 @@
+import org.apache.shiro.SecurityUtils
+
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -104,9 +106,5 @@ springcache {
 }
 
 grails.rateable.rater.evaluator = {
-	def principal = org.springframework.security.context.SecurityContextHolder.context?.authentication?.principal
-	if (principal instanceof org.springframework.security.userdetails.UserDetails) {
-		return principal.domainClass
-	}
-	return null
+	SecurityUtils.subject
 }
