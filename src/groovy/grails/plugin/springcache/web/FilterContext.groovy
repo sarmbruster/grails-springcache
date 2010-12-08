@@ -15,8 +15,6 @@
  */
 package grails.plugin.springcache.web
 
-import grails.plugin.springcache.web.key.KeyGenerator
-
 import grails.plugin.springcache.CacheResolver
 import grails.plugin.springcache.key.KeyGenerator
 import org.codehaus.groovy.grails.commons.ApplicationHolder
