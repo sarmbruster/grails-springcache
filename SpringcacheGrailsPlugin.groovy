@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import grails.plugin.springcache.DefaultCacheResolver
 import grails.plugin.springcache.taglib.CachingTagLibDecorator
+import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import net.sf.ehcache.constructs.web.PageInfo
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.slf4j.LoggerFactory
@@ -117,6 +119,8 @@ class SpringcacheGrailsPlugin {
 				springcacheService = ref("springcacheService")
 				cacheManager = ref("springcacheCacheManager")
 			}
+
+			defaultCacheResolver(DefaultCacheResolver)
 		}
 	}
 

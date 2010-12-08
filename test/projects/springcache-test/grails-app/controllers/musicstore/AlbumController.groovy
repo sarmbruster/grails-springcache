@@ -1,8 +1,8 @@
 package musicstore
 
+import org.apache.commons.lang.math.RandomUtils
 import grails.plugin.springcache.annotations.*
 import static java.util.concurrent.TimeUnit.HOURS
-import org.apache.commons.lang.math.RandomUtils
 
 @Cacheable("albumControllerCache")
 class AlbumController {

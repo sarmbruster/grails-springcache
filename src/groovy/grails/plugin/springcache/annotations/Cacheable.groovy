@@ -34,4 +34,5 @@ public @interface Cacheable {
 	String value() default ""
 	String cache() default ""
 	Class<? extends KeyGenerator> keyGeneratorType() default DefaultKeyGenerator
+	String cacheResolver() default "defaultCacheResolver"
 }

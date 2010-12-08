@@ -17,10 +17,8 @@ package grails.plugin.springcache.aop
 
 import grails.plugin.springcache.SpringcacheService
 import grails.plugin.springcache.annotations.CacheFlush
-import org.aspectj.lang.annotation.After
-import org.aspectj.lang.annotation.Aspect
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.aspectj.lang.annotation.*
+import org.slf4j.*
 
 @Aspect
 public class FlushingAspect {

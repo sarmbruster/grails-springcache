@@ -15,7 +15,7 @@
  */
 package taglib
 
-import grails.plugin.springcache.annotations.*
+import grails.plugin.springcache.annotations.Cacheable
 
 class TestCachingTagLib {
 

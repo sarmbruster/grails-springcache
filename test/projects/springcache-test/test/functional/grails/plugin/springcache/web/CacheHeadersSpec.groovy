@@ -2,15 +2,14 @@ package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
 import groovyx.net.http.RESTClient
-import net.sf.ehcache.Ehcache
 import org.apache.http.protocol.HttpDateGenerator
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import static java.util.concurrent.TimeUnit.HOURS
 import static javax.servlet.http.HttpServletResponse.*
 import musicstore.*
+import net.sf.ehcache.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 import spock.lang.*
-import net.sf.ehcache.Element
 
 @Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2616")
 class CacheHeadersSpec extends Specification {

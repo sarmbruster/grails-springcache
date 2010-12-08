@@ -1,6 +1,6 @@
 package musicstore.pages
 
-import geb.*
+import geb.Module
 
 class AuthModule extends Module {
 	

@@ -17,7 +17,7 @@ package grails.plugin.springcache.aop
 
 import grails.plugin.springcache.SpringcacheService
 import grails.plugin.springcache.annotations.CacheFlush
-import spock.lang.*
+import spock.lang.Specification
 
 class FlushingAspectSpec extends Specification {
 

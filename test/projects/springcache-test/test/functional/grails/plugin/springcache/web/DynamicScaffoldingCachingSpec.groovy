@@ -1,9 +1,9 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
 import musicstore.pages.ArtistListPage
 import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import spock.lang.Shared
 
 class DynamicScaffoldingCachingSpec extends AbstractContentCachingSpec {
 

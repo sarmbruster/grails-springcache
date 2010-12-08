@@ -15,11 +15,12 @@
  */
 package grails.plugin.springcache.web
 
+import grails.plugin.springcache.CacheResolver
 import grails.plugin.springcache.key.KeyGenerator
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
-import grails.plugin.springcache.annotations.Cacheable
-import grails.plugin.springcache.annotations.CacheFlush
+import grails.plugin.springcache.annotations.*
 
 class FilterContext {
 
@@ -48,7 +49,8 @@ class FilterContext {
 
 	String getCacheName() {
 		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
-		cacheableAnnotation.cache() ?: cacheableAnnotation.value()
+		CacheResolver cacheResolver = getBean(cacheableAnnotation.cacheResolver())
+		cacheResolver.resolveCacheName(baseCacheName)
 	}
 
 	KeyGenerator getKeyGenerator() {
@@ -56,10 +58,19 @@ class FilterContext {
 		cacheableAnnotation.keyGeneratorType().newInstance()
 	}
 
+	private getBaseCacheName() {
+		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
+		cacheableAnnotation.cache() ?: cacheableAnnotation.value()
+	}
+
 	private <T> T findAnnotation(Class<T> annotationType) {
 		cacheParameters.with {
 			action?.getAnnotation(annotationType) ?: controllerClass?.getAnnotation(annotationType)
 		}
+	}
+
+	private <T> T getBean(String cacheResolverBeanName) {
+		return ApplicationHolder.application.mainContext[cacheResolverBeanName]
 	}
 
 }

@@ -1,8 +1,7 @@
 package musicstore.binding
 
 import musicstore.Artist
-import org.springframework.beans.PropertyEditorRegistrar
-import org.springframework.beans.PropertyEditorRegistry
+import org.springframework.beans.*
 
 class CustomPropertyEditorRegistrar implements PropertyEditorRegistrar {
 

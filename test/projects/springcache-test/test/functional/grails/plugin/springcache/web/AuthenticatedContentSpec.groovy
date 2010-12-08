@@ -1,11 +1,9 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
-import musicstore.pages.*
 import net.sf.ehcache.Ehcache
-import grails.plugin.geb.*
-import musicstore.pages.*
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import spock.lang.Shared
+import musicstore.pages.*
 
 class AuthenticatedContentSpec extends AbstractContentCachingSpec {
 

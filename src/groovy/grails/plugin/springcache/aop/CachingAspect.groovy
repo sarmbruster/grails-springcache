@@ -20,21 +20,30 @@ import org.aspectj.lang.ProceedingJoinPoint
 import grails.plugin.springcache.*
 import org.aspectj.lang.annotation.*
 import org.slf4j.*
+import org.springframework.context.*
 
 @Aspect
-class CachingAspect {
+class CachingAspect implements ApplicationContextAware {
 
 	private final Logger log = LoggerFactory.getLogger(CachingAspect.class)
 
 	SpringcacheService springcacheService
+	ApplicationContext applicationContext
 
 	@Around("@annotation(cacheable)")
 	Object invokeCachedMethod(ProceedingJoinPoint pjp, Cacheable cacheable) {
 		if (log.isDebugEnabled()) log.debug "Intercepted ${pjp.toLongString()}"
-		def cacheName = cacheable.cache() ?: cacheable.value()
+		def cacheName = resolveCacheName(cacheable)
 		def key = CacheKey.generate(pjp.target, pjp.signature.name, pjp.args)
 		return springcacheService.doWithCache(cacheName, key) {
 			pjp.proceed()
 		}
 	}
+
+	private String resolveCacheName(Cacheable cacheable) {
+		def baseName = cacheable.cache() ?: cacheable.value()
+		CacheResolver resolver = applicationContext[cacheable.cacheResolver()]
+		resolver.resolveCacheName(baseName)
+	}
+
 }

@@ -16,10 +16,8 @@
 package grails.plugin.springcache.web.key
 
 import grails.plugin.springcache.CacheKey
-import grails.plugin.springcache.key.CacheKeyBuilder
-
-import grails.plugin.springcache.key.KeyGenerator
 import grails.plugin.springcache.web.ContentCacheParameters
+import grails.plugin.springcache.key.*
 
 abstract class AbstractKeyGenerator implements KeyGenerator<ContentCacheParameters> {
 

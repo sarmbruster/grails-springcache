@@ -7,12 +7,15 @@
 
 ## General
 
+* convert annotation classes to Groovy so they can use null defaults
 * expose caching statistics (JMX?)
 * support reloading via onChange and onConfigChange [GRAILSPLUGINS-1825][1825]
 
 ## Controller caching
 
 * request method aware key generator (different cache key for HTTP GET/POST/HEAD, etc.)
+* i18n aware key generator
+* XHR aware key generator
 * specify parameters to include/exclude from key with annotation on action
 * option to disable content caching filter
 * configurable cacheable & cacheflush for controllers in plugins?
