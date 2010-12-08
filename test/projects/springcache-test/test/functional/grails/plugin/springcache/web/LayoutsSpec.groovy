@@ -1,6 +1,5 @@
 package grails.plugin.springcache.web
 
-import grails.plugin.geb.GebSpec
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import spock.lang.Shared
 

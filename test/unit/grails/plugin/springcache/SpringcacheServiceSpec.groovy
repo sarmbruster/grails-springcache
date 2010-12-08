@@ -15,12 +15,12 @@
  */
 package grails.plugin.springcache
 
-import spock.lang.*
-import grails.plugin.spock.*
+import grails.plugin.spock.UnitSpec
 import grails.spring.BeanBuilder
+import org.springframework.cache.ehcache.EhCacheFactoryBean
+import spock.lang.Unroll
 import net.sf.ehcache.*
 import net.sf.ehcache.constructs.blocking.*
-import org.springframework.cache.ehcache.EhCacheFactoryBean
 
 class SpringcacheServiceSpec extends UnitSpec {
 

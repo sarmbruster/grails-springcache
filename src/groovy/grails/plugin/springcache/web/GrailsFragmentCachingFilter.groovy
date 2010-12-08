@@ -16,7 +16,6 @@
 package grails.plugin.springcache.web
 
 import grails.plugin.springcache.SpringcacheService
-import net.sf.ehcache.constructs.blocking.LockTimeoutException
 import net.sf.ehcache.constructs.web.filter.PageFragmentCachingFilter
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.slf4j.LoggerFactory
@@ -24,10 +23,10 @@ import javax.servlet.*
 import javax.servlet.http.*
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED
 import net.sf.ehcache.*
+import net.sf.ehcache.constructs.blocking.*
 import net.sf.ehcache.constructs.web.*
 import org.codehaus.groovy.grails.web.servlet.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
-import net.sf.ehcache.constructs.blocking.BlockingCache
 
 class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 

@@ -1,5 +1,5 @@
-import org.apache.shiro.SecurityUtils
 import auth.User
+import org.apache.shiro.SecurityUtils
 
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts

@@ -6,8 +6,8 @@ import net.sf.ehcache.Ehcache
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import musicstore.*
-import spock.lang.*
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.ACCEPT
+import spock.lang.*
 
 class ContentNegotiationSpec extends Specification {
 

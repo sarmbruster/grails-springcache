@@ -1,11 +1,11 @@
 package grails.plugin.springcache.web
 
-import spock.lang.*
+import net.sf.ehcache.Ehcache
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import spock.lang.Shared
 import musicstore.*
 import musicstore.pages.*
-import net.sf.ehcache.Ehcache
 import org.grails.rateable.*
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class IncludedContentSpec extends AbstractContentCachingSpec {
 

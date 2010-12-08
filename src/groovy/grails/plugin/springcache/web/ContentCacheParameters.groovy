@@ -2,10 +2,8 @@ package grails.plugin.springcache.web
 
 import java.lang.reflect.Field
 import javax.servlet.http.HttpServletRequest
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.codehaus.groovy.grails.commons.GrailsControllerClass
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
+import org.codehaus.groovy.grails.commons.*
+import org.codehaus.groovy.grails.web.servlet.mvc.*
 
 class ContentCacheParameters {
 

@@ -1,7 +1,7 @@
 package grails.plugin.springcache.web
 
-import net.sf.ehcache.constructs.web.PageInfo
 import javax.servlet.http.HttpServletRequest
+import net.sf.ehcache.constructs.web.PageInfo
 import static org.codehaus.groovy.grails.web.servlet.HttpHeaders.*
 
 @Category(PageInfo)

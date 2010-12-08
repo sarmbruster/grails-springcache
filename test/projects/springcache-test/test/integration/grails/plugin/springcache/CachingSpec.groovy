@@ -4,9 +4,9 @@ import grails.plugin.spock.IntegrationSpec
 import grails.validation.ValidationException
 import net.sf.ehcache.Cache
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy
-import pirates.Pirate
-import pirates.Ship
 import spock.lang.Issue
+import pirates.*
+import static pirates.Context.Historical
 
 class CachingSpec extends IntegrationSpec {
 
@@ -14,9 +14,9 @@ class CachingSpec extends IntegrationSpec {
 	def piracyService
 
 	def setup() {
-		Pirate.build(name: "Blackbeard")
-		Pirate.build(name: "Calico Jack")
-		Pirate.build(name: "Black Bart")
+		Pirate.build(name: "Blackbeard", context: Historical)
+		Pirate.build(name: "Calico Jack", context: Historical)
+		Pirate.build(name: "Black Bart", context: Historical)
 		Ship.build(name: "Queen Anne's Revenge", crew: Pirate.findAllByName("Blackbeard"))
 	}
 

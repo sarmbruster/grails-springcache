@@ -1,14 +1,13 @@
 package grails.plugin.springcache.web
 
+import static org.hamcrest.Matchers.*
+
 import grails.plugin.spock.UnitSpec
 import grails.util.GrailsNameUtils
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
-import org.codehaus.groovy.grails.commons.GrailsApplication
-import spock.lang.Unroll
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.MatcherSupport.that
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
+import spock.lang.Unroll
+import org.codehaus.groovy.grails.commons.*
+import static spock.util.matcher.MatcherSupport.that
 
 class ContentCacheParametersSpec extends UnitSpec {
 
