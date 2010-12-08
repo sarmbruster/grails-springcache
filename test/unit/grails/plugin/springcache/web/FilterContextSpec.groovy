@@ -15,8 +15,6 @@
  */
 package grails.plugin.springcache.web
 
-import static org.hamcrest.Matchers.*
-
 import grails.util.GrailsNameUtils
 import org.codehaus.groovy.grails.support.MockApplicationContext
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest

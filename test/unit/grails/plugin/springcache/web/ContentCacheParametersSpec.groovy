@@ -1,7 +1,5 @@
 package grails.plugin.springcache.web
 
-import static org.hamcrest.Matchers.*
-
 import grails.plugin.spock.UnitSpec
 import grails.util.GrailsNameUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
