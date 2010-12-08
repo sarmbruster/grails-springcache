@@ -15,9 +15,9 @@
  */
 package grails.plugin.springcache.annotations;
 
-import java.lang.annotation.*;
-import grails.plugin.springcache.key.*;
-import grails.plugin.springcache.web.key.*;
+import grails.plugin.springcache.key.KeyGenerator
+import grails.plugin.springcache.web.key.DefaultKeyGenerator
+import java.lang.annotation.*
 
 /**
  * Annotation used to mark methods whose return values should be cached.
@@ -27,11 +27,11 @@ import grails.plugin.springcache.web.key.*;
  * @author Alex Ruiz
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+@Target([ElementType.METHOD, ElementType.TYPE, ElementType.FIELD])
 @Inherited
 @Documented
 public @interface Cacheable {
-	String value() default "";
-	String cache() default "";
-	Class<? extends KeyGenerator> keyGeneratorType() default DefaultKeyGenerator.class;
+	String value() default ""
+	String cache() default ""
+	Class<? extends KeyGenerator> keyGeneratorType() default DefaultKeyGenerator
 }

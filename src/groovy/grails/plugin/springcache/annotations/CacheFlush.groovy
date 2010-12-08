@@ -15,7 +15,7 @@
  */
 package grails.plugin.springcache.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.*
 
 /**
  * Annotation used to mark methods whose return values should be cached.
@@ -25,9 +25,9 @@ import java.lang.annotation.*;
  * @author Alex Ruiz
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+@Target([ElementType.METHOD, ElementType.TYPE, ElementType.FIELD])
 @Inherited
 @Documented
 public @interface CacheFlush {
-	String[] value();
+	String[] value()
 }
