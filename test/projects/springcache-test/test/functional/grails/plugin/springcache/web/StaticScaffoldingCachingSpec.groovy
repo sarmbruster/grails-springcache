@@ -48,6 +48,8 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		albumForm.name = "Up From Below"
 		albumForm.year = "2009"
 		createButton.click()
+
+		and: "return to the list page"
 		to AlbumListPage
 
 		then: "the cached content is not displayed"
@@ -55,7 +57,7 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 
 		and: "the cache is flushed"
 		cacheHits == 0L
-		cacheMisses == 3L // 2 misses on list page, 1 on show
+		cacheMisses == 4L // 2 misses on list page, 1 on create & 1 on show
 		cacheSize == 2L // show and list pages cached
 	}
 
