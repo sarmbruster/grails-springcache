@@ -66,11 +66,11 @@ class CacheKeyBuilder {
 		this
 	}
 
-	void leftShift(Object o) {
+	CacheKeyBuilder leftShift(Object o) {
 		append o
 	}
 
-	void leftShift(Object[] oarr) {
+	CacheKeyBuilder leftShift(Object[] oarr) {
 		append oarr
 	}
 
