@@ -1,7 +1,6 @@
 # Bugs
 
 * check caching of service methods with defaulted params
-* HEAD and GET requests seem to generate different keys
 
 # Enhancements
 

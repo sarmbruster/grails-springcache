@@ -60,7 +60,7 @@ class CacheHeadersSpec extends Specification {
 		http.get uri: "http://localhost:8080/album/show/$album.id"
 
 		when: "the same action is invoked again with a matching header"
-		def response = http.get(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
+		def response = http."$method"(uri: "http://localhost:8080/album/show/$album.id", headers: headers)
 
 		then: "the server responds with a 304"
 		response.status == SC_NOT_MODIFIED
@@ -69,7 +69,11 @@ class CacheHeadersSpec extends Specification {
 		response.data == null
 
 		where:
-		headers << [[(IF_MODIFIED_SINCE): currentDate], [(IF_NONE_MATCH): "$album.id:$album.version"]]
+		method | headers
+		"get"  | [(IF_MODIFIED_SINCE): currentDate]
+		"get"  | [(IF_NONE_MATCH): "$album.id:$album.version"]
+		"head" | [(IF_MODIFIED_SINCE): currentDate]
+		"head" | [(IF_NONE_MATCH): "$album.id:$album.version"]
 	}
 
 	@Unroll("the cached response is served if the client sends #headers")
@@ -99,19 +103,6 @@ class CacheHeadersSpec extends Specification {
 
 		and: "the cache entry's ttl is the same as the response's expires header"
 		cacheElement.timeToLive == HOURS.toSeconds(1)
-	}
-
-	@Ignore
-	def "a cache response is set to eternal if the cache-control header "() {
-		when: "a response is cached"
-		http.get uri: "http://localhost:8080/album/create"
-
-		then: "a cache entry is created"
-		albumControllerCache.statistics.objectCount == 1
-
-		and: "the cache entry's ttl is the same as the response's expires header"
-		cacheElement.timeToLive == 0
-		cacheElement.eternal
 	}
 
 	def "a page is not cached if the response contains a no-cache directive in the cache-control header"() {
