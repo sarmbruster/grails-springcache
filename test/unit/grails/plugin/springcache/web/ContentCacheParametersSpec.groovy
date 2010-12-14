@@ -5,7 +5,6 @@ import grails.util.GrailsNameUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import spock.lang.Unroll
 import org.codehaus.groovy.grails.commons.*
-import static spock.util.matcher.MatcherSupport.that
 
 class ContentCacheParametersSpec extends UnitSpec {
 
@@ -32,15 +31,15 @@ class ContentCacheParametersSpec extends UnitSpec {
 
 		then:
 		cacheParameters.controller?.clazz == expectedController
-		that cacheParameters.action, expectedAction
+		cacheParameters.action?.name == expectedActionName
 
 		where:
-		controllerName | actionName | expectedController | expectedAction
-		null           | null       | null               | nullValue()
-		"test"         | "index"    | TestController     | hasProperty("name", equalTo("index"))
-		"test"         | "list"     | TestController     | hasProperty("name", equalTo("list"))
-		"test"         | null       | TestController     | hasProperty("name", equalTo("index"))
-		"test"         | "blah"     | TestController     | nullValue()
+		controllerName | actionName | expectedController | expectedActionName
+		null           | null       | null               | null
+		"test"         | "index"    | TestController     | "index"
+		"test"         | "list"     | TestController     | "list"
+		"test"         | null       | TestController     | "index"
+		"test"         | "blah"     | TestController     | null
 	}
 }
 
