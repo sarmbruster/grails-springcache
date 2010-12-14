@@ -18,9 +18,6 @@ grails.project.dependency.resolution = {
 		compile("net.sf.ehcache:ehcache-web:2.0.2") {
 			excludes "ehcache-core", "xml-apis" // ehcache-core is provided by Grails
 		}
-		test("org.hamcrest:hamcrest-all:1.2") {
-			exported = false
-		}
 		test("org.objenesis:objenesis:1.2") {
 			exported = false
 		}

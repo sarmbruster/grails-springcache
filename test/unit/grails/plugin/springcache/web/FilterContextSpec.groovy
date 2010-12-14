@@ -24,8 +24,9 @@ import grails.plugin.springcache.*
 import grails.plugin.springcache.annotations.*
 import grails.plugin.springcache.web.key.*
 import org.codehaus.groovy.grails.commons.*
+import static org.hamcrest.CoreMatchers.instanceOf
 import spock.lang.*
-import static spock.util.matcher.MatcherSupport.that
+import static spock.util.matcher.HamcrestSupport.that
 
 class FilterContextSpec extends Specification {
 

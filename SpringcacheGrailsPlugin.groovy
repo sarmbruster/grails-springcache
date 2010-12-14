@@ -141,9 +141,6 @@ class SpringcacheGrailsPlugin {
 		}
 	}
 
-	def onConfigChange = {event ->
-	}
-
 	private static final log = LoggerFactory.getLogger("grails.plugin.springcache.SpringcacheGrailsPlugin")
 
 	private boolean isEnabled(GrailsApplication application) {
