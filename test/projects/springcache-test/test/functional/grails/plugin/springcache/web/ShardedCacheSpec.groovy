@@ -13,8 +13,7 @@ class ShardedCacheSpec extends AbstractContentCachingSpec {
 	}
 
 	def cleanup() {
-		go "/logout"
-		page HomePage
+		logout()
 	}
 
 	def cleanupSpec() {
