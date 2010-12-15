@@ -6,6 +6,8 @@ grails {
 		copyright = "Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically."
 		footer = "Developed by the <a href='http://gpc.github.com'>Grails Plugin Collective</a>"
 		
-		alias.contentCacheKeys="4.4. Content Cache Keys"
+		alias.contentCacheKeys="4.5. Content Cache Keys"
+		alias.contentNegotiation="4.6. Content Negotiation"
+		alias.cacheConfiguration="6. Cache Configuration"
 	}
 }

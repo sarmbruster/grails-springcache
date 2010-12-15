@@ -1,0 +1,46 @@
+In some specialised circumstances you may need to programatically select the cache used when a @\@Cacheable@ annotation is hit. An example might be a multi-tenant application where optimising cache utilisation by caching content for different tenants in their own caches would make sense.
+
+To apply cache selection you need a bean in the Spring context that implements the @grails.plugin.springcache.CacheResolver@ interface. The interface is extremely simple having only one method @resolveCacheName(String)@ which is passed the @cacheName@ from your @\@Cacheable@ annotation and should return the actual cache name to use. You can then add a @cacheResolver@ parameter to any @\@Cacheable@ annotations referencing the bean name of your @CacheResolver@ implementation.
+
+h3. Example usage
+
+A simple example based on the "Multi-Tenant":http://grails.org/plugin/multi-tenant-core plugin. Cached actions should use a different cache depending on the current tenant.
+
+First we define a @CacheResolver@ implementation that will simply append the current tenant id to the base cache name:
+
+{code}
+import grails.plugin.springcache.CacheResolver
+import org.springframework.web.context.request.RequestContextHolder
+
+class MultiTenantCacheResolver implements CacheResolver {
+	
+	def tenantResolver // a component of the Multi-Tenant plugin, see that plugin's documentation
+	
+	String resolveCacheName(String baseName) {
+		def request = RequestContextHolder.requestAttributes.currentRequest
+		def tenantId = tenantResolver.getTenantFromRequest(request)
+		"${baseName}-tenant-${tenantId}"
+	}
+}
+{code}
+
+Then we need to wire up our cache resolver in the Spring application context in the @grails-app/conf/spring/resources.groovy@ file and wiring in the dependency on the _tenantResolver_ bean provided by the Multi-Tenant plugin.
+
+{code}
+multiTenantCacheResolver(MultiTenantCacheResolver) {
+	tenantResolver = ref("tenantResolver")
+}
+{code}
+
+Finally we just need to reference the _multiTenantCacheResolver_ bean on any @\@Cacheable@ annotations that should keep separate caches for each tenant:
+
+{code}
+@Cacheable(cacheName = "userCache", cacheResolver = "multiTenantCacheResolver")
+def list = {
+	User.list() // under the multi-tenant plugin this will only return user instances for the current tenant
+}
+{code}
+
+{warning}
+If you use cache selection when it's not really appropriate it's very easy to get into problems with cache invalidation and stale data. Only use it when you are sure that a flush that 
+{warning}

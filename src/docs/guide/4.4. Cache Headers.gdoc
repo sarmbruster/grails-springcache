@@ -2,21 +2,25 @@ Content caching in the Springcache plugin attempts to respect any cache-control 
 Specifically the plugin will handle certain response headers as follows:
 
 h4. Cache-Control: no-cache
+
 If this header is present in the response the content will _not_ be cached even if there is a @\@Cacheable@ annotation
 present on the controller or action. This allows you to prevent caching in certain circumstances or override the
 controller-wide caching policy in a particular action.
 
 h4. Cache-Control: max-age=x
+
 If the response is cached the time-to-live of the cache entry is set so that it corresponds to the max-age value in
-the @Cache-Control@ header. If no such header is present the cache's configured time-to-live is used.
+the @Cache-Control@ header. If no such header is present the cache's configured time-to-live is used (see [Cache Configuration|guide:cacheConfiguration]).
 
 h4. ETag
+
 If the original response set an @ETag@ header _Springcache_ will set the same header if it serves the response from the
 cache.
 Additionally, if an incoming request has an @If-None-Match@ header that matches the @ETag@ of the cached response
 _Springcache_ will send a @304 Not Modified@ status code and an empty response body instead of the cached response.
 
 h4. Last-Modified
+
 If the original response set a @Last-Modified@ header _Springcache_ will set the same header if it serves the response
 from the cache.
 Additionally, if an incoming request has an @If-Modified-Since@ header with a timestamp later than the

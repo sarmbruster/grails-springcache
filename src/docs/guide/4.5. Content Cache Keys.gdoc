@@ -21,4 +21,8 @@ The @DefaultKeyGenerator@ generates a key based on the controller name, action n
 
 h4. @grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator@
 
-The @MimeTypeAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds the request format to the key. You should use this key generator for actions that perform content negotiation, e.g. by using a @withFormat@ block.
+The @MimeTypeAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds the request format to the key. You should use this key generator for actions that perform content negotiation, e.g. by using a @withFormat@ block. See [Content Negotiation|guide:contentNegotiation]
+
+h4. @grails.plugin.springcache.web.key.AjaxAwareKeyGenerator@
+
+The @AjaxAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds an extra component to the key for AJAX requests (determined by the presence of the @X-Requested-With@ header in the request). This is useful for actions that respond differently to AJAX requests and regular requests, e.g. rendering a page fragment rather than the entire page.
