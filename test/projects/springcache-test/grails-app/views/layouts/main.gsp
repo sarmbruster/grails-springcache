@@ -15,7 +15,7 @@
 			<div id="loggedInUser"><g:message code="auth.loggedInAs" args="[shiro.principal()]" default="Logged in as {0}"/></div>
 		</shiro:isLoggedIn>
 		<shiro:isNotLoggedIn>
-			<div id="loginLink"><g:link controller="login"><g:message code="default.login.label" default="Login here"/></g:link></div>
+			<div id="loginLink"><g:link controller="auth"><g:message code="default.login.label" default="Login here"/></g:link></div>
 		</shiro:isNotLoggedIn>
 		<g:layoutBody/>
 	</body>
