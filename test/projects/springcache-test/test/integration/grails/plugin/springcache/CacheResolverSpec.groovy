@@ -5,7 +5,6 @@ import net.sf.ehcache.Statistics
 import pirates.Pirate
 import static pirates.Context.*
 import spock.lang.*
-import static pirates.Context.Historical
 
 @Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2167")
 @Stepwise
