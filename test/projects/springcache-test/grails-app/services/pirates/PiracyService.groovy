@@ -42,8 +42,8 @@ class PiracyService {
 	}
 
 	@CacheFlush("pirateCache")
-	void newPirate(String name) {
-		new Pirate(name: name, context: currentContext).save(failOnError: true)
+	void newPirate(String name, Context context) {
+		new Pirate(name: name, context: context).save(failOnError: true)
 	}
 
 	@CacheFlush(["pirateCache", "shipCache"])
@@ -64,5 +64,10 @@ class PiracyService {
 			eq "context", currentContext
 			order "name", "asc"
 		}
+	}
+
+	@CacheFlush(value = "pirateCache", cacheResolver = "piraticalContextCacheResolver")
+	void newPirateForContext(String name) {
+		new Pirate(name: name, context: currentContext).save(failOnError: true)
 	}
 }

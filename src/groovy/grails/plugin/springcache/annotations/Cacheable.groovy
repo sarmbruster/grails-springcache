@@ -20,11 +20,7 @@ import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import java.lang.annotation.*
 
 /**
- * Annotation used to mark methods whose return values should be cached.
- *
  * Based on org.springmodules.cache.annotations.Cacheable (see https://springmodules.dev.java.net/)
- *
- * @author Alex Ruiz
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.METHOD, ElementType.TYPE, ElementType.FIELD])

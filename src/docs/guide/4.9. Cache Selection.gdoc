@@ -42,5 +42,5 @@ def list = {
 {code}
 
 {warning}
-If you use cache selection when it's not really appropriate it's very easy to get into problems with cache invalidation and stale data. Only use it when you are sure that a flush that 
+If you use cache selection when it's not really appropriate it's very easy to get into problems with cache invalidation and stale data.
 {warning}

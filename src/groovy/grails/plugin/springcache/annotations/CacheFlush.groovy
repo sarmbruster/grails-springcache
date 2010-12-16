@@ -29,5 +29,6 @@ import java.lang.annotation.*
 @Inherited
 @Documented
 public @interface CacheFlush {
-	String[] value()
+	String[] value() default []
+	String cacheResolver() default "defaultCacheResolver"
 }

@@ -19,17 +19,29 @@ import grails.plugin.springcache.SpringcacheService
 import grails.plugin.springcache.annotations.CacheFlush
 import org.aspectj.lang.annotation.*
 import org.slf4j.*
+import grails.plugin.springcache.CacheResolver
+import org.springframework.context.ApplicationContextAware
+import org.springframework.context.ApplicationContext
 
 @Aspect
-public class FlushingAspect {
+public class FlushingAspect implements ApplicationContextAware {
 
 	private final Logger log = LoggerFactory.getLogger(FlushingAspect.class)
 
 	SpringcacheService springcacheService
+	ApplicationContext applicationContext
 
 	@After("@annotation(cacheFlush)")
 	void flushCaches(final CacheFlush cacheFlush) {
 		if (log.isDebugEnabled()) log.debug "Flushing cache(s): ${cacheFlush.value().join(', ')}"
-		springcacheService.flush(cacheFlush.value())
+		springcacheService.flush(resolveCacheName(cacheFlush))
 	}
+
+	private List<String> resolveCacheName(CacheFlush cacheFlush) {
+		CacheResolver resolver = applicationContext[cacheFlush.cacheResolver()]
+		cacheFlush.value().collect { String baseName ->
+			resolver.resolveCacheName(baseName)
+		}
+	}
+
 }

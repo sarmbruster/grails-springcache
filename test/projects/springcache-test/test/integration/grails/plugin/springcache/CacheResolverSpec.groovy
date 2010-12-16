@@ -5,7 +5,9 @@ import net.sf.ehcache.Statistics
 import pirates.Pirate
 import static pirates.Context.*
 import spock.lang.*
+import static pirates.Context.Historical
 
+@Issue("http://jira.codehaus.org/browse/GRAILSPLUGINS-2167")
 @Stepwise
 class CacheResolverSpec extends IntegrationSpec {
 
@@ -27,6 +29,10 @@ class CacheResolverSpec extends IntegrationSpec {
 			Pirate.list()*.delete()
 			session.flush()
 		}
+
+		springcacheCacheManager.removeCache("pirateCache")
+		springcacheCacheManager.removeCache("pirateCache-Fictional")
+		springcacheCacheManager.removeCache("pirateCache-Historical")
 	}
 
 	def "a method annotation can declare a custom cache resolver"() {
@@ -71,6 +77,17 @@ class CacheResolverSpec extends IntegrationSpec {
 
 		and:
 		getStats("pirateCache-Fictional").cacheHits == 2
+	}
+
+	def "flush annotations can use a cache resolver"() {
+		given: piracyService.currentContext = Historical
+
+		when:
+		piracyService.newPirateForContext("Black Bart")
+
+		then:
+		getStats("pirateCache-Historical").objectCount == 0
+		getStats("pirateCache-Fictional").objectCount == old(getStats("pirateCache-Fictional").objectCount)
 	}
 
 	private Statistics getStats(String name) {
