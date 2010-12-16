@@ -1,6 +1,7 @@
 package auth
 
 import grails.plugin.springcache.annotations.Cacheable
+import grails.plugin.springcache.annotations.CacheFlush
 
 class UserController {
 
