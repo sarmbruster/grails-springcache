@@ -15,20 +15,37 @@
  */
 package grails.plugin.springcache.aop
 
+import grails.plugin.spock.UnitSpec
 import grails.plugin.springcache.SpringcacheService
 import grails.plugin.springcache.annotations.CacheFlush
-import spock.lang.Specification
+import org.springframework.context.ApplicationContext
+import org.springframework.context.support.StaticApplicationContext
+import grails.plugin.springcache.DefaultCacheResolver
 
-class FlushingAspectSpec extends Specification {
+class FlushingAspectSpec extends UnitSpec {
 
 	def aspect = new FlushingAspect()
+	def applicationContext = new StaticApplicationContext()
+
+	def setup() {
+		registerMetaClass ApplicationContext
+		ApplicationContext.metaClass.getProperty = { String name ->
+			delegate.getBean(name)
+		}
+
+		applicationContext.registerSingleton "defaultCacheResolver", DefaultCacheResolver
+	}
 
 	def "all specified caches are flushed"() {
 		given:
 		aspect.springcacheService = Mock(SpringcacheService)
+		aspect.applicationContext = applicationContext
 		
 		and:
-		def annotation = [value: {-> ["cache1", "cache2"] as String[] }] as CacheFlush
+		def annotation = [
+				value: {-> ["cache1", "cache2"] as String[] },
+				cacheResolver: {-> "defaultCacheResolver" }
+		] as CacheFlush
 
 		when:
 		aspect.flushCaches(annotation)
