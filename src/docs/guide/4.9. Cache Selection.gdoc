@@ -1,6 +1,6 @@
-In some specialised circumstances you may need to programatically select the cache used when a @\@Cacheable@ annotation is hit. An example might be a multi-tenant application where optimising cache utilisation by caching content for different tenants in their own caches would make sense.
+In some specialised circumstances you may need to programatically select the cache used when a @\@Cacheable@ or @\@CacheFlush@ annotation is hit. An example might be a multi-tenant application where optimising cache utilisation by caching content for different tenants in their own caches would make sense.
 
-To apply cache selection you need a bean in the Spring context that implements the @grails.plugin.springcache.CacheResolver@ interface. The interface is extremely simple having only one method @resolveCacheName(String)@ which is passed the @cacheName@ from your @\@Cacheable@ annotation and should return the actual cache name to use. You can then add a @cacheResolver@ parameter to any @\@Cacheable@ annotations referencing the bean name of your @CacheResolver@ implementation.
+To apply cache selection you need a bean in the Spring context that implements the @grails.plugin.springcache.CacheResolver@ interface. The interface is extremely simple having only one method @resolveCacheName(String)@ which is passed the "base" cache name declared on your annotation and should return the _actual_ cache name to use. You can then add a @cacheResolver@ parameter to @\@Cacheable@ and @\@CacheFlush@ annotations referencing the bean name of your @CacheResolver@ implementation.
 
 h3. Example usage
 
@@ -32,12 +32,18 @@ multiTenantCacheResolver(MultiTenantCacheResolver) {
 }
 {code}
 
-Finally we just need to reference the _multiTenantCacheResolver_ bean on any @\@Cacheable@ annotations that should keep separate caches for each tenant:
+Finally we just need to reference the _multiTenantCacheResolver_ bean on any annotations in parts of the code that need to be multi-tenant aware:
 
 {code}
 @Cacheable(cacheName = "userCache", cacheResolver = "multiTenantCacheResolver")
 def list = {
-	User.list() // under the multi-tenant plugin this will only return user instances for the current tenant
+	[users: User.list()] // under the multi-tenant plugin this will only return user instances for the current tenant
+}
+
+@CacheFlush(value = "userCache", cacheResolver = "multiTenantCacheResolver")
+def save = {
+	def user = new User(params)
+	// ... save the new user, redirect, handle errors, etc.
 }
 {code}
 
