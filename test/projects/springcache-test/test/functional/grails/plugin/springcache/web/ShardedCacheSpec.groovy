@@ -69,8 +69,10 @@ class ShardedCacheSpec extends AbstractContentCachingSpec {
 		to LoginPage
 		loginAs "blackbeard"
 
-		when: "they update their profile"
+		and: "they visit the edit profile page"
 		to ProfileEditPage
+
+		when: "they update their profile"
 		profile.name = "Edward Thatch"
 		profile.find("button").click(ProfilePage)
 
@@ -78,7 +80,7 @@ class ShardedCacheSpec extends AbstractContentCachingSpec {
 		at ProfilePage
 		title == "Profile: Edward Thatch"
 
-		and: "the cache was missed"
+		and: "the profile page is not served from the cache"
 		cacheFor("blackbeard").statistics.cacheMisses == old(cacheFor("blackbeard").statistics.cacheMisses) + 1
 	}
 

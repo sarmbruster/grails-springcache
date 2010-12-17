@@ -6,6 +6,7 @@ import auth.User
 import org.apache.shiro.SecurityUtils
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 import org.apache.shiro.crypto.hash.Sha256Hash
+import grails.plugin.springcache.annotations.CacheFlush
 
 class ProfileController {
 
@@ -32,6 +33,7 @@ class ProfileController {
 		}
 	}
 
+	@CacheFlush(value = "profileCache", cacheResolver = "profileCacheResolver")
 	def update = {
 		def user = currentUser
 		user.properties = params

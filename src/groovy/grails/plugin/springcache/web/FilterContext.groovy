@@ -44,7 +44,10 @@ class FilterContext {
 
 	List<String> getCacheNames() {
 		if (!shouldFlush()) throw new IllegalStateException("Only supported on flushing requests")
-		cacheFlushAnnotation.value()
+		CacheResolver cacheResolver = getBean(cacheFlushAnnotation.cacheResolver())
+		cacheFlushAnnotation.value().collect {
+			cacheResolver.resolveCacheName(it)
+		}
 	}
 
 	String getCacheName() {
