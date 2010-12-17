@@ -42,7 +42,10 @@ abstract class AbstractContentCachingSpec extends GebSpec {
 	}
 
 	protected void tearDownUsers() {
-		User.list()*.delete()
+		User.withNewSession { session ->
+			User.list()*.delete()
+			session.flush()
+		}
 	}
 
 	void logout() {

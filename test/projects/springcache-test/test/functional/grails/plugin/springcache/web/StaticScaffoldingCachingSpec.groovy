@@ -33,9 +33,8 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 		when: "I refresh the page"
 		driver.navigate().refresh()
 
-		then: "the cache is missed once and hit once"
-		cacheHits == 1L
-		cacheMisses == 1L
+		then: "the page is served from the cache"
+		cacheHits == old(cacheHits) + 1
 	}
 
 	def "cached content can be flushed by other actions"() {
@@ -57,7 +56,7 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 
 		and: "the cache is flushed"
 		cacheHits == 0L
-		cacheMisses == 4L // 2 misses on list page, 1 on create & 1 on show
+		cacheMisses == old(cacheMisses) + 3 // create, show and list page
 		cacheSize == 2L // show and list pages cached
 	}
 
@@ -78,8 +77,7 @@ class StaticScaffoldingCachingSpec extends AbstractContentCachingSpec {
 
 		then: "it should miss the cache as the save action flushed it"
 		cacheHits == 0L
-		cacheMisses == 2L
-		cacheSize == 1L
+		cacheMisses == old(cacheMisses) + 1
 	}
 
 	def "different show pages are cached separately"() {
