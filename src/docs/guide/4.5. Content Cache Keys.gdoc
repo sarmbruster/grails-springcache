@@ -27,6 +27,8 @@ h5. format
 
 If _true_ keys will differ depending on the requested content format as determined by the @format@ meta-property on @HttpServletRequest@. This is useful when you use content negotiation in a request so that responses with different formats are cached separately.
 
+See [Content Negotiation|guide:contentNegotiation] for more detail.
+
 h5. method
 
 If _true_ keys will differ depending on the request HTTP method. This is useful for some _RESTful_ controllers (although if different request methods are mapped to different actions you do not need to use this mechanism). _GET_ and _HEAD_ requests are considered the same for the purposes of key generation.
