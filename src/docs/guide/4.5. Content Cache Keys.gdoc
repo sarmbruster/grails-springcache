@@ -1,28 +1,44 @@
-The Springcache plugin uses an instance of the interface @grails.plugin.springcache.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGeneratorType@ element to the @\@Cacheable@ annotation specifying the @KeyGenerator@ class to use. At request time a new instance will be created and used to generate keys for that action.
+The Springcache plugin uses an instance of the interface @grails.plugin.springcache.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGenerator@ element to the @\@Cacheable@ annotation specifying the name of a Spring bean that implements the @KeyGenerator@ interface.
 
 {code}
-	@Cacheable(cache = "albumControllerCache", keyGeneratorType = MyKeyGenerator)
+	@Cacheable(cache = "albumControllerCache", keyGenerator = "myKeyGenerator")
 	def list = {
 	    // ...
 	}
 {code}
 
 {note}
-The @keyGeneratorType@ element is only for content caching and just works on controllers, it is ignored by the @\@Cacheable@ annotation on service methods.
+The @keyGenerator@ element is only for content caching and just works on controllers, it is ignored by the @\@Cacheable@ annotation on service methods and taglibs.
 {note}
 
-h3. Key generator types
-
-The plugin provides the following implementations of the @KeyGenerator@ interface:
-
-h4. @grails.plugin.springcache.web.key.DefaultKeyGenerator@
+h3. @grails.plugin.springcache.web.key.DefaultKeyGenerator@
 
 The @DefaultKeyGenerator@ generates a key based on the controller name, action name and any request parameters (which can be from a query string, _POST_ body or those added by Grails URL mappings, e.g. the _id_ parameter on a standard _show_ or _edit_ action).
 
-h4. @grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator@
+h3. @grails.plugin.springcache.web.key.WebContentKeyGenerator@
 
-The @MimeTypeAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds the request format to the key. You should use this key generator for actions that perform content negotiation, e.g. by using a @withFormat@ block. See [Content Negotiation|guide:contentNegotiation]
+@WebContentKeyGenerator@ is a multi-purpose @KeyGenerator@ implementation that exposes a number of boolean properties that control key generation. All the properties default to _false_.
 
-h4. @grails.plugin.springcache.web.key.AjaxAwareKeyGenerator@
+h5. ajax
 
-The @AjaxAwareKeyGenerator@ extends @DefaultKeyGenerator@ and adds an extra component to the key for AJAX requests (determined by the presence of the @X-Requested-With@ header in the request). This is useful for actions that respond differently to AJAX requests and regular requests, e.g. rendering a page fragment rather than the entire page.
+If _true_ then keys will differ depending on the presence or absence of the @X-Requested-With@ request header so _AJAX_ requests will be cached separately from regular requests. This is useful when you have an action that renders different content when it is requested via _AJAX_.
+
+h5. format
+
+If _true_ keys will differ depending on the requested content format as determined by the @format@ meta-property on @HttpServletRequest@. This is useful when you use content negotiation in a request so that responses with different formats are cached separately.
+
+h5. method
+
+If _true_ keys will differ depending on the request HTTP method. This is useful for some _RESTful_ controllers (although if different request methods are mapped to different actions you do not need to use this mechanism). _GET_ and _HEAD_ requests are considered the same for the purposes of key generation.
+
+h4. Example configuration
+
+{code}
+ajaxAwareKeyGenerator(WebContentKeyGenerator) {
+	ajax = true
+}
+
+contentTypeAwareKeyGenerator(WebContentKeyGenerator) {
+	format = true
+}
+{code}

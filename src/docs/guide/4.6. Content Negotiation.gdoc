@@ -1,27 +1,23 @@
-By default the key generator used by the page fragment caching filter does not take content negotiation into account. However, if you are caching controller actions that use Grails' "@withFormat@":http://grails.org/doc/latest/ref/Controllers/withFormat.html dynamic method to render different content types you will want to cache results separately according to the output format. The plugin provides a key generator implementation that supports this. You just need to annotate any content negotiated actions like this:
+By default the key generator used by the page fragment caching filter does not take content negotiation into account. However, if you are caching controller actions that use Grails' "@withFormat@":http://grails.org/doc/latest/ref/Controllers/withFormat.html dynamic method to render different content types you will want to cache results separately according to the output format. You can use the @WebContentKeyGenerator@ class to do this. You just need to register a key generator bean with Spring and then annotate any content negotiated actions like this:
+
+h4. grails-app/conf/spring/resources.groovy
 
 {code}
-import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-
-	@Cacheable(cache = "albumControllerCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
-	def list = {
-	    def albumList = Album.list()
-		withFormat {
-			html { [albumList: albumList] }
-			xml { render albumList as XML }
-			json { render albumList as JSON }
-		}
-	}
+mimeTypeAwareKeyGenerator(WebContentKeyGenerator) {
+	format = true
+}
 {code}
 
-Alternatively if you have lots of actions that use content negotiation you can override the filter's default key generator in @Config.groovy@ like this:
+h4. grails-app/controllers/MyController.groovy
 
 {code}
-import grails.plugin.springcache.web.key.MimeTypeAwareKeyGenerator
-
-beans {
-    springcacheFilter {
-		keyGenerator = new MimeTypeAwareKeyGenerator()
+@Cacheable(cache = "albumControllerCache", keyGenerator = "mimeTypeAwareKeyGenerator")
+def list = {
+    def albumList = Album.list()
+	withFormat {
+		html { [albumList: albumList] }
+		xml { render albumList as XML }
+		json { render albumList as JSON }
 	}
 }
 {code}
