@@ -200,7 +200,7 @@ class FilterContextSpec extends Specification {
 		def context = new FilterContext()
 		
 		and: "a key generator bean registered in the spring context"
-		appCtx.registerMockBean("mockKeyGenerator", new MimeTypeAwareKeyGenerator())
+		appCtx.registerMockBean("mockKeyGenerator", new WebContentKeyGenerator())
 
 		expect:
 		that context.keyGenerator, keyGeneratorMatcher
@@ -210,10 +210,10 @@ class FilterContextSpec extends Specification {
 		"cachedTest"   | "index"    | instanceOf(DefaultKeyGenerator)
 		"cachedTest"   | "list1"    | instanceOf(DefaultKeyGenerator)
 		"cachedTest"   | "list2"    | instanceOf(DefaultKeyGenerator)
-		"cachedTest"   | "list3"    | instanceOf(MimeTypeAwareKeyGenerator)
+		"cachedTest"   | "list3"    | instanceOf(WebContentKeyGenerator)
 		"cachedTest"   | null       | instanceOf(DefaultKeyGenerator)
 	    "cachedTest"   | "blah"     | instanceOf(DefaultKeyGenerator)
-		"restfulTest"  | "list"     | instanceOf(MimeTypeAwareKeyGenerator)
+		"restfulTest"  | "list"     | instanceOf(WebContentKeyGenerator)
 	}
 	
 	@Unroll("cannot get key generator when controller is '#controllerName' and action is '#actionName'")
