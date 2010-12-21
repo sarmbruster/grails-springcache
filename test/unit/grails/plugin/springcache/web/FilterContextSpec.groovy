@@ -193,11 +193,14 @@ class FilterContextSpec extends Specification {
 	}
 
 	@Unroll("key generator is #keyGeneratorMatcher when controller is '#controllerName' and action is '#actionName'")
-	def "a key generator is created if an annotation is present on the controller or action"() {
+	def "a key generator bean name can be specified at controller or action level or is defaulted otherwise"() {
 		given: "there is a request context"
 		request.controllerName >> controllerName
 		request.actionName >> actionName
 		def context = new FilterContext()
+		
+		and: "a key generator bean registered in the spring context"
+		appCtx.registerMockBean("mockKeyGenerator", new MimeTypeAwareKeyGenerator())
 
 		expect:
 		that context.keyGenerator, keyGeneratorMatcher
@@ -212,7 +215,7 @@ class FilterContextSpec extends Specification {
 	    "cachedTest"   | "blah"     | instanceOf(DefaultKeyGenerator)
 		"restfulTest"  | "list"     | instanceOf(MimeTypeAwareKeyGenerator)
 	}
-
+	
 	@Unroll("cannot get key generator when controller is '#controllerName' and action is '#actionName'")
 	def "cannot get key generator for a non-caching request"() {
 		given: "a request for a non-flushing action"
@@ -249,7 +252,7 @@ class CachedTestController {
 	@Cacheable(cache = "listActionCache")
 	def list2 = {}
 
-	@Cacheable(cache = "listActionCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
+	@Cacheable(cache = "listActionCache", keyGenerator = "mockKeyGenerator")
 	def list3 = {}
 
 	@Cacheable(cache = "listActionCache", cacheResolver = "mockCacheResolver")
@@ -262,7 +265,7 @@ class UncachedTestController {
 
 }
 
-@Cacheable(cache = "testControllerCache", keyGeneratorType = MimeTypeAwareKeyGenerator)
+@Cacheable(cache = "testControllerCache", keyGenerator = "mockKeyGenerator")
 class RestfulTestController {
 
 	def list = {}

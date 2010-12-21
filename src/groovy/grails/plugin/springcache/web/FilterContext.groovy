@@ -17,6 +17,7 @@ package grails.plugin.springcache.web
 
 import grails.plugin.springcache.CacheResolver
 import grails.plugin.springcache.key.KeyGenerator
+import grails.plugin.springcache.web.key.*
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
@@ -58,7 +59,11 @@ class FilterContext {
 
 	KeyGenerator getKeyGenerator() {
 		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
-		cacheableAnnotation.keyGeneratorType().newInstance()
+		if (cacheableAnnotation.keyGenerator()) {
+			getBean(cacheableAnnotation.keyGenerator())
+		} else {
+			new DefaultKeyGenerator()
+		}
 	}
 
 	private getBaseCacheName() {
