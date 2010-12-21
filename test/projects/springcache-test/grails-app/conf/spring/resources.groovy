@@ -7,7 +7,7 @@ beans = {
 	musicStoreEditorRegistrar(CustomPropertyEditorRegistrar)
 
 	mimeTypeAwareKeyGenerator(WebContentKeyGenerator) {
-		format = true
+		contentType = true
 	}
 
 	piraticalContextCacheResolver(PiraticalContextCacheResolver) {

@@ -23,13 +23,13 @@ h5. ajax
 
 If _true_ then keys will differ depending on the presence or absence of the @X-Requested-With@ request header so _AJAX_ requests will be cached separately from regular requests. This is useful when you have an action that renders different content when it is requested via _AJAX_.
 
-h5. format
+h5. contentType
 
 If _true_ keys will differ depending on the requested content format as determined by the @format@ meta-property on @HttpServletRequest@. This is useful when you use content negotiation in a request so that responses with different formats are cached separately.
 
 See [Content Negotiation|guide:contentNegotiation] for more detail.
 
-h5. method
+h5. requestMethod
 
 If _true_ keys will differ depending on the request HTTP method. This is useful for some _RESTful_ controllers (although if different request methods are mapped to different actions you do not need to use this mechanism). _GET_ and _HEAD_ requests are considered the same for the purposes of key generation.
 
@@ -41,6 +41,6 @@ ajaxAwareKeyGenerator(WebContentKeyGenerator) {
 }
 
 contentTypeAwareKeyGenerator(WebContentKeyGenerator) {
-	format = true
+	contentType = true
 }
 {code}

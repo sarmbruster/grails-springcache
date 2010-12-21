@@ -32,7 +32,7 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		key1 == key2
 	}
 
-	def "by default format is ignored"() {
+	def "by default content type is ignored"() {
 		given:
 		def xmlRequest = new RequestBuilder().format("xml").toCacheParams()
 		def jsonRequest = new RequestBuilder().format("json").toCacheParams()
@@ -45,7 +45,7 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		key1 == key2
 	}
 
-	def "by default method is ignored"() {
+	def "by default request method is ignored"() {
 		given:
 		def getRequest = new RequestBuilder().method("GET").toCacheParams()
 		def postRequest = new RequestBuilder().method("POST").toCacheParams()
@@ -76,13 +76,13 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		key1 != key3
 	}
 
-	def "keys can differ depending on request format"() {
+	def "keys can differ depending on requested content type"() {
 		given:
 		def xmlRequest = new RequestBuilder().format("xml").toCacheParams()
 		def jsonRequest = new RequestBuilder().format("json").toCacheParams()
 
 		and:
-		generator.format = true
+		generator.contentType = true
 
 		when:
 		def key1 = generator.generateKey(xmlRequest)
@@ -100,7 +100,7 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		def request2 = new RequestBuilder().toCacheParams()
 
 		and:
-		generator.format = true
+		generator.contentType = true
 
 		when:
 		def key1 = generator.generateKey(request1)
@@ -116,7 +116,7 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		def postRequest = new RequestBuilder().method("POST").toCacheParams()
 
 		and:
-		generator.method = true
+		generator.requestMethod = true
 
 		when:
 		def key1 = generator.generateKey(getRequest)
@@ -134,7 +134,7 @@ class WebContentKeyGeneratorSpec extends UnitSpec {
 		def headRequest = new RequestBuilder().method("HEAD").toCacheParams()
 
 		and:
-		generator.method = true
+		generator.requestMethod = true
 
 		when:
 		def key1 = generator.generateKey(getRequest)

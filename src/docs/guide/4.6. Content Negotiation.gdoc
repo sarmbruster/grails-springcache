@@ -4,7 +4,7 @@ h4. grails-app/conf/spring/resources.groovy
 
 {code}
 mimeTypeAwareKeyGenerator(WebContentKeyGenerator) {
-	format = true
+	contentType = true
 }
 {code}
 
