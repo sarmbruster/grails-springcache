@@ -39,7 +39,8 @@ public class FlushingAspect implements ApplicationContextAware {
 
 	private List<String> resolveCacheName(CacheFlush cacheFlush) {
 		CacheResolver resolver = applicationContext[cacheFlush.cacheResolver()]
-		cacheFlush.value().collect {
+		def baseNames = cacheFlush.caches() ?: cacheFlush.value()
+		baseNames.collect {
 			resolver.resolveCacheName(it)
 		}
 	}

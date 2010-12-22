@@ -152,6 +152,7 @@ class FilterContextSpec extends Specification {
 		"flushingTest" | null       | ["testControllerCache"]
 		"flushingTest" | "update1"  | ["testControllerCache"]
 		"flushingTest" | "update2"  | ["testControllerCache", "listActionCache"]
+		"flushingTest" | "update3"  | ["testControllerCache", "listActionCache"]
 	}
 
 	@Unroll("cannot get cache names when controller is '#controllerName' and action is '#actionName'")
@@ -279,4 +280,7 @@ class FlushingTestController {
 
 	@CacheFlush(["testControllerCache", "listActionCache"])
 	def update2 = {}
+
+	@CacheFlush(caches = ["testControllerCache", "listActionCache"])
+	def update3 = {}
 }

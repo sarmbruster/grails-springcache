@@ -21,8 +21,6 @@ import java.lang.annotation.*
  * Annotation used to mark methods whose return values should be cached.
  *
  * Based on org.springmodules.cache.annotations.CacheFlush (see https://springmodules.dev.java.net/)
- *
- * @author Alex Ruiz
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.METHOD, ElementType.TYPE, ElementType.FIELD])
@@ -30,5 +28,6 @@ import java.lang.annotation.*
 @Documented
 public @interface CacheFlush {
 	String[] value() default []
+	String[] caches() default []
 	String cacheResolver() default "defaultCacheResolver"
 }

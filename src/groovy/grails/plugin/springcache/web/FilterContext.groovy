@@ -46,7 +46,7 @@ class FilterContext {
 	List<String> getCacheNames() {
 		if (!shouldFlush()) throw new IllegalStateException("Only supported on flushing requests")
 		CacheResolver cacheResolver = getBean(cacheFlushAnnotation.cacheResolver())
-		cacheFlushAnnotation.value().collect {
+		baseCacheNames.collect {
 			cacheResolver.resolveCacheName(it)
 		}
 	}
@@ -69,6 +69,11 @@ class FilterContext {
 	private getBaseCacheName() {
 		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
 		cacheableAnnotation.cache() ?: cacheableAnnotation.value()
+	}
+
+	private String[] getBaseCacheNames() {
+		if (!shouldFlush()) throw new IllegalStateException("Only supported on flushing requests")
+		cacheFlushAnnotation.caches() ?: cacheFlushAnnotation.value()
 	}
 
 	private <T> T findAnnotation(Class<T> annotationType) {

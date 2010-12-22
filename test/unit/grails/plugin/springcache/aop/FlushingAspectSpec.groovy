@@ -44,12 +44,32 @@ class FlushingAspectSpec extends UnitSpec {
 		and:
 		def annotation = [
 				value: {-> ["cache1", "cache2"] as String[] },
+				caches: {-> [] as String[] },
 				cacheResolver: {-> "defaultCacheResolver" }
 		] as CacheFlush
 
 		when:
 		aspect.flushCaches(annotation)
 		
+		then:
+		1 * aspect.springcacheService.flush(["cache1", "cache2"])
+	}
+
+	def "can use 'caches' as an alias for 'value'"() {
+		given:
+		aspect.springcacheService = Mock(SpringcacheService)
+		aspect.applicationContext = applicationContext
+
+		and:
+		def annotation = [
+				value: { -> [] as String[] },
+				caches: {-> ["cache1", "cache2"] as String[] },
+				cacheResolver: {-> "defaultCacheResolver" }
+		] as CacheFlush
+
+		when:
+		aspect.flushCaches(annotation)
+
 		then:
 		1 * aspect.springcacheService.flush(["cache1", "cache2"])
 	}
