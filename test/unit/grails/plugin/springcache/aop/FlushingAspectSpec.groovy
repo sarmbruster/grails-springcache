@@ -33,7 +33,7 @@ class FlushingAspectSpec extends UnitSpec {
 			delegate.getBean(name)
 		}
 
-		applicationContext.registerSingleton "defaultCacheResolver", DefaultCacheResolver
+		applicationContext.registerSingleton "springcacheDefaultCacheResolver", DefaultCacheResolver
 	}
 
 	def "all specified caches are flushed"() {
@@ -45,7 +45,7 @@ class FlushingAspectSpec extends UnitSpec {
 		def annotation = [
 				value: {-> ["cache1", "cache2"] as String[] },
 				caches: {-> [] as String[] },
-				cacheResolver: {-> "defaultCacheResolver" }
+				cacheResolver: {-> "springcacheDefaultCacheResolver" }
 		] as CacheFlush
 
 		when:
@@ -64,7 +64,7 @@ class FlushingAspectSpec extends UnitSpec {
 		def annotation = [
 				value: { -> [] as String[] },
 				caches: {-> ["cache1", "cache2"] as String[] },
-				cacheResolver: {-> "defaultCacheResolver" }
+				cacheResolver: {-> "springcacheDefaultCacheResolver" }
 		] as CacheFlush
 
 		when:

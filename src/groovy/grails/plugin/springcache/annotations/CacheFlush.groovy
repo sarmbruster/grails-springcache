@@ -29,5 +29,5 @@ import java.lang.annotation.*
 public @interface CacheFlush {
 	String[] value() default []
 	String[] caches() default []
-	String cacheResolver() default "defaultCacheResolver"
+	String cacheResolver() default "springcacheDefaultCacheResolver"
 }

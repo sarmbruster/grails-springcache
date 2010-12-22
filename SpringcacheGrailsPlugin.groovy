@@ -120,8 +120,8 @@ class SpringcacheGrailsPlugin {
 				cacheManager = ref("springcacheCacheManager")
 			}
 
-			defaultCacheResolver(DefaultCacheResolver)
-			defaultKeyGenerator(DefaultKeyGenerator)
+			springcacheDefaultCacheResolver(DefaultCacheResolver)
+			springcacheDefaultKeyGenerator(DefaultKeyGenerator)
 		}
 	}
 

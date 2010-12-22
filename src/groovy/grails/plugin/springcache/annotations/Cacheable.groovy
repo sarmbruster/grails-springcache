@@ -15,8 +15,6 @@
  */
 package grails.plugin.springcache.annotations;
 
-import grails.plugin.springcache.key.KeyGenerator
-import grails.plugin.springcache.web.key.DefaultKeyGenerator
 import java.lang.annotation.*
 
 /**
@@ -29,6 +27,6 @@ import java.lang.annotation.*
 public @interface Cacheable {
 	String value() default ""
 	String cache() default ""
-	String keyGenerator() default "defaultKeyGenerator"
-	String cacheResolver() default "defaultCacheResolver"
+	String keyGenerator() default "springcacheDefaultKeyGenerator"
+	String cacheResolver() default "springcacheDefaultCacheResolver"
 }

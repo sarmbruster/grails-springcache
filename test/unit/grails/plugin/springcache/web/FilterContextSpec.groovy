@@ -36,7 +36,7 @@ class FilterContextSpec extends Specification {
 	def setup() {
 		// set up a spring context with a cacheResolver
 		ApplicationContext.metaClass.propertyMissing = { name -> delegate.getBean(name) }
-		appCtx.registerMockBean("defaultCacheResolver", new DefaultCacheResolver())
+		appCtx.registerMockBean("springcacheDefaultCacheResolver", new DefaultCacheResolver())
 
 		// set up the controllers as artefacts
 		def application = Mock(GrailsApplication)
@@ -201,7 +201,7 @@ class FilterContextSpec extends Specification {
 		def context = new FilterContext()
 		
 		and: "a key generator bean registered in the spring context"
-		appCtx.registerMockBean("defaultKeyGenerator", new DefaultKeyGenerator())
+		appCtx.registerMockBean("springcacheDefaultKeyGenerator", new DefaultKeyGenerator())
 		appCtx.registerMockBean("alternateKeyGenerator", new WebContentKeyGenerator())
 
 		expect:
