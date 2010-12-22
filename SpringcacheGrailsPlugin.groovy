@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import grails.plugin.springcache.DefaultCacheResolver
 import grails.plugin.springcache.taglib.CachingTagLibDecorator
 import grails.plugin.springcache.web.key.DefaultKeyGenerator
