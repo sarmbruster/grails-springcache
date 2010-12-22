@@ -2,6 +2,8 @@ In some specialised circumstances you may need to programatically select the cac
 
 To apply cache selection you need a bean in the Spring context that implements the @grails.plugin.springcache.CacheResolver@ interface. The interface is extremely simple having only one method @resolveCacheName(String)@ which is passed the "base" cache name declared on your annotation and should return the _actual_ cache name to use. You can then add a @cacheResolver@ parameter to @\@Cacheable@ and @\@CacheFlush@ annotations referencing the bean name of your @CacheResolver@ implementation.
 
+You can override the default @CacheResolver@ used by the plugin by simply redefining the bean _springcacheDefaultCacheResolver_ in _resources.groovy_.
+
 h3. Example usage
 
 A simple example based on the "Multi-Tenant":http://grails.org/plugin/multi-tenant-core plugin. Cached actions should use a different cache depending on the current tenant.

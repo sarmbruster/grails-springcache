@@ -1,4 +1,4 @@
-The Springcache plugin uses an instance of the interface @grails.plugin.springcache.key.KeyGenerator@ to generate the cache key. If you want to use a different key generator for a particular action you just need to add the @keyGenerator@ element to the @\@Cacheable@ annotation specifying the name of a Spring bean that implements the @KeyGenerator@ interface.
+The Springcache plugin uses an instance of the interface @grails.plugin.springcache.key.KeyGenerator@ to generate the cache key. The default implementation is a bean named _springcacheDefaultKeyGenerator_ which is of type @grails.plugin.springcache.web.key.DefaultKeyGenerator@. If you want to use a different key generator for a particular action you just need to add the @keyGenerator@ element to the @\@Cacheable@ annotation specifying the name of a Spring bean that implements the @KeyGenerator@ interface.
 
 {code}
 	@Cacheable(cache = "albumControllerCache", keyGenerator = "myKeyGenerator")
@@ -6,6 +6,8 @@ The Springcache plugin uses an instance of the interface @grails.plugin.springca
 	    // ...
 	}
 {code}
+
+Alternatively you can override the default key generator by redefining the _springcacheDefaultKeyGenerator_ bean in _resources.groovy_.
 
 {note}
 The @keyGenerator@ element is only for content caching and just works on controllers, it is ignored by the @\@Cacheable@ annotation on service methods and taglibs.
@@ -44,3 +46,4 @@ contentTypeAwareKeyGenerator(WebContentKeyGenerator) {
 	contentType = true
 }
 {code}
+
