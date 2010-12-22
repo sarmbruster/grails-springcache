@@ -29,6 +29,6 @@ import java.lang.annotation.*
 public @interface Cacheable {
 	String value() default ""
 	String cache() default ""
-	String keyGenerator() default ""
+	String keyGenerator() default "defaultKeyGenerator"
 	String cacheResolver() default "defaultCacheResolver"
 }

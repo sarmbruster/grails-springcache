@@ -59,11 +59,7 @@ class FilterContext {
 
 	KeyGenerator getKeyGenerator() {
 		if (!shouldCache()) throw new IllegalStateException("Only supported on caching requests")
-		if (cacheableAnnotation.keyGenerator()) {
-			getBean(cacheableAnnotation.keyGenerator())
-		} else {
-			new DefaultKeyGenerator()
-		}
+		getBean(cacheableAnnotation.keyGenerator())
 	}
 
 	private getBaseCacheName() {

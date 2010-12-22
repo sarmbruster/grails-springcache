@@ -201,7 +201,8 @@ class FilterContextSpec extends Specification {
 		def context = new FilterContext()
 		
 		and: "a key generator bean registered in the spring context"
-		appCtx.registerMockBean("mockKeyGenerator", new WebContentKeyGenerator())
+		appCtx.registerMockBean("defaultKeyGenerator", new DefaultKeyGenerator())
+		appCtx.registerMockBean("alternateKeyGenerator", new WebContentKeyGenerator())
 
 		expect:
 		that context.keyGenerator, keyGeneratorMatcher
@@ -253,7 +254,7 @@ class CachedTestController {
 	@Cacheable(cache = "listActionCache")
 	def list2 = {}
 
-	@Cacheable(cache = "listActionCache", keyGenerator = "mockKeyGenerator")
+	@Cacheable(cache = "listActionCache", keyGenerator = "alternateKeyGenerator")
 	def list3 = {}
 
 	@Cacheable(cache = "listActionCache", cacheResolver = "mockCacheResolver")
@@ -266,7 +267,7 @@ class UncachedTestController {
 
 }
 
-@Cacheable(cache = "testControllerCache", keyGenerator = "mockKeyGenerator")
+@Cacheable(cache = "testControllerCache", keyGenerator = "alternateKeyGenerator")
 class RestfulTestController {
 
 	def list = {}

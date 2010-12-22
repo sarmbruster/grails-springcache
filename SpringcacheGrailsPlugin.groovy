@@ -121,6 +121,7 @@ class SpringcacheGrailsPlugin {
 			}
 
 			defaultCacheResolver(DefaultCacheResolver)
+			defaultKeyGenerator(DefaultKeyGenerator)
 		}
 	}
 
