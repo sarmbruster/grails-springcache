@@ -9,15 +9,18 @@ The @Cacheable@ annotation is applied to methods on Spring managed beans such as
 \@Cacheable(cache = "myCache")
 {code}
 
-For content caching only you can also supply a @keyGeneratorType@ element, see [Content Cache Keys|guide:contentCacheKeys]
+To resolve the cache name in a non-standard way you can supply a @cacheResolver@ element, see [Cache Selection|guide:cacheSelection]. For content caching only you can also supply a @keyGenerator@ element, see [Content Cache Keys|guide:contentCacheKeys]
 
 h3. The @\@CacheFlush@ annotation
 
-The @CacheFlush@ annotation can be applied in the same places as the @Cacheable@ annotation but instead of caching results it will cause a cache or set of caches to be flushed. The @CacheFlush@ annotation can take a single element or a String array. Either way the elements can simply be literal cache names or regular expression patterns that may match multiple cache names. For example:
+The @CacheFlush@ annotation can be applied in the same places as the @Cacheable@ annotation but instead of caching results it will cause a cache or set of caches to be flushed. The @CacheFlush@ annotation requires a single element or a String array either as a standalone value or with the @caches@ element. Either way the elements can simply be literal cache names or regular expression patterns that may match multiple cache names. For example:
 
 {code}
 \@CacheFlush("myCache")
 \@CacheFlush(/\w+ControllerCache/)
 \@CacheFlush(["cacheA", "cacheB", "cacheC"])
+\@CacheFlush(caches = ["cacheA", "cacheB", "cacheC"])
 \@CacheFlush([/cache[A-Z]/, "myCache"])
 {code}
+
+To resolve the cache names in a non-standard way you can supply a @cacheResolver@ element, see [Cache Selection|guide:cacheSelection].

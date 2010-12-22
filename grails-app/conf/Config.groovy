@@ -8,6 +8,7 @@ grails {
 		
 		alias.contentCacheKeys="4.5. Content Cache Keys"
 		alias.contentNegotiation="4.6. Content Negotiation"
+		alias.cacheSelection="4.9. Cache Selection"
 		alias.cacheConfiguration="6. Cache Configuration"
 	}
 }

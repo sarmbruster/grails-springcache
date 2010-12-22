@@ -35,12 +35,12 @@ multiTenantCacheResolver(MultiTenantCacheResolver) {
 Finally we just need to reference the _multiTenantCacheResolver_ bean on any annotations in parts of the code that need to be multi-tenant aware:
 
 {code}
-@Cacheable(cacheName = "userCache", cacheResolver = "multiTenantCacheResolver")
+@Cacheable(cache = "userCache", cacheResolver = "multiTenantCacheResolver")
 def list = {
 	[users: User.list()] // under the multi-tenant plugin this will only return user instances for the current tenant
 }
 
-@CacheFlush(value = "userCache", cacheResolver = "multiTenantCacheResolver")
+@CacheFlush(caches = "userCache", cacheResolver = "multiTenantCacheResolver")
 def save = {
 	def user = new User(params)
 	// ... save the new user, redirect, handle errors, etc.
