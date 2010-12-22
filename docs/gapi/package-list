@@ -1,0 +1,17 @@
+DefaultPackage
+auth
+grails.plugin.springcache
+grails.plugin.springcache.annotations
+grails.plugin.springcache.aop
+grails.plugin.springcache.key
+grails.plugin.springcache.taglib
+grails.plugin.springcache.test
+grails.plugin.springcache.web
+grails.plugin.springcache.web.key
+layouts
+musicstore
+musicstore.auth
+musicstore.binding
+musicstore.modules
+musicstore.pages
+pirates

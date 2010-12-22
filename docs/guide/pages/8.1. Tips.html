@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>8.1. Tips</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h3>Flushing content caches with service methods and vice-versa</h3><p class="paragraph"/>There is nothing special about the different types of cache so it's perfectly fine to flush a content cache with a <code>&#64;CacheFlush</code> annotation on a service method or a service method cache with a <code>&#64;CacheFlush</code> annotation on a controller action. There's also no reason that you shouldn't use the same cache for both service method and content caching the keys will be quite distinct so this will not be a problem.<p class="paragraph"/><h3>Tearing down caches in tests</h3><p class="paragraph"/>In integration test and some types of functional test (e.g. <a href="http://grails.org/plugin/selenium-rc" target="blank">Selenium RC</a> tests when not running in remote mode) your tests can have Spring beans automatically injected. You can use this facility to tear down caches between tests. For example:<p class="paragraph"/><div class="code"><pre>def springcacheService // auto&#45;injected service bean from plugin<p class="paragraph"/>void tearDown() &#123;
+    <span class="java&#45;keyword">super</span>.tearDown()
+    springcacheService.flushAll()
+    // only need to <span class="java&#45;keyword">do</span> <span class="java&#45;keyword">this</span> <span class="java&#45;keyword">if</span> your tests are making assertions about hit/miss counts, etc.
+    springcacheService.clearStatistics()
+&#125;</pre></div><p class="paragraph"/><h3>Disabling</h3><p class="paragraph"/>Rather than tearing down caches between tests you may prefer to disable the plugin altogether. This is done by setting the config key <code>springcache.enabled = false</code> which can be done on a per-environment basis. For example:<p class="paragraph"/><div class="code"><pre>springcache &#123;
+    // cache definitions, etc
+&#125;<p class="paragraph"/>environments &#123;
+    development &#123;
+        springcache.enabled = <span class="java&#45;keyword">false</span>
+    &#125;
+&#125;</pre></div><p class="paragraph"/>Whilst this makes things simpler I would encourage you to run end-to-end tests and continuous integration in as 'production-like' an environment as possible. If your continuous integration build is running with the plugin enabled you are much less likely to get any surprising behaviour when you release your app to a production environment.<p class="paragraph"/><h3>Logging</h3><p class="paragraph"/>To see logging from the plugin set the logging level on <code>grails.plugin.springcache</code> in your <code>Config.groovy</code> file.<p class="paragraph"/><h3>Response headers</h3><p class="paragraph"/>The plugin sets a header  <em class="italic">X-Springcache-Cached</em>  with a value of  <em class="italic">true</em>  or  <em class="italic">false</em>  to indicate whether or not a controller response was served from the cache. This only applies to the "main" request and not to any content included using the <code>g:include</code> tag.
+
+    </body>
+</html>

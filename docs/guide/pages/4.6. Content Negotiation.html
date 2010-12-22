@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>4.6. Content Negotiation</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    By default the key generator used by the page fragment caching filter does not take content negotiation into account. However, if you are caching controller actions that use Grails' <a href="http://grails.org/doc/latest/ref/Controllers/withFormat.html" target="blank"><code>withFormat</code></a> dynamic method to render different content types you will want to cache results separately according to the output format. You can use the <code>WebContentKeyGenerator</code> class to do this. You just need to register a key generator bean with Spring and then annotate any content negotiated actions like this:<p class="paragraph"/><h4>grails-app/conf/spring/resources.groovy</h4><p class="paragraph"/><div class="code"><pre>mimeTypeAwareKeyGenerator(WebContentKeyGenerator) &#123;
+	contentType = <span class="java&#45;keyword">true</span>
+&#125;</pre></div><p class="paragraph"/><h4>grails-app/controllers/MyController.groovy</h4><p class="paragraph"/><div class="code"><pre>@Cacheable(cache = <span class="java&#45;quote">"albumControllerCache"</span>, keyGenerator = <span class="java&#45;quote">"mimeTypeAwareKeyGenerator"</span>)
+def list = &#123;
+    def albumList = Album.list()
+	withFormat &#123;
+		html &#123; &#91;albumList: albumList&#93; &#125;
+		xml &#123; render albumList as XML &#125;
+		json &#123; render albumList as JSON &#125;
+	&#125;
+&#125;</pre></div>
+
+    </body>
+</html>

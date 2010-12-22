@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>4.1. Caching and Flushing with Controller Actions</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h3>Example: caching Grails CRUD pages</h3><p class="paragraph"/>Grails' standard scaffolded  <em class="italic">CRUD</em>  pages provide a good example of how caching and flushing can be applied. For example, let's take an  <em class="italic">Album</em>  domain class. The scaffolded controller could be annotated like this:<p class="paragraph"/><h4>AlbumController.groovy</h4><p class="paragraph"/><div class="code"><pre>class AlbumController &#123;
+    // the index action is uncached as it just performs a redirect to list
+    def index = &#123;
+        redirect(action: <span class="java&#45;quote">"list"</span>, params: params)
+    &#125;<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"albumControllerCache"</span>)
+    def list = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"albumControllerCache"</span>)
+    def create = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @CacheFlush(&#91;<span class="java&#45;quote">"albumControllerCache"</span>, <span class="java&#45;quote">"artistControllerCache"</span>, <span class="java&#45;quote">"latestControllerCache"</span>, <span class="java&#45;quote">"popularControllerCache"</span>&#93;)
+    def save = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"albumControllerCache"</span>)
+    def show = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"albumControllerCache"</span>)
+    def edit = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @CacheFlush(&#91;<span class="java&#45;quote">"albumControllerCache"</span>, <span class="java&#45;quote">"latestControllerCache"</span>, <span class="java&#45;quote">"popularControllerCache"</span>&#93;)
+    def update = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;<p class="paragraph"/>    @CacheFlush(&#91;<span class="java&#45;quote">"albumControllerCache"</span>, <span class="java&#45;quote">"artistControllerCache"</span>, <span class="java&#45;quote">"latestControllerCache"</span>, <span class="java&#45;quote">"popularControllerCache"</span>&#93;)
+    def delete = &#123;
+        // standard Grails scaffolding code omitted
+    &#125;
+&#125;</pre></div><p class="paragraph"/>The  <em class="italic">list, show, create</em>  and  <em class="italic">edit</em>  pages are all cached. The  <em class="italic">show</em>  and  <em class="italic">edit</em>  rely on an domain object id parameter and this will be included in the cache key so that <code>/album/show/1</code> and <code>/album/show/2</code> are cached separately. The  <em class="italic">save, update</em>  and  <em class="italic">delete</em>  actions will flush caches. Note that in addition to flushing the cache used by the  <em class="italic">list, show, create</em>  and  <em class="italic">edit</em>  actions they are flushing other caches which are content caches for controllers whose output should be refreshed if <code>Album</code> data changes.
+
+    </body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>3. Caching Service Methods</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h1><a name="3. Caching Service Methods">3. Caching Service Methods</a></h1>The typical use case for method caching is when you have Grails service methods that invoke expensive operations such as HTTP gets, web service calls, filesystem IO, etc.<p class="paragraph"/><blockquote class="note">
+Although you  <em class="italic">can</em>  use the  <em class="italic">Springcache</em>  plugin to cache service methods that query or update  <em class="italic">GORM</em>  domain objects you should consider whether it's more appropriate to use the Hibernate 2nd level cache (see the relevant sections in the Grails documentation). In some cases using  <em class="italic">Springcache</em>  does make sense, e.g. a service that aggregates the results of multiple queries.
+</blockquote><p class="paragraph"/>Simply add an <code>&#64;Cacheable</code> annotation to methods that should cache their results and a <code>&#64;CacheFlush</code> annotation to methods that should flush caches.<p class="paragraph"/><blockquote class="note">
+Be aware that the annotations will only have any effect on Spring-managed beans. If you create instances of your class directly rather than getting them from the application context they will not be decorated with caching/flushing behaviour.
+</blockquote><p class="paragraph"/><blockquote class="note">
+Method caching requires AspectJ auto-weaving to be enabled. If you have <code>grails.spring.disable.aspectj.autoweaving = false</code> set in config then method caching will not work. Content caching is unaffected as it uses a different mechanism.
+</blockquote><p class="paragraph"/>A simple example might be:<p class="paragraph"/><h4>PiracyService.groovy</h4><p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"pirateCache"</span>)
+def getPirates() &#123;
+    // <span class="java&#45;keyword">return</span> a list of pirates
+&#125;<p class="paragraph"/>@Cacheable(<span class="java&#45;quote">"pirateCache"</span>)
+def findPirates(name) &#123;
+    // <span class="java&#45;keyword">return</span> a particular pirate
+&#125;<p class="paragraph"/>@Cacheable(<span class="java&#45;quote">"shipCache"</span>)
+def getShips() &#123;
+    // <span class="java&#45;keyword">return</span> a list of ships
+&#125;<p class="paragraph"/>@CacheFlush(<span class="java&#45;quote">"pirateCache"</span>)
+void registerNewPirate(Pirate sailor) &#123;
+    // store a <span class="java&#45;keyword">new</span> pirate
+&#125;<p class="paragraph"/>@CacheFlush(<span class="java&#45;quote">"shipCache"</span>)
+void registerNewShip(Ship ship) &#123;
+    // store a <span class="java&#45;keyword">new</span> ship
+&#125;<p class="paragraph"/>@CacheFlush(&#91;<span class="java&#45;quote">"pirateCache"</span>, <span class="java&#45;quote">"shipCache"</span>&#93;)
+void registerNewShipWithCrew(Ship ship, Collection&#60;Sailor&#62; crew) &#123;
+    // store a <span class="java&#45;keyword">new</span> ship and associated pirates
+&#125;</pre></div><p class="paragraph"/>This ties the flushes on the  <em class="italic">register</em>  methods to the particular caches they affect, so after calling <code>registerNewPirate</code> the methods <code>getPirates</code> and <code>findPirates</code> will re-populate their cached results but <code>getShips</code> would still use any cached results from previous calls. Calling <code>registerNewShipWithCrew</code> will flush both caches.<p class="paragraph"/>It is fine for multiple methods to share the same caches. Both <code>getPirates</code> and <code>findPirates</code> in the example above share the same cache. Cache entries are keyed on target object (the service instance in this case), method name and call parameters so there should be no confusion when using the same caches on multiple methods.<p class="paragraph"/>There are various strategies you can adopt in naming and grouping caches, this example shouldn't be seen as definitive.
+<h2><a name="3.1. Service Method Cache Keys">3.1. Service Method Cache Keys</a></h2>When a <code>&#64;Cacheable</code> annotation is found on a service method the plugin generates a key using:
+<ul class="star">
+<li>The  <em class="italic">target</em>  object, i.e. the service being called.</li>
+<li>The service method name.</li>
+<li>All method parameters.</li>
+</ul><p class="paragraph"/>Since Grails services are typically Spring singletons the target object is not usually an issue. There's no need to implements  <em class="italic">equals</em>  or  <em class="italic">hashCode</em>  on your service classes unless you are using a different Spring bean scope and need to differentiate between calls made to different instances of the service.<p class="paragraph"/>It is, however, <strong class="bold">vital</strong> to ensure that  <em class="italic">equals</em>  and  <em class="italic">hashCode</em>  is properly implemented on all the types used as parameters to cached methods. If this is not done it is very unlikely that the cache will ever be hit.<h2><a name="3.2 Calling Cached Methods Internally">3.2 Calling Cached Methods Internally</a></h2>Service method caching is implemented via Spring AOP, which utilises proxies. In practical terms, this means that when depending on a service with a cached method in another service or controller (or anything else for that matter), you actual receive a  <em class="italic">proxy</em>  for the real service. This allows method calls to be intercepted and for caches to be checked or populated.<p class="paragraph"/>The implication of this however is that calls to <code>this</code> (implicit or explicit) do <strong class="bold">NOT</strong> go via the proxy.<p class="paragraph"/>Consider the following…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def nonCachedMethod() &#123;
+        cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>You may expect that the <code>nonCachedMethod()</code> will use the cache for <code>cachedMethod()</code>, but it won't. The call is made on <code>this</code> which is the actual instance and not the proxy.<p class="paragraph"/>Fortunately, there is an easy workaround…<p class="paragraph"/><div class="code"><pre>class ExampleService &#123;<p class="paragraph"/>    def grailsApplication<p class="paragraph"/>    def nonCachedMethod() &#123;
+        grailsApplication.mainContext.exampleService.cachedMethod()
+    &#125;<p class="paragraph"/>    @Cacheable('cachedMethodCache')
+    def cachedMethod() &#123;
+        // <span class="java&#45;keyword">do</span> some expensive stuff
+    &#125;
+&#125;</pre></div><p class="paragraph"/>Instead of calling the method on <code>this</code>, we obtain the proxy via the application context (i.e. <code>grailsApplication.mainContext.exampleService</code>) and call the method on that. This way we go through the caching mechanism.
+    </body>
+</html>
