@@ -1,6 +1,6 @@
 h3. Flushing content caches with service methods and vice-versa
 
-There is nothing special about the different types of cache so it's perfectly fine to flush a content cache with a @\@CacheFlush@ annotation on a service method or a service method cache with a @\@CacheFlush@ annotation on a controller action.
+There is nothing special about the different types of cache so it's perfectly fine to flush a content cache with a @\@CacheFlush@ annotation on a service method or a service method cache with a @\@CacheFlush@ annotation on a controller action. There's also no reason that you shouldn't use the same cache for both service method and content caching the keys will be quite distinct so this will not be a problem.
 
 h3. Tearing down caches in tests
 
@@ -35,7 +35,10 @@ environments {
 
 Whilst this makes things simpler I would encourage you to run end-to-end tests and continuous integration in as 'production-like' an environment as possible. If your continuous integration build is running with the plugin enabled you are much less likely to get any surprising behaviour when you release your app to a production environment.
 
-h3. Logging Output
+h3. Logging
 
 To see logging from the plugin set the logging level on @grails.plugin.springcache@ in your @Config.groovy@ file.
 
+h3. Response headers
+
+The plugin sets a header _X-Springcache-Cached_ with a value of _true_ or _false_ to indicate whether or not a controller response was served from the cache. This only applies to the "main" request and not to any content included using the @g:include@ tag.

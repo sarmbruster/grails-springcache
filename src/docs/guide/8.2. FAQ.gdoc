@@ -8,8 +8,10 @@ Ensure all your config for the _Springcache_ plugin is nested inside a single @s
 
 h3. Can I programatically disable caching in specific circumstances such as when a user is logged in?
 
-Not right now, although I hope to add this to a future release of the plugin. I'd encourage you to think about structuring your pages using _SiteMesh_ layouts and the @g:include@ tag such that it is possible to separate the dynamic and cacheable sections.
+In the case of controller caching you can do so by setting a _Cache-Control_ response header with a value of _"no-cache"_ which can be done manually, or by using the command @cache false@ provided by the "Cache Headers":http://grails.org/plugin/cache-headers plugin. See [Cache Headers|guide:cacheHeaders]
 
 h3. Why isn't there a taglib so I can just wrap parts of my page that need caching?
 
 It's something I may add but from a purist point of view I'm not very keen on the idea. Caching is a separate concern from view rendering and the two really shouldn't be mixed up. So far the plugin has deliberately taken a declarative approach to caching which encourages you to maintain a good separation of concerns.
+
+If this is something you really want to see, vote for the issue on JIRA here: "GRAILSPLUGINS-2564":http://jira.codehaus.org/browse/GRAILSPLUGINS-2564
