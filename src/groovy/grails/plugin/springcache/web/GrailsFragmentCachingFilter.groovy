@@ -36,6 +36,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	CacheManager cacheManager
 
 	private final ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
+	static final String X_SPRINGCACHE_CACHED = "X-Springcache-Cached"
 
 	/**
 	 * Overrides doInit in CachingFilter to be a no-op. The superclass initializes a single cache that is used for all
@@ -127,6 +128,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		}
 
 		timer.stop(isCached)
+		response.addHeader(X_SPRINGCACHE_CACHED, "$isCached")
 		return pageInfo
 	}
 
