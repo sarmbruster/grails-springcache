@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>4.4. Cache Headers</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    Content caching in the Springcache plugin attempts to respect any cache-control headers present in the original response.
+Specifically the plugin will handle certain response headers as follows:<p class="paragraph"/><h4>Cache-Control: no-cache</h4><p class="paragraph"/>If this header is present in the response the content will <em class="italic">not</em> be cached even if there is a <code>&#64;Cacheable</code> annotation
+present on the controller or action. This allows you to prevent caching in certain circumstances or override the
+controller-wide caching policy in a particular action.<p class="paragraph"/><h4>Cache-Control: max-age=x</h4><p class="paragraph"/>If the response is cached the time-to-live of the cache entry is set so that it corresponds to the max-age value in
+the <code>Cache-Control</code> header. If no such header is present the cache's configured time-to-live is used (see <a href="../guide/single.html#7. Cache Configuration" class="guide">Cache Configuration</a>).<p class="paragraph"/><h4>ETag</h4><p class="paragraph"/>If the original response set an <code>ETag</code> header <em class="italic">Springcache</em> will set the same header if it serves the response from the
+cache.
+Additionally, if an incoming request has an <code>If-None-Match</code> header that matches the <code>ETag</code> of the cached response <em class="italic">Springcache</em> will send a <code>304 Not Modified</code> status code and an empty response body instead of the cached response.<p class="paragraph"/><h4>Last-Modified</h4><p class="paragraph"/>If the original response set a <code>Last-Modified</code> header <em class="italic">Springcache</em> will set the same header if it serves the response
+from the cache.
+Additionally, if an incoming request has an <code>If-Modified-Since</code> header with a timestamp later than the
+<code>Last-Modified</code> header of the cached response <em class="italic">Springcache</em> will send a <code>304 Not Modified</code> status code and an empty
+response body instead of the cached response.<p class="paragraph"/><h2>The Cache Headers Plugin</h2><p class="paragraph"/>The <em class="italic">Springcache</em> plugin integrates well with the <a href="http://grails.org/plugin/cache-headers" target="blank">Cache Headers</a> plugin. Some examples:<p class="paragraph"/><h3>Preventing caching</h3><p class="paragraph"/>If you want to prevent <em class="italic">Springcache</em> from caching a response in certain circumstances:<p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"myCache"</span>)
+def myAction = &#123;
+	// &#8230;
+	<span class="java&#45;keyword">if</span> (someConditionHoldsThatMeansThisShouldNotGetCached) &#123;
+		cache <span class="java&#45;keyword">false</span>
+	&#125;
+	// &#8230;
+&#125;</pre></div><p class="paragraph"/>Alternatively you might want to declare <code>&#64;Cacheable</code> at the class level and then exclude a particular action from the
+cache:<p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"myCache"</span>)
+class MyController &#123;<p class="paragraph"/>	// ...<p class="paragraph"/>	def myAction = &#123;
+		cache <span class="java&#45;keyword">false</span>
+		// &#8230;
+	&#125;</pre></div><p class="paragraph"/><h3>Controlling cache expiry</h3><p class="paragraph"/>As explained above cache time-to-live will respect the max-age in a cache control header.<p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"myCache"</span>)
+def myAction = &#123;
+	cache validFor: 3600
+	// &#8230;
+&#125;</pre></div><p class="paragraph"/>In this example the response will be cached with a time-to-live of one hour <em class="italic">regardless</em> of the default time-to-live
+configured on the cache itself.<p class="paragraph"/><h3>Sending Not-Modified responses</h3><p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"myCache"</span>)
+def show = &#123;
+	withCacheHeaders &#123;
+		def book = Book.get(params.id)
+		etag &#123;
+			<span class="java&#45;quote">"$&#123;book.ident()&#125;:$&#123;book.version&#125;"</span>
+		&#125;
+		lastModified &#123;
+			book.dateCreated ?: book.dateUpdated
+		&#125;
+		generate &#123;
+			render view: <span class="java&#45;quote">"show"</span>, model: &#91;item: book&#93;
+		&#125;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>In this example the response will be cached and any subsequent requests that send matching <code>If-Modified-Since</code> and/or
+<code>If-None-Match</code> headers will be sent a <code>304 Not Modified</code> response if they hit the cache.
+
+    </body>
+</html>

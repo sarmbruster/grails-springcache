@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>4.3. Using Annotations at Class Level</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    The <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations can be applied to controllers at class level. This is more likely useful with <code>&#64;Cacheable</code> but it is certainly possible to apply <code>&#64;CacheFlush</code> at class level so that any action on that controller will flush a set of caches. Any annotation on an individual action will be applied in preference to an annotation at class level, so a class level annotation behaves like a default. An annotation at class level will work with dynamic scaffolded actions so you don't have to generate a concrete action in order to benefit from caching behaviour.<p class="paragraph"/><div class="code"><pre>@Cacheable(<span class="java&#45;quote">"albumControllerCache"</span>)
+class AlbumController &#123;<p class="paragraph"/>    <span class="java&#45;keyword">static</span> scaffold = <span class="java&#45;keyword">true</span> // all dynamically scaffolded actions will be cached<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"albumListCache"</span>)
+    def list = &#123;
+        // &#8230;
+    &#125;<p class="paragraph"/>    @CacheFlush(/album&#119;+Cache/)
+    def save = &#123;
+        // &#8230;
+    &#125;<p class="paragraph"/>    def show = &#123;
+        // &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>In this example:
+<ul class="star">
+<li>The <em class="italic">show</em> action will use the default class level <code>&#64;Cacheable</code> annotation and its page fragment will be cached in the <em class="italic">albumControllerCache</em> cache.</li>
+<li>The <em class="italic">list</em> action will not use the default as it specifies its own <code>&#64;Cacheable</code> annotation and its content will be cached separately.</li>
+<li>The <em class="italic">save</em> action uses a <code>&#64;CacheFlush</code> and will therefore not be cached at all.</li>
+<li>Dynamically scaffolded actions (e.g. <em class="italic">edit_, _update_, etc.) will use the class level annotation and their results will be cached in the _albumControllerCache</em> cache.</li>
+</ul><p class="paragraph"/>
+    </body>
+</html>

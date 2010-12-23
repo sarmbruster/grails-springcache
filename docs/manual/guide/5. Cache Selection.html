@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>5. Cache Selection</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h1><a name="5. Cache Selection">5. Cache Selection</a></h1>In some specialised circumstances you may need to programatically select the cache used when a <code>&#64;Cacheable</code> or <code>&#64;CacheFlush</code> annotation is hit. An example might be a multi-tenant application where optimising cache utilisation by caching content for different tenants in their own caches would make sense.<p class="paragraph"/>To apply cache selection you need a bean in the Spring context that implements the <code>grails.plugin.springcache.CacheResolver</code> interface. The interface is extremely simple having only one method <code>resolveCacheName(String)</code> which is passed the "base" cache name declared on your annotation and should return the <em class="italic">actual</em> cache name to use. You can then add a <code>cacheResolver</code> parameter to <code>&#64;Cacheable</code> and <code>&#64;CacheFlush</code> annotations referencing the bean name of your <code>CacheResolver</code> implementation.<p class="paragraph"/>You can override the default <code>CacheResolver</code> used by the plugin by simply redefining the bean <em class="italic">springcacheDefaultCacheResolver</em> in _resources.groovy_.<p class="paragraph"/><h3>Example usage</h3><p class="paragraph"/>A simple example based on the <a href="http://grails.org/plugin/multi-tenant-core" target="blank">Multi-Tenant</a> plugin. Cached actions should use a different cache depending on the current tenant.<p class="paragraph"/>First we define a <code>CacheResolver</code> implementation that will simply append the current tenant id to the base cache name:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.plugin.springcache.CacheResolver
+<span class="java&#45;keyword">import</span> org.springframework.web.context.request.RequestContextHolder<p class="paragraph"/>class MultiTenantCacheResolver <span class="java&#45;keyword">implements</span> CacheResolver &#123;<p class="paragraph"/>	def tenantResolver // a component of the Multi&#45;Tenant plugin, see that plugin's documentation<p class="paragraph"/>	<span class="java&#45;object">String</span> resolveCacheName(<span class="java&#45;object">String</span> baseName) &#123;
+		def request = RequestContextHolder.requestAttributes.currentRequest
+		def tenantId = tenantResolver.getTenantFromRequest(request)
+		<span class="java&#45;quote">"$&#123;baseName&#125;&#45;tenant&#45;$&#123;tenantId&#125;"</span>
+	&#125;
+&#125;</pre></div><p class="paragraph"/>Then we need to wire up our cache resolver in the Spring application context in the <code>grails-app/conf/spring/resources.groovy</code> file and wiring in the dependency on the <em class="italic">tenantResolver</em> bean provided by the Multi-Tenant plugin.<p class="paragraph"/><div class="code"><pre>multiTenantCacheResolver(MultiTenantCacheResolver) &#123;
+	tenantResolver = ref(<span class="java&#45;quote">"tenantResolver"</span>)
+&#125;</pre></div><p class="paragraph"/>Finally we just need to reference the <em class="italic">multiTenantCacheResolver</em> bean on any annotations in parts of the code that need to be multi-tenant aware:<p class="paragraph"/><div class="code"><pre>@Cacheable(cache = <span class="java&#45;quote">"userCache"</span>, cacheResolver = <span class="java&#45;quote">"multiTenantCacheResolver"</span>)
+def list = &#123;
+	&#91;users: User.list()&#93; // under the multi&#45;tenant plugin <span class="java&#45;keyword">this</span> will only <span class="java&#45;keyword">return</span> user instances <span class="java&#45;keyword">for</span> the current tenant
+&#125;<p class="paragraph"/>@CacheFlush(caches = <span class="java&#45;quote">"userCache"</span>, cacheResolver = <span class="java&#45;quote">"multiTenantCacheResolver"</span>)
+def save = &#123;
+	def user = <span class="java&#45;keyword">new</span> User(params)
+	// &#8230; save the <span class="java&#45;keyword">new</span> user, redirect, handle errors, etc.
+&#125;</pre></div><p class="paragraph"/><blockquote class="warning">
+If you use cache selection when it's not really appropriate it's very easy to get into problems with cache invalidation and stale data.
+</blockquote>
+
+    </body>
+</html>

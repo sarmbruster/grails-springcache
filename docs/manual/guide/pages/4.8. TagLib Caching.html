@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>4.8. TagLib Caching</title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    An alternative to using includes for caching smaller page fragments is to use caching on taglib tags. When a cacheable tag is called, the parameters it is called with from the cache key. If there is no entry in the cache, the tag is executed and the output that it generated is cached (as well as being written to the page). If there is an entry in the cache, the tag is not executed and the cached output is written to the page.<p class="paragraph"/><div class="code"><pre>class BlogArticlesTagLib &#123;<p class="paragraph"/>    <span class="java&#45;keyword">static</span> namespace = <span class="java&#45;quote">"blogarticles"</span><p class="paragraph"/>    def blogArticlesService<p class="paragraph"/>    @Cacheable(<span class="java&#45;quote">"blogArticlesTagCache"</span>)
+    def allArticles = &#123; attrs &#45;&#62;
+        out &#60;&#60; <span class="java&#45;quote">"&#60;ul&#62;"</span>
+        blogArticlesService.getArticles(attrs.id).each &#123;
+            out &#60;&#60; <span class="java&#45;quote">"&#60;li&#62;$&#123;it.title&#125;&#60;/li&#62;"</span>
+        &#125;
+        out &#60;&#60; <span class="java&#45;quote">"&#60;/ul&#62;"</span>
+    &#125;
+&#125;</pre></div><p class="paragraph"/>When we call the tag like so…<p class="paragraph"/><div class="code"><pre>&#60;blogarticles:allArticles id=<span class="java&#45;quote">"$&#123;blogId&#125;"</span> /&#62;</pre></div><p class="paragraph"/>The cache key is formed by the 'id' tag. This tag can be reused across different views without changing the caching semantics. That is, the controller/action that the cacheable tag is called from <strong class="bold">does not</strong> affect the cache key.<p class="paragraph"/><h3>Tags with a body</h3><p class="paragraph"/>When caching a tag with a body, if there is a cache hit the body will not be executed. Therefore it doesn't make sense to cache a tag that is invoked with a different body unless you are ensuring the right cacheability through the tag parameters (i.e. cache keys).
+    </body>
+</html>
