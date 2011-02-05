@@ -73,9 +73,7 @@ class FilterContext {
 	}
 
 	private <T> T findAnnotation(Class<T> annotationType) {
-		cacheParameters.with {
-			action?.getAnnotation(annotationType) ?: controllerClass?.getAnnotation(annotationType)
-		}
+		cacheParameters.action?.getAnnotation(annotationType) ?: cacheParameters.controllerClass?.getAnnotation(annotationType)
 	}
 
 	private <T> T getBean(String cacheResolverBeanName) {
