@@ -24,9 +24,12 @@ class Timer {
 	private final uri
 	private final stopWatch = new StopWatch()
 
-	void start(String uri) {
+	Timer(String uri) {
+		this.uri = uri
+	}
+	
+	void start() {
 		if (log.isInfoEnabled()) {
-			this.uri = uri
 			stopWatch.start()
 		}
 	}
