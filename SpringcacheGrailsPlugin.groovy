@@ -137,9 +137,11 @@ class SpringcacheGrailsPlugin {
 
 	def onChange = { event ->
 		if (application.isTagLibClass(event.source)) {
-			new CachingTagLibDecorator(event.ctx.springcacheService).decorate(
-                                application.getTagLibClass(event.source.name),
-                                event.ctx."${event.source.name}")
+			def tagLibClass = application.getTagLibClass(event.source.name)
+			def instance = event.ctx."${event.source.name}"
+			def decorator = new CachingTagLibDecorator(event.ctx.springcacheService)
+			
+			decorator.decorate(tagLibClass, instance)
 		}
 	}
 
