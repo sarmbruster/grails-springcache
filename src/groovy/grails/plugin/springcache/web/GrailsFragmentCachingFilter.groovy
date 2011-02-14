@@ -75,8 +75,8 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 * than having the cache wired into the filter.
 	 */
 	@Override protected PageInfo buildPageInfo(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-		def timer = new Timer()
-		timer.start(getCachedUri(request))
+		def timer = new Timer(getCachedUri(request))
+		timer.start()
 		boolean isCached = true
 
 		def cache = springcacheService.getOrCreateBlockingCache(context.cacheName)
