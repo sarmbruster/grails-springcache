@@ -169,16 +169,14 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	 * request and not an include. 2 - send a status code 304 if appropriate.
 	 */
 	@Override protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo) {
-		if (WebUtils.isIncludeRequest(request)) {
-			super.writeResponse response, pageInfo
-		} else {
+		if (!WebUtils.isIncludeRequest(request)) {
 			int statusCode = determineResponseStatus(request, response, pageInfo)
 			response.status = statusCode
 			setContentType(response, pageInfo)
 			setCookies(pageInfo, response)
 			setHeaders(pageInfo, acceptsGzipEncoding(request), response)
-			writeContent(request, response, pageInfo)
 		}
+		writeResponse response, pageInfo
 	}
 
 	@Override protected CacheManager getCacheManager() {
