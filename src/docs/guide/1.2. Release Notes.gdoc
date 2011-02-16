@@ -1,3 +1,9 @@
+h4. 1.3.1
+
+ * Fixes compilation problem on recent Groovy versions "GRAILSPLUGINS-2820":http://jira.codehaus.org/browse/GRAILSPLUGINS-2820
+ * Fixes bug where fragments are not rendered on an initial uncached request "GRAILSPLUGINS-2769":http://jira.codehaus.org/browse/GRAILSPLUGINS-2769
+ * Fixes NullPointerException caused by category method "GRAILSPLUGINS-2740":http://jira.codehaus.org/browse/GRAILSPLUGINS-2740
+
 h4. 1.3
 
  * Fixes bug where layout is not applied to cached content when applied by convention rather than explicitly declared in meta tag "GRAILSPLUGINS-2541":http://jira.codehaus.org/browse/GRAILSPLUGINS-2541
