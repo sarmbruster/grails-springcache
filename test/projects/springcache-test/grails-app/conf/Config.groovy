@@ -78,10 +78,7 @@ log4j = {
 
 	warn	'org.mortbay.log'
 
-	info	'net.sf.ehcache.constructs.web.filter',
-			'grails.plugin.springcache.web.Timer'
-
-	debug   'grails.plugin.springcache.web'
+	info	'net.sf.ehcache.constructs.web.filter'
 
 }
 //log4j.logger.org.springframework.security='off,stdout'
