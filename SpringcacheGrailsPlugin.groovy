@@ -26,7 +26,7 @@ import org.springframework.cache.ehcache.*
 
 class SpringcacheGrailsPlugin {
 
-	def version = "1.3.1-SNAPSHOT"
+	def version = "1.3.1"
 	def grailsVersion = "1.2.0 > *"
 	def dependsOn = [:]
 	def pluginExcludes = [
