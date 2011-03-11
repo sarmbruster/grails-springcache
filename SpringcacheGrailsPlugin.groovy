@@ -26,7 +26,7 @@ import org.springframework.cache.ehcache.*
 
 class SpringcacheGrailsPlugin {
 
-	def version = "1.3.1"
+	def version = "1.3-SNAPSHOT"
 	def grailsVersion = "1.2.0 > *"
 	def dependsOn = [:]
 	def pluginExcludes = [
@@ -137,7 +137,9 @@ class SpringcacheGrailsPlugin {
 
 	def onChange = { event ->
 		if (application.isTagLibClass(event.source)) {
-			new CachingTagLibDecorator(event.ctx.springcacheService).decorate(event.ctx."$event.source.fullName")
+			new CachingTagLibDecorator(event.ctx.springcacheService).decorate(
+                                application.getTagLibClass(event.source.name),
+                                event.ctx."${event.source.name}")
 		}
 	}
 
