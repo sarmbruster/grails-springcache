@@ -14,9 +14,24 @@ grails.project.dependency.resolution = {
 	}
 	dependencies {
 		test "org.seleniumhq.selenium:selenium-firefox-driver:latest.integration"
-		test("org.codehaus.groovy.modules.http-builder:http-builder:0.5.0") {
+		test("org.codehaus.groovy.modules.http-builder:http-builder:0.5.1") {
 			excludes "groovy", "xml-apis", "commons-logging"
 		}
+		test "org.codehaus.geb:geb-spock:0.6.0"
+	}
+	plugins {
+		compile ":bean-fields:0.5"
+		test ":build-test-data:1.1.1"
+		compile ":cache-headers:1.1.5"
+		test ":geb:0.6.0"
+		compile ":hibernate:$grailsVersion"
+		compile ":rateable:0.6.2"
+		compile ":shiro:1.1.1"
+		test ":spock:0.6-groovy-1.7-SNAPSHOT"
+		build ":tomcat:$grailsVersion"
+		compile ":yui:2.7.0.1"
+		compile ":resources:1.0.2"
+		runtime ":jquery:1.6.1.1"
 	}
 }
 grails.plugin.location.springcache = "../../.."
