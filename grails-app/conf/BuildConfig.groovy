@@ -23,6 +23,9 @@ grails.project.dependency.resolution = {
 		}
 	}
 	plugins {
+		build(":release:1.0.0.RC3") {
+			export = false
+		}
 		test ":spock:0.5-groovy-1.7"
 	}
 }
