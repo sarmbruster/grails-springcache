@@ -114,6 +114,10 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 				log.debug "Serving cached content for $key"
 				pageInfo = element.objectValue
 
+				pageInfo.requestAttributes.each {
+					request.setAttribute(it.key, it.value)
+				}
+
 				// As the page is cached, we need to add an instance of the associated
 				// controller to the request. This is required by GrailsLayoutDecoratorMapper
 				// to pick the appropriate layout.
@@ -140,6 +144,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		// Invoke the next entity in the chain
 		def outstr = new ByteArrayOutputStream()
 		def wrapper = new GenericResponseWrapper(response, outstr)
+		def cacheableRequestAttributes = [:]
 
 		// TODO: split the special include handling out into a separate method
 		def originalResponse = null
@@ -149,7 +154,15 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 			WrappedResponseHolder.wrappedResponse = wrapper
 		}
 		try {
+			def attributesBefore = request.attributeNames.toList()
 			chain.doFilter(request, wrapper)
+			def attributesAfter = request.attributeNames.toList() - attributesBefore
+			attributesAfter.each {
+				def value = request[it]
+				if (value instanceof Serializable) {
+					cacheableRequestAttributes[it] = value
+				}
+			}
 		} finally {
 			if (isInclude) {
 				WrappedResponseHolder.wrappedResponse = originalResponse
@@ -160,8 +173,7 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 		long timeToLiveSeconds = cacheManager.getEhcache(context.cacheName).cacheConfiguration.timeToLiveSeconds
 
 		def contentType = wrapper.contentType ?: response.contentType
-		return new PageInfo(wrapper.status, contentType, wrapper.headers, wrapper.cookies,
-				outstr.toByteArray(), false, timeToLiveSeconds)
+		return new GrailsPageInfo(wrapper.status, contentType, wrapper.cookies, outstr.toByteArray(), false, timeToLiveSeconds, wrapper.allHeaders, cacheableRequestAttributes)
 	}
 
 	/**

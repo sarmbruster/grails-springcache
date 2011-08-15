@@ -8,4 +8,4 @@
 		<g:layoutBody/>
 		<r:layoutResources/>
 	</body>
-</html>
+</html>	

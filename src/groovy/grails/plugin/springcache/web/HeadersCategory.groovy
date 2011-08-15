@@ -28,7 +28,9 @@ class HeadersCategory {
 
 	long getDateHeader(String headerName) {
 		def header = getHeader(headerName)
-		if (header) {
+		if (header?.isLong()) {
+			header.toLong()
+		} else if (header) {
 			httpDateFormatter.parseDateFromHttpDate(header).time
 		} else {
 			-1
