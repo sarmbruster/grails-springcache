@@ -100,6 +100,7 @@ springcache {
 		configuredCache {
 			timeToLive = 86400
 		}
+		resourcesControllerCache
 	}
 }
 
