@@ -1,6 +1,6 @@
 package grails.plugin.springcache.web
 
-import grails.plugin.geb.GebSpec
+import geb.spock.GebSpec
 import grails.plugin.springcache.SpringcacheService
 import musicstore.pages.AlbumListPage
 import net.sf.ehcache.Ehcache

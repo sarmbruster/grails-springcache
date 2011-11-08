@@ -26,7 +26,7 @@ import org.springframework.cache.ehcache.*
 
 class SpringcacheGrailsPlugin {
 
-	def version = "1.3.1"
+	def version = "1.3.2-SNAPSHOT"
 	def grailsVersion = "1.2.0 > *"
 	def dependsOn = [:]
 	def pluginExcludes = [
@@ -79,6 +79,7 @@ class SpringcacheGrailsPlugin {
 	def doWithSpring = {
 		if (!isEnabled(application)) {
 			log.warn "Springcache plugin is disabled"
+             springcacheFilter(NoOpFilter)
 		} else {
 			if (application.config.grails.spring.disable.aspectj.autoweaving) {
 				log.warn "Service method caching is not compatible with the config setting 'grails.spring.disable.aspectj.autoweaving = false'"
@@ -137,7 +138,11 @@ class SpringcacheGrailsPlugin {
 
 	def onChange = { event ->
 		if (application.isTagLibClass(event.source)) {
-			new CachingTagLibDecorator(event.ctx.springcacheService).decorate(event.ctx."$event.source.fullName")
+			def tagLibClass = application.getTagLibClass(event.source.name)
+			def instance = event.ctx."${event.source.name}"
+			def decorator = new CachingTagLibDecorator(event.ctx.springcacheService)
+			
+			decorator.decorate(tagLibClass, instance)
 		}
 	}
 

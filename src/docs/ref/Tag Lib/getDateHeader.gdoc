@@ -1,0 +1,21 @@
+
+h1. getDateHeader
+
+h2. Purpose
+
+
+
+h2. Examples
+
+{code:java}
+foo.getDateHeader(string)
+{code}
+
+h2. Description
+
+
+
+Arguments:
+
+[* @string@
+]

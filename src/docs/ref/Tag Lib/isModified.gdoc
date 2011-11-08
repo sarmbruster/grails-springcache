@@ -1,0 +1,21 @@
+
+h1. isModified
+
+h2. Purpose
+
+
+
+h2. Examples
+
+{code:java}
+foo.isModified(httpServletRequest)
+{code}
+
+h2. Description
+
+
+
+Arguments:
+
+[* @httpServletRequest@
+]
