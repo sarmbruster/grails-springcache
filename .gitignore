@@ -12,3 +12,4 @@ plugin.xml
 .DS_Store
 .idea/
 *.iml
+CodeNarcReport.html

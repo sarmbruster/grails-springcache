@@ -3,7 +3,9 @@ grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
 grails.project.dependency.resolution = {
-	inherits("global")
+	inherits("global") {
+		excludes "xml-apis"
+	}
 	log "warn"
 	repositories {
 		grailsHome()
@@ -23,5 +25,8 @@ grails.project.dependency.resolution = {
 		}
 	}
 	plugins {
+		test(":spock:0.5-groovy-1.7") {
+			export = false
+		}
 	}
 }
