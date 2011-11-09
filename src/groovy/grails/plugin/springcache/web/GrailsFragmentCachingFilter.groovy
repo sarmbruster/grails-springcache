@@ -35,7 +35,12 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	SpringcacheService springcacheService
 	CacheManager cacheManager
 
-	private final ThreadLocal<FilterContext> contextHolder = new ThreadLocal<FilterContext>()
+	private final ThreadLocal<Stack<FilterContext>> contextHolder = new ThreadLocal<Stack<FilterContext>>() {
+		@Override
+		protected Stack<FilterContext> initialValue() {
+			new Stack<FilterContext>()
+		}
+	}
 	static final String X_SPRINGCACHE_CACHED = "X-Springcache-Cached"
 
 	/**
@@ -249,15 +254,20 @@ class GrailsFragmentCachingFilter extends PageFragmentCachingFilter {
 	}
 
 	private void initContext() {
-		contextHolder.set(new FilterContext())
+		contextStack.push(new FilterContext())
 	}
 
 	private FilterContext getContext() {
-		contextHolder.get()
+		contextStack.peek()
 	}
 
 	private void destroyContext() {
-		contextHolder.remove()
+		contextStack.pop()
+		if (contextStack.empty()) contextHolder.remove()
+	}
+
+	private Stack<FilterContext> getContextStack() {
+		contextHolder.get()
 	}
 
 }
