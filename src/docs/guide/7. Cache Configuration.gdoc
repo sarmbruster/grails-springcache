@@ -53,3 +53,21 @@ springcache {
 Under the hood this is simply setting up @EhCacheFactoryBean@ instances in the Spring context, so it is up to you whether you prefer to use @resources.groovy@ or @Config.groovy@ there is not much difference.
 
 The properties shown are just examples, see the "EhCacheFactoryBean":http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/cache/ehcache/EhCacheFactoryBean.html documentation for full details of all the properties you can set.
+
+
+h3. exposing ehcache to JMX
+
+Ehcache is already prepared to expose itself to JMX. To enable this use the following snippet in @grails-app/conf/Config.groovy@:
+
+{code}
+springcache {
+    jmx {
+        cacheManager = true
+        cache = true
+        cacheConfiguration = true
+        cacheStatistics = true
+    }
+}
+{code}
+
+For details, see [Ehcache's JMX manual|http://ehcache.org/documentation/operations/jmx].

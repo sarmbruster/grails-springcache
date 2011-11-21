@@ -7,7 +7,6 @@
 ## General
 
 * convert annotation classes to Groovy so they can use null defaults
-* expose caching statistics (JMX?)
 * support reloading via onChange and onConfigChange [GRAILSPLUGINS-1825][1825]
 
 ## Controller caching

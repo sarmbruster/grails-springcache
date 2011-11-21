@@ -23,6 +23,8 @@ import org.springframework.web.filter.DelegatingFilterProxy
 import grails.plugin.springcache.aop.*
 import grails.plugin.springcache.web.*
 import org.springframework.cache.ehcache.*
+import java.lang.management.ManagementFactory
+import net.sf.ehcache.management.ManagementService
 
 class SpringcacheGrailsPlugin {
 
@@ -134,6 +136,18 @@ class SpringcacheGrailsPlugin {
 		for (tagLibClass in application.tagLibClasses) {
 			decorator.decorate(tagLibClass, applicationContext."${tagLibClass.fullName}")
 		}
+
+        def jmxConfig = application.config.springcache.jmx
+        if (jmxConfig) {
+            def springcacheCacheManager = applicationContext.getBean("springcacheCacheManager")
+            ManagementService.registerMBeans(springcacheCacheManager, ManagementFactory.platformMBeanServer,
+                    jmxConfig.cacheManager,
+                    jmxConfig.cache,
+                    jmxConfig.cacheConfiguration,
+                    jmxConfig.cacheStatistics
+            )
+        }
+        
 	}
 
 	def onChange = { event ->
